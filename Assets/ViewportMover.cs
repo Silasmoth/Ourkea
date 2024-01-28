@@ -1,0 +1,35 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ViewportMover : MonoBehaviour
+{
+    float mouseX, mouseY; //will hold mouse position for rotating viewport
+    public float sceneXRot, sceneYRot; //holds camera rotation around the scene
+    float oldXRot, oldYRot; //stores the previous rotation values
+    public GameObject cameraTarget;
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(Input.GetButtonDown("Fire2"))
+        {
+            mouseX = Input.mousePosition.x;
+            mouseY = Input.mousePosition.y;
+            oldXRot = sceneXRot;
+            oldYRot = sceneYRot;
+        }
+        if (Input.GetButton("Fire2"))
+        { 
+        sceneXRot = Input.mousePosition.x - mouseX + oldXRot;
+        sceneYRot = Mathf.Clamp( Input.mousePosition.y - mouseY + oldYRot,-300,50);
+        }
+
+        cameraTarget.transform.rotation = Quaternion.EulerAngles(-sceneYRot/360, sceneXRot/360, 0);
+    }
+}
