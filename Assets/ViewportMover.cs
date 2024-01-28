@@ -8,6 +8,8 @@ public class ViewportMover : MonoBehaviour
     public float sceneXRot, sceneYRot; //holds camera rotation around the scene
     float oldXRot, oldYRot; //stores the previous rotation values
     public GameObject cameraTarget;
+    public float zoomlevel;
+    float zoomscale = 0.1f;
     // Start is called before the first frame update
     void Start()
     {
@@ -31,5 +33,10 @@ public class ViewportMover : MonoBehaviour
         }
 
         cameraTarget.transform.rotation = Quaternion.EulerAngles(-sceneYRot/360, sceneXRot/360, 0);
+
+        zoomlevel -= Input.mouseScrollDelta.y * zoomscale;
+        zoomlevel = Mathf.Clamp(zoomlevel, 1, 10);
+
+        Camera.main.transform.localPosition = new Vector3(0, 1, -zoomlevel);
     }
 }

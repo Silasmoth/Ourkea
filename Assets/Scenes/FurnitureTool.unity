@@ -268,9 +268,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 390eae46cfeec0140a990df0321cf729, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneXRot: 0
+  sceneXRot: 560
   sceneYRot: 0
   cameraTarget: {fileID: 1382407021}
+  zoomlevel: 5
 --- !u!4 &559569284
 Transform:
   m_ObjectHideFlags: 0
