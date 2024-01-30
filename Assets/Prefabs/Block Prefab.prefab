@@ -692,7 +692,7 @@ GameObject:
   - component: {fileID: 7585870127680346075}
   - component: {fileID: 4260043697424960608}
   - component: {fileID: 5355273815249079095}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -730,7 +730,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8761974452713434185}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -804,7 +804,7 @@ GameObject:
   - component: {fileID: 8785762214970820324}
   - component: {fileID: 8785762214970820325}
   - component: {fileID: 8785762214970820326}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -842,7 +842,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762214970820327}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -916,7 +916,7 @@ GameObject:
   - component: {fileID: 8785762215057381086}
   - component: {fileID: 8785762215057381087}
   - component: {fileID: 8785762215057381072}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -954,7 +954,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762215057381073}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1073,7 +1073,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762215223409880}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1158,7 +1158,7 @@ GameObject:
   - component: {fileID: 8785762216509250886}
   - component: {fileID: 8785762216509250887}
   - component: {fileID: 8785762216509250904}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1196,7 +1196,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762216509250905}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1270,7 +1270,7 @@ GameObject:
   - component: {fileID: 8785762216727197129}
   - component: {fileID: 8785762216727197130}
   - component: {fileID: 8785762216727197131}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1308,7 +1308,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762216727197132}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1382,7 +1382,7 @@ GameObject:
   - component: {fileID: 8785762216740990093}
   - component: {fileID: 8785762216740990094}
   - component: {fileID: 8785762216740990095}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1420,7 +1420,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762216740990080}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1494,7 +1494,7 @@ GameObject:
   - component: {fileID: 8785762216802181039}
   - component: {fileID: 8785762216802181024}
   - component: {fileID: 8785762216802181025}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block Prefab (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1532,7 +1532,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785762216802181026}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
