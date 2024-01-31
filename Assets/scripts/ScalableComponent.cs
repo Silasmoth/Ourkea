@@ -7,7 +7,7 @@ public class ScalableComponent : MonoBehaviour
     public bool startChange = false; //set to true to define the origin when a change is made from which to update all other blocks around
     public bool wasChanged = false; //has this object been given a new scale and or is in the correct position
 
-    public GameObject T, TR, R, BR, B, BL, L, TL;   //these are the mesh components of the 9 tile object
+    public GameObject T, TR, R, BR, B, BL, L, TL;   //these are the mesh components of the sides of the furniture module
 
 
     public GameObject[] snappingPoints; //these are the snapping points that this module has
@@ -16,45 +16,51 @@ public class ScalableComponent : MonoBehaviour
 
     public float blockWidth = 1.0f; //the width of this module
     public float blockHeight = 1.0f;   //the height of this module
-    public float blockDepth = 0.4f; //the depth of this module, for now set as 0.4
+    public float blockDepth = 0.4f; //the depth of this module, for now set as 0.4 (should probably also be variable but I'll have to split up the modules even more)
     public float startingwidth = 3 / 4; //the size of each 9 tile component at scale of 1
 
 
     public GameObject componentVolume; //the object with the collider for this module
-    public List<ScalableComponent> myConnectionsSides; //connected modules that are linked in height (attatched left or right)
-    public List<ScalableComponent> myConnectionsTopBot; //connected modules that are linked in width (attatched below or above)
+   
     public void recalculateDimentions()
     {
+        //updates this modules mesh components positions and scales
+        //first do positions for flat sides (top,bottom,left,right)
         T.transform.localPosition = new Vector3(0, blockHeight / 2,0);
         B.transform.localPosition = new Vector3(0,- blockHeight / 2, 0);
         R.transform.localPosition = new Vector3(0, 0, -blockWidth/2);
         L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
-        T.transform.localScale = new Vector3(1, (blockWidth-2*startingwidth)/startingwidth, 1);
-        B.transform.localScale = new Vector3(1, (blockWidth - 2 * startingwidth) / startingwidth, 1);
-        R.transform.localScale = new Vector3(1, 1,(blockHeight - 2 * startingwidth) / startingwidth);
-        L.transform.localScale = new Vector3(1,1, (blockHeight - 2 * startingwidth) / startingwidth);
+        //then stetch the sides to be the right lengths
+        T.transform.localScale = new Vector3(1, 1,(blockWidth-2*startingwidth)/startingwidth);
+        B.transform.localScale = new Vector3(1, 1,(blockWidth - 2 * startingwidth) / startingwidth);
+        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth,1);
+        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth,1);
 
-
+        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
         TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);
         BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
         TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);
         BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
 
-        componentVolume.transform.localScale = new Vector3(blockDepth -0.01f, blockWidth-0.01f, blockHeight-0.01f);
+        //update the volume that fills this module
+        componentVolume.transform.localScale = new Vector3(blockDepth -0.01f, blockHeight-0.01f, blockWidth-0.01f);
 
-        CheckChangeSclae();
+        
+        CheckChangeSclae(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
         if (wasChanged)
         {
+            //position has been changed or the origin module for a scale change
            
-                for (int i = 0; i < ConnectedModules.Length; i++)
+                for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
                 {
-                    if (ConnectedModules[i] != null)
+                    if (ConnectedModules[i] != null)//this side has a connected module
                     {
-                        if (ConnectedModules[i].wasChanged == false)
+                        if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
                         {
                         ConnectedModules[i].wasChanged = true;
-                        ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);
-                        ConnectedModules[i].recalculateDimentions();
+                        ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                        ConnectedModules[i].recalculateDimentions();//needs to be called to propegte the position update to further connected modules
                         }
                         
                     }
@@ -72,15 +78,17 @@ public class ScalableComponent : MonoBehaviour
         {
             oldBlockWidth = blockWidth;
             //block width has been updated, update top/bottom connected objects
-            if (myConnectionsTopBot != null && myConnectionsTopBot.Count != 0)  //check to see if we are connected to any modules above or bellow
+            if (ConnectedModules[0] != null)
             {
-                foreach (var item in myConnectionsTopBot)
-                {
-                    item.blockWidth = blockWidth;
-                    item.recalculateDimentions();
-                }
-
+                ConnectedModules[0].blockWidth = blockWidth;
+                ConnectedModules[0].recalculateDimentions();
             }
+            if (ConnectedModules[1] != null)
+            {
+                ConnectedModules[1].blockWidth = blockWidth;
+                ConnectedModules[1].recalculateDimentions();
+            }
+
             changed = true;
         }
 
@@ -88,14 +96,15 @@ public class ScalableComponent : MonoBehaviour
         {
             oldBlockHeight = blockHeight;
             //block height has been updated, update side connections connected objects
-            if (myConnectionsSides != null && myConnectionsSides.Count != 0)  //check to see if we are connected to any modules above or bellow
+            if (ConnectedModules[2] != null)
             {
-                foreach (var item in myConnectionsSides)
-                {
-                    item.blockHeight = blockHeight;
-                    item.recalculateDimentions();
-                }
-
+                ConnectedModules[2].blockHeight = blockHeight;
+                ConnectedModules[2].recalculateDimentions();
+            }
+            if (ConnectedModules[3] != null)
+            {
+                ConnectedModules[3].blockHeight = blockHeight;
+                ConnectedModules[3].recalculateDimentions();
             }
             changed = true;
         }
@@ -104,13 +113,15 @@ public class ScalableComponent : MonoBehaviour
     }
     public void SetPosition(Vector3 snapPos, int snapIndex)
     {
-        transform.position = snapPos - snappingPoints[snapIndex].transform.localPosition;
+        transform.position = snapPos;// - snappingPoints[snapIndex].transform.localPosition;
+        transform.Translate(-snappingPoints[snapIndex].transform.localPosition);
         
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        //make sure the connections array is initialised, normally it gets initialised when the block is placed by the blockplacer, but in case it already existed in the scene
         if(ConnectedModules.Length < snappingPoints.Length)
         {
             ConnectedModules = new ScalableComponent[snappingPoints.Length];

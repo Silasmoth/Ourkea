@@ -46,33 +46,150 @@ public class BlockPlacer : MonoBehaviour
                 if (HitBlockSnap != null)
                 {
                     //mouse over snaping point of furniture
-                    GameObject PlacedBlock = Instantiate(blockPrefab, hit.collider.gameObject.GetComponent<BlockSnap>().snapPos.position, Quaternion.identity);//create the new block
-                    var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a reference to the scalable component on the newly created block
+                    GameObject PlacedBlock = Instantiate(blockPrefab, HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
+                    var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                     PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
 
-                    HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index
-                    PlacedBlockComponent.ConnectedModules[HitBlockSnap.targetsnapIndex] = HitBlockComponent; //sets the reference on the new clock to the clicked bloxk at the correct reference
-                    PlacedBlockComponent.myConnectionsSides = new List<ScalableComponent>(); //initialise list on newly created block
-                    PlacedBlockComponent.myConnectionsTopBot = new List<ScalableComponent>(); //initialise list on newly created block
+                    HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index in its connectedmodules array
+                    PlacedBlockComponent.ConnectedModules[HitBlockSnap.targetsnapIndex] = HitBlockComponent; //sets the reference on the new clock to the clicked bloxk at the correct index in its connectedmodules array
+                    
 
-                    if (HitBlockSnap.SideSnap)
+                    
+
+                    //we should probably also check if the newly placed block is adjacent to any other blocks, in which case they should probably also be connected
+
+                    var leftBlock = HitBlockComponent.ConnectedModules[3];//the block to the left of the block that we are connecting to
+                    var rightBlock = HitBlockComponent.ConnectedModules[2];//the block to the right of the block we are connecting to
+                    var topBlock = HitBlockComponent.ConnectedModules[0];//the block to the top of the block that we are connecting to
+                    var bottomBlock = HitBlockComponent.ConnectedModules[1];//the block to the bottom of the block we are connecting to
+
+                    switch (HitBlockSnap.mySnapIndex)
                     {
-                        HitBlockComponent.myConnectionsSides.Add(PlacedBlockComponent);
-                        PlacedBlockComponent.myConnectionsSides.Add(HitBlockComponent);
-                        PlacedBlockComponent.blockHeight = HitBlockComponent.blockHeight;
-                    }
-                    if (HitBlockSnap.TopBotSnap)
-                    {
-                        HitBlockComponent.myConnectionsTopBot.Add(PlacedBlockComponent);
-                        PlacedBlockComponent.myConnectionsTopBot.Add(HitBlockComponent);
-                        PlacedBlockComponent.blockWidth = HitBlockComponent.blockWidth;
+                        case 0:
+                            //top side
+                            PlacedBlockComponent.blockWidth = HitBlockComponent.blockWidth;
+                            if (leftBlock != null)//there is a block to the lower left
+                            {
+                                leftBlock = leftBlock.ConnectedModules[0];//left block is not the block that is directly left of the newly placed block
+                               
+                                if(leftBlock!= null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[3] = leftBlock;//null if there is no block to the left
+                                    leftBlock.ConnectedModules[2] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockHeight = leftBlock.blockHeight;
+                                }
+                                   
+                            }
+                            //now do the same thing for the right side
+                            if(rightBlock != null)
+                            {
+                                rightBlock = rightBlock.ConnectedModules[0];
+                                
+                                if(rightBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[2] = rightBlock;
+                                    rightBlock.ConnectedModules[3] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockHeight = rightBlock.blockHeight;
+
+                                }
+                                    
+                            }
+                            break;
+
+                        case 1:
+                            //bottom side
+                            PlacedBlockComponent.blockWidth = HitBlockComponent.blockWidth;
+                            if (leftBlock != null)//there is a block to the upper left
+                            {
+                                leftBlock = leftBlock.ConnectedModules[1];//left block is not the block that is directly left of the newly placed block
+                                if (leftBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[3] = leftBlock;//null if there is no block to the left
+                                    leftBlock.ConnectedModules[2] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockHeight = leftBlock.blockHeight;
+                                }
+                            }
+                            //now do the same thing for the right side
+                            if (rightBlock != null)
+                            {
+                                rightBlock = rightBlock.ConnectedModules[1];
+                                if (rightBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[2] = rightBlock;
+                                    rightBlock.ConnectedModules[3] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockHeight = rightBlock.blockHeight;
+
+                                }
+                            }
+                            break;
+
+                        case 2:
+                            //right side
+                            PlacedBlockComponent.blockHeight = HitBlockComponent.blockHeight;
+                            //start with above
+                            if (topBlock != null)//there is a block to the upper right of the newly placed block
+                            {
+                                topBlock = topBlock.ConnectedModules[2];
+                                
+                                if(topBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[0] = topBlock;
+                                    topBlock.ConnectedModules[1] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockWidth = topBlock.blockWidth;
+                                }
+                                   
+                            }
+                            //now do bottom
+                            if (bottomBlock != null)//there is a block to the lower right of the newly placed block
+                            {
+                                bottomBlock = bottomBlock.ConnectedModules[2];
+                                
+                                if (bottomBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[1] = bottomBlock;
+                                    bottomBlock.ConnectedModules[0] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockWidth = bottomBlock.blockWidth;
+                                }
+                                   
+                            }
+                            break;
+
+                        case 3:
+                            //left side
+                            PlacedBlockComponent.blockHeight = HitBlockComponent.blockHeight;
+                            //start with above
+                            if (topBlock != null)//there is a block to the upper left of the newly placed block
+                            {
+                                topBlock = topBlock.ConnectedModules[3];
+                                if (topBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[0] = topBlock;
+                                    topBlock.ConnectedModules[1] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockWidth = topBlock.blockWidth;
+                                }
+                            }
+                            //now do bottom
+                            if (bottomBlock != null)//there is a block to the lower left of the newly placed block
+                            {
+                                bottomBlock = bottomBlock.ConnectedModules[3];
+                                if (bottomBlock != null)
+                                {
+                                    PlacedBlockComponent.ConnectedModules[1] = bottomBlock;
+                                    bottomBlock.ConnectedModules[0] = PlacedBlockComponent;
+                                    PlacedBlockComponent.blockWidth = bottomBlock.blockWidth;
+                                }
+                            }
+                            break;
+
                     }
 
                     PlacedBlockComponent.recalculateDimentions();
+                    //recalculate the dimentions for the newly placed block
                     PlacedBlockComponent.SetPosition(HitBlockSnap.snapPos.position, HitBlockSnap.targetsnapIndex);
-                   
+                    //set the position of the newly created block
+
                 }
-                
+
             }
         }
 
