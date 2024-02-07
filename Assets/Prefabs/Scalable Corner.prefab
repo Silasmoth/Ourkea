@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3695812728766954549}
   - component: {fileID: 8787486879617598241}
   - component: {fileID: 6179809783716912359}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner TR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 1955323596488926540}
   - component: {fileID: 6299971581503917560}
   - component: {fileID: 6299971581503917559}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner BM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -212,7 +212,7 @@ GameObject:
   - component: {fileID: 6090782678918816300}
   - component: {fileID: 8041641197935382650}
   - component: {fileID: 8041641197935382649}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner TM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 8454331256515680303}
   - component: {fileID: 8497929566500146916}
   - component: {fileID: 2327626962952056599}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner TMR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -409,7 +409,7 @@ GameObject:
   - component: {fileID: 5838050553951973952}
   - component: {fileID: 1342219163919356680}
   - component: {fileID: 7300062487463575981}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner TML
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -494,7 +494,7 @@ GameObject:
   - component: {fileID: 7539607129429665318}
   - component: {fileID: 9094535357666078564}
   - component: {fileID: 9094535357666078563}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -638,6 +638,7 @@ Transform:
   - {fileID: 8454331256515680303}
   - {fileID: 3695812728766954549}
   - {fileID: 6793804725968206286}
+  - {fileID: 9061660084417292580}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -678,12 +679,110 @@ MonoBehaviour:
   ConnectedModules: []
   oldBlockWidth: 0
   oldBlockHeight: 0
+  oldBlockWidthB: 0
   blockWidth: 1
   blockWidthB: 1
   blockHeight: 1
   blockDepth: 0.4
   startingwidth: 0.1333333
-  componentVolume: {fileID: 0}
+  componentVolume: {fileID: 4907828953643206404}
+--- !u!1 &4907828953643206404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9061660084417292580}
+  - component: {fileID: 2584216015145887326}
+  - component: {fileID: 6038402374244940771}
+  - component: {fileID: 3130131589257323198}
+  m_Layer: 6
+  m_Name: ComponentVolume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9061660084417292580
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907828953643206404}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.028390884, y: 0.27153307, z: -0.30328178}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5460038167282533180}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &2584216015145887326
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907828953643206404}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &6038402374244940771
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907828953643206404}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3130131589257323198
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907828953643206404}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6235534254339862674
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,7 +794,7 @@ GameObject:
   - component: {fileID: 4702691647015779155}
   - component: {fileID: 3365170568911991721}
   - component: {fileID: 2357041504342559349}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner BML
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -778,7 +877,7 @@ GameObject:
   - component: {fileID: 6793804725968206286}
   - component: {fileID: 5269151341562981558}
   - component: {fileID: 6708576855700171979}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Croner BR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -862,8 +961,8 @@ GameObject:
   - component: {fileID: 6190058017816997593}
   - component: {fileID: 2977245194354036107}
   - component: {fileID: 7286267909658617139}
-  - component: {fileID: 7286267909658617138}
-  m_Layer: 0
+  - component: {fileID: 6735894007955578288}
+  m_Layer: 7
   m_Name: Corner R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -953,7 +1052,7 @@ MonoBehaviour:
   mySnapIndex: 2
   SideSnap: 1
   TopBotSnap: 0
---- !u!65 &7286267909658617138
+--- !u!65 &6735894007955578288
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -964,8 +1063,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.017995616, y: 0.13333333, z: 0.4}
-  m_Center: {x: 0.008997799, y: -0.000000007450581, z: 0}
+  m_Size: {x: 0.40000007, y: 0.13333331, z: 0.0179956}
+  m_Center: {x: 0.000000014901165, y: -0.000000007450581, z: 0.008997681}
 --- !u!1 &7515091194814267481
 GameObject:
   m_ObjectHideFlags: 0
@@ -977,7 +1076,7 @@ GameObject:
   - component: {fileID: 8075731772152799633}
   - component: {fileID: 6110917994208349294}
   - component: {fileID: 9169267472109255600}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner BL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1060,7 +1159,7 @@ GameObject:
   - component: {fileID: 7975577861174068693}
   - component: {fileID: 2175499488833605580}
   - component: {fileID: 8559467595309148805}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner BMR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1143,7 +1242,7 @@ GameObject:
   - component: {fileID: 3575333247436695181}
   - component: {fileID: 6269670288025415237}
   - component: {fileID: 6331499458548454270}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Corner TL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
