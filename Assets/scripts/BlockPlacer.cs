@@ -39,7 +39,7 @@ public class BlockPlacer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        SelectionPannel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -206,7 +206,7 @@ public class BlockPlacer : MonoBehaviour
 
                         PlacedBlockComponent.recalculateDimentions();
                         //recalculate the dimentions for the newly placed block
-                        PlacedBlockComponent.SetPosition(HitBlockSnap.snapPos.position, HitBlockSnap.targetsnapIndex);
+                        PlacedBlockComponent.SetPositionAndRotation(HitBlockSnap.snapPos, HitBlockSnap.targetsnapIndex);
                         //set the position of the newly created block
 
                     }
@@ -251,6 +251,7 @@ public class BlockPlacer : MonoBehaviour
     {
         if (SelectedModule == null)
         {
+            SelectionPannel.SetActive(false);
             return;//there is no module selected so we cant update it
         }
 
@@ -258,5 +259,40 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.blockWidthB = float.Parse(WidthBInput.text);
         SelectedModule.blockHeight = float.Parse(HeightInput.text);
         SelectedModule.startChange = true;
+    }
+
+    public void DeleteSelection()
+    {
+        if (SelectedModule == null)
+        {
+            SelectionPannel.SetActive(false);
+            return;//there is no module selected to delete
+        }
+
+        //clear all references that other blocks have to this block
+        for (int i = 0; i < SelectedModule.ConnectedModules.Length; i++)
+        {
+            if(SelectedModule.ConnectedModules[i] != null)
+            {
+                //we are connected to this module
+                for (int ii = 0; ii < SelectedModule.ConnectedModules[i].ConnectedModules.Length; ii++)
+                {
+                    if(SelectedModule.ConnectedModules[i].ConnectedModules[ii] != null)
+                    {
+                        if (SelectedModule.ConnectedModules[i].ConnectedModules[ii].Equals(SelectedModule))
+                        {
+                            //found the spot where we are connected
+                            SelectedModule.ConnectedModules[i].ConnectedModules[ii] = null;
+                            break;
+                        }
+                    }
+                    
+                }
+
+            }
+        }
+
+        Destroy(SelectedModule.gameObject);
+        SelectionPannel.SetActive(false);
     }
 }

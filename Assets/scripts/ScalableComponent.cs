@@ -141,6 +141,7 @@ public class ScalableComponent : MonoBehaviour
                 {
                     if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
                     {
+
                         ConnectedModules[i].wasChanged = true;
                         ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
                         ConnectedModules[i].recalculateDimentions();//needs to be called to propegte the position update to further connected modules
@@ -162,15 +163,23 @@ public class ScalableComponent : MonoBehaviour
             //block width has been updated, update top/bottom connected objects
             if (ConnectedModules[0] != null)
             {
-                ConnectedModules[0].blockWidth = blockWidth;
-                ConnectedModules[0].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
-                ConnectedModules[0].recalculateDimentions();
+                if(!ConnectedModules[0].wasChanged)//make sure it wasnt the block that started the updating
+                {
+                    ConnectedModules[0].blockWidth = blockWidth;
+                    ConnectedModules[0].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
+                    ConnectedModules[0].recalculateDimentions();
+                }
+                
             }
             if (ConnectedModules[1] != null)
             {
-                ConnectedModules[1].blockWidth = blockWidth;
-                ConnectedModules[1].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
-                ConnectedModules[1].recalculateDimentions();
+                if(!ConnectedModules[1].wasChanged)//make sure it wasnt the block that started the updating
+                {
+                    ConnectedModules[1].blockWidth = blockWidth;
+                    ConnectedModules[1].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
+                    ConnectedModules[1].recalculateDimentions();
+                }
+                
             }
 
             changed = true;
@@ -182,13 +191,21 @@ public class ScalableComponent : MonoBehaviour
             //block height has been updated, update side connections connected objects
             if (ConnectedModules[2] != null)
             {
-                ConnectedModules[2].blockHeight = blockHeight;
-                ConnectedModules[2].recalculateDimentions();
+                if(!ConnectedModules[2].wasChanged)//make sure it wasnt the block that started the updating
+                {
+                    ConnectedModules[2].blockHeight = blockHeight;
+                    ConnectedModules[2].recalculateDimentions();
+                }
+                
             }
             if (ConnectedModules[3] != null)
             {
-                ConnectedModules[3].blockHeight = blockHeight;
-                ConnectedModules[3].recalculateDimentions();
+                if(!ConnectedModules[3].wasChanged)//make sure it wasnt the block that started the updating
+                {
+                    ConnectedModules[3].blockHeight = blockHeight;
+                    ConnectedModules[3].recalculateDimentions();
+                }
+                
             }
             changed = true;
         }
@@ -200,6 +217,15 @@ public class ScalableComponent : MonoBehaviour
         transform.position = snapPos;// - snappingPoints[snapIndex].transform.localPosition;
         transform.Translate(-snappingPoints[snapIndex].transform.localPosition);
         
+    }
+
+    public void SetPositionAndRotation(Transform snappos, int snapIndex)
+    {
+        transform.rotation = snappos.rotation * Quaternion.Inverse( snappingPoints[snapIndex].transform.localRotation);
+        transform.position = snappos.position;// - snappingPoints[snapIndex].transform.localPosition;
+        transform.Translate(-snappingPoints[snapIndex].transform.localPosition);
+
+
     }
 
     // Start is called before the first frame update
