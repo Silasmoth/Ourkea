@@ -1030,6 +1030,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef59f63f3d7904ca2ec6fda5725ece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  starterBlock: {fileID: 2040642473}
   SelecionLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -1047,7 +1048,7 @@ MonoBehaviour:
   - {fileID: 4651694378702805382, guid: 489c401122b71f14da02c650b812fd2d, type: 3}
   camera: {fileID: 961739752}
   DisplayMode: 1
-  placedBlocks: []
+  AllBlocks: []
 --- !u!1 &580689857
 GameObject:
   m_ObjectHideFlags: 0
@@ -3260,6 +3261,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2002715520}
   m_CullTransparentMesh: 1
+--- !u!114 &2040642473 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1926292997917751586, guid: c8d86e6d606742245b29c7fca188781d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1926292998659519026}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c3f32237914aaa48afa578911174221, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2050793469
 GameObject:
   m_ObjectHideFlags: 0
@@ -3475,6 +3488,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scalable Corner
+      objectReference: {fileID: 0}
+    - target: {fileID: 4651694378702805382, guid: 489c401122b71f14da02c650b812fd2d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5460038167282533180, guid: 489c401122b71f14da02c650b812fd2d,
         type: 3}

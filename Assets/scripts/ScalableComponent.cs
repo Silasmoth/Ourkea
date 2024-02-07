@@ -102,7 +102,7 @@ public class ScalableComponent : MonoBehaviour
             BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
 
             //update the volume that fills this module - box is not very accurate for corner, need to find a different way
-            componentVolume.transform.localScale = new Vector3(blockWidthB, blockHeight - 0.01f, blockWidth);
+            componentVolume.transform.localScale = new Vector3(blockWidthB -0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
             componentVolume.transform.localPosition = new Vector3(-(blockWidthB/2 - blockDepth / 2), 0, blockWidth/2 - blockDepth / 2);
 
             CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
@@ -257,5 +257,10 @@ public class ScalableComponent : MonoBehaviour
             
         //}
        
+    }
+
+    public float GetBottomY()
+    {
+        return transform.position.y - blockHeight / 2;
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class BlockPlacer : MonoBehaviour
 {
+    public ScalableComponent starterBlock;//reference to the block that already exists in the scene
 
     [SerializeField] private LayerMask SelecionLayer; //the layermask that is used for selecting modules
     [SerializeField] private LayerMask PlacementLayers; //the layermask that is used when placing new modules
@@ -23,23 +24,17 @@ public class BlockPlacer : MonoBehaviour
     //0-working/show snapping points
     //1 - show finished shelf
 
-    public BlockController[] placedBlocks;
+    public List<ScalableComponent> AllBlocks; //a list containing all placed modules
 
-    public void SetBlockDisplay(int _displayType)
-    {
-        for (int i = 0; i < placedBlocks.Length; i++)
-        {
-            if (placedBlocks[i] != null)
-            {
-                placedBlocks[i].SetDisplay(_displayType);
-            }
-        }
-    }
+   
     
     // Start is called before the first frame update
     void Start()
     {
-        SelectionPannel.SetActive(false);
+        SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
+        AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
+        if(starterBlock!=null)//add the starter block to the list if there is one
+            AllBlocks.Add(starterBlock);
     }
 
     // Update is called once per frame
@@ -69,6 +64,7 @@ public class BlockPlacer : MonoBehaviour
                         //mouse over snaping point of furniture
                         GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
                         var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
+                        AllBlocks.Add(PlacedBlockComponent);
                         PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
 
                         HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index in its connectedmodules array
@@ -247,6 +243,31 @@ public class BlockPlacer : MonoBehaviour
         
     }
 
+    public void RepositionFurnitureOnGround()
+    {
+        float currentBottomY = 10000;//will store the lowest current point on the furniture
+        foreach (var item in AllBlocks)
+        {
+            if (item != null)
+            {
+                if (item.GetBottomY() < currentBottomY)
+                {
+                    currentBottomY = item.GetBottomY();
+                }
+            }
+        }
+
+        float RequiredYchange =  - currentBottomY;
+
+        foreach (var item in AllBlocks)
+        {
+            if (item != null)
+            {
+                item.transform.position += new Vector3(0, RequiredYchange, 0);
+            }
+        }
+    }
+
     public void ApplyUpdatesToSelection()
     {
         if (SelectedModule == null)
@@ -259,6 +280,10 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.blockWidthB = float.Parse(WidthBInput.text);
         SelectedModule.blockHeight = float.Parse(HeightInput.text);
         SelectedModule.startChange = true;
+        SelectedModule.wasChanged = true;
+        SelectedModule.recalculateDimentions();
+
+        RepositionFurnitureOnGround();
     }
 
     public void DeleteSelection()
@@ -269,6 +294,7 @@ public class BlockPlacer : MonoBehaviour
             return;//there is no module selected to delete
         }
 
+        AllBlocks.Remove(SelectedModule);
         //clear all references that other blocks have to this block
         for (int i = 0; i < SelectedModule.ConnectedModules.Length; i++)
         {
@@ -294,5 +320,7 @@ public class BlockPlacer : MonoBehaviour
 
         Destroy(SelectedModule.gameObject);
         SelectionPannel.SetActive(false);
+
+        RepositionFurnitureOnGround();
     }
 }
