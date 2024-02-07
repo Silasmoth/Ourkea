@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class BlockPlacer : MonoBehaviour
 {
-    public GameObject blockPrefab;
+    public int placingBlockIndex = 0;
+    public GameObject[] blockPrefab;
     public Camera camera;
     public int DisplayMode;
     //0-working/show snapping points
@@ -46,7 +47,7 @@ public class BlockPlacer : MonoBehaviour
                 if (HitBlockSnap != null)
                 {
                     //mouse over snaping point of furniture
-                    GameObject PlacedBlock = Instantiate(blockPrefab, HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
+                    GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
                     var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                     PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
 
