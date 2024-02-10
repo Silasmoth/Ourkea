@@ -29,7 +29,6 @@ public class ScalableComponent : MonoBehaviour
 
 
     public GameObject componentVolume; //the object with the collider for this module
-   
     public void recalculateDimentions()
     {
         //For basic flat bocks------------------------------------------------------------
@@ -152,7 +151,6 @@ public class ScalableComponent : MonoBehaviour
 
         }
     }
-
     public bool CheckChangeScale() //checks to see if dimention was changed, in which case we should update the scale and positions of adjacent blocks
     {
         bool changed = false;
@@ -218,7 +216,6 @@ public class ScalableComponent : MonoBehaviour
         transform.Translate(-snappingPoints[snapIndex].transform.localPosition);
         
     }
-
     public void SetPositionAndRotation(Transform snappos, int snapIndex)
     {
         transform.rotation = snappos.rotation * Quaternion.Inverse( snappingPoints[snapIndex].transform.localRotation);

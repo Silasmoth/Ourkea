@@ -10,23 +10,19 @@ public class ViewportMover : MonoBehaviour
     public GameObject cameraTarget;
     public float zoomlevel;
     float zoomscale = 0.1f;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Fire2"))
+        if(Input.GetButtonDown("Fire2"))//right mouse button was just clicked
         {
             mouseX = Input.mousePosition.x;
             mouseY = Input.mousePosition.y;
             oldXRot = sceneXRot;
             oldYRot = sceneYRot;
         }
-        if (Input.GetButton("Fire2"))
+        if (Input.GetButton("Fire2"))//right mouse button was just released
         { 
         sceneXRot = Input.mousePosition.x - mouseX + oldXRot;
         sceneYRot = Mathf.Clamp( Input.mousePosition.y - mouseY + oldYRot,-300,50);

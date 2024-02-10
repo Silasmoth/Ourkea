@@ -40,6 +40,17 @@ public class BlockPlacer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        //this is just temporary way of switching bewteen block types, it should be something visible
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            placingBlockIndex = 0;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            placingBlockIndex = 1;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             //there was a click
