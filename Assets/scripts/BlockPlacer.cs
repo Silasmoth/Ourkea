@@ -8,63 +8,282 @@ public class BlockPlacer : MonoBehaviour
 {
     public ScalableComponent starterBlock;//reference to the block that already exists in the scene
 
+
     [SerializeField] private LayerMask SelecionLayer; //the layermask that is used for selecting modules
     [SerializeField] private LayerMask PlacementLayers; //the layermask that is used when placing new modules
     //logic for selecting and modifying selected blocks
     public ScalableComponent SelectedModule; //this holds a reference to the currently selected module, null if there are non selected
 
     //references to input fields and UI for modyfiying selection
-    public TMP_InputField HeightInput,WidthInput,WidthBInput;//the input feilds for changing block dimensions
+    public TMP_InputField HeightInput, WidthInput, WidthBInput;//the input feilds for changing block dimensions
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
 
     public int placingBlockIndex = 0;
     public GameObject[] blockPrefab;
+    public GameObject[] previewBlockPrefab;
     public Camera camera;
     public int DisplayMode;
     //0-working/show snapping points
     //1 - show finished shelf
 
+    //Drag and drop
+    public ModuleUI[] DragableModules;
+    public bool Dragingblock = false;
     public List<ScalableComponent> AllBlocks; //a list containing all placed modules
+    public GameObject ModulePreview;//the preview of the module being dragged
+    public GameObject oldModulePreview; //used for gc
 
-   
-    
+
     // Start is called before the first frame update
     void Start()
     {
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
         AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
-        if(starterBlock!=null)//add the starter block to the list if there is one
+        if (starterBlock != null)//add the starter block to the list if there is one
             AllBlocks.Add(starterBlock);
     }
+
 
     // Update is called once per frame
     void Update()
     {
 
         //this is just temporary way of switching bewteen block types, it should be something visible
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            placingBlockIndex = 0;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            placingBlockIndex = 1;
-        }
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
 
         if (Input.GetMouseButtonDown(0))
         {
+            //mouse down
             //there was a click
 
             if (EventSystem.current.IsPointerOverGameObject())
             {
+                //mouse is over UI
+                //check to see if the mouse is over any modules
+                for (int i = 0; i < DragableModules.Length; i++)
+                {
+                    if (DragableModules[i].mouseOverItemDropLocation)
+                    {
+                        placingBlockIndex = DragableModules[i].ModuleType;
+                        Dragingblock = true;
+                        oldModulePreview = ModulePreview;
+                        Destroy(oldModulePreview);
+
+                        ModulePreview = Instantiate(previewBlockPrefab[placingBlockIndex]);
+                        ModulePreview.layer = 2;
+                    }
+                }
+
                 //clicked On the UI
+                //if (EventSystem.current.currentSelectedGameObject.GetComponent<ModuleUI>() != null)
+                //{
+                //    placingBlockIndex = EventSystem.current.currentSelectedGameObject.GetComponent<ModuleUI>().ModuleType;
+                //    Dragingblock = true;
+                //}
             }
             else
             {
-                Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+                Dragingblock = false;
+                RaycastHit hit2;
+                if (Physics.Raycast(ray, out hit2, 1000f, SelecionLayer))
+                {
+                    Debug.Log(hit2.collider.gameObject.name + " with layer " + hit2.collider.gameObject.layer);
+                    //did we hit any component volumes
+                    var hitComponent = hit2.collider.gameObject.GetComponentInParent<ScalableComponent>();
+
+                    if (hitComponent != null)
+                    {
+                        SelectedModule = hitComponent;
+                        SelectionPannel.SetActive(true);
+                        HeightInput.text = SelectedModule.blockHeight + "";
+                        WidthInput.text = SelectedModule.blockWidth + "";
+                        WidthBInput.text = SelectedModule.blockWidthB + "";
+                    }
+                }
+                else
+                {
+                    //clicked but didnt hit UI, block volumes or snapping points
+                    SelectedModule = null;
+                    SelectionPannel.SetActive(false);
+                }
+
+
+
+            }
+
+
+
+        }
+
+        if (Dragingblock)
+        {
+            //update the visual of the ModulePreview
+            //first see if we are in a plausible location for scnapping
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, 100f, PlacementLayers))
+            {
+                var HitBlockSnap = hit.collider.gameObject.GetComponent<BlockSnap>(); //stores the blocksnap of the blocksnap that was clicked
+                var HitBlockComponent = hit.collider.gameObject.GetComponentInParent<ScalableComponent>(); //stores the scalablecomponent of the block that was clicked on
+                if (HitBlockSnap != null)
+                {
+                    //mouse over snaping point of furniture
+                    var PlacedBlockComponent = ModulePreview.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
+
+                    PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
+
+                    //HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index in its connectedmodules array
+                    PlacedBlockComponent.ConnectedModules[HitBlockSnap.targetsnapIndex] = HitBlockComponent; //sets the reference on the new clock to the clicked bloxk at the correct index in its connectedmodules array
+
+
+
+
+                    //we should probably also check if the newly placed block is adjacent to any other blocks, in which case they should probably also be connected
+
+                    var leftBlock = HitBlockComponent.ConnectedModules[3];//the block to the left of the block that we are connecting to
+                    var rightBlock = HitBlockComponent.ConnectedModules[2];//the block to the right of the block we are connecting to
+                    var topBlock = HitBlockComponent.ConnectedModules[0];//the block to the top of the block that we are connecting to
+                    var bottomBlock = HitBlockComponent.ConnectedModules[1];//the block to the bottom of the block we are connecting to
+
+                    switch (HitBlockSnap.mySnapIndex)
+                    {
+                        case 0:
+                            //top side
+                            PlacedBlockComponent.blockWidth = HitBlockComponent.blockWidth;
+                            if (leftBlock != null)//there is a block to the lower left
+                            {
+                                leftBlock = leftBlock.ConnectedModules[0];//left block is not the block that is directly left of the newly placed block
+
+                                if (leftBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockHeight = leftBlock.blockHeight;
+                                }
+
+                            }
+                            //now do the same thing for the right side
+                            if (rightBlock != null)
+                            {
+                                rightBlock = rightBlock.ConnectedModules[0];
+
+                                if (rightBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockHeight = rightBlock.blockHeight;
+
+                                }
+
+                            }
+                            break;
+
+                        case 1:
+                            //bottom side
+                            PlacedBlockComponent.blockWidth = HitBlockComponent.blockWidth;
+                            if (leftBlock != null)//there is a block to the upper left
+                            {
+                                leftBlock = leftBlock.ConnectedModules[1];//left block is not the block that is directly left of the newly placed block
+                                if (leftBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockHeight = leftBlock.blockHeight;
+                                }
+                            }
+                            //now do the same thing for the right side
+                            if (rightBlock != null)
+                            {
+                                rightBlock = rightBlock.ConnectedModules[1];
+                                if (rightBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockHeight = rightBlock.blockHeight;
+
+                                }
+                            }
+                            break;
+
+                        case 2:
+                            //right side
+                            PlacedBlockComponent.blockHeight = HitBlockComponent.blockHeight;
+                            //start with above
+                            if (topBlock != null)//there is a block to the upper right of the newly placed block
+                            {
+                                topBlock = topBlock.ConnectedModules[2];
+
+                                if (topBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockWidth = topBlock.blockWidth;
+                                }
+
+                            }
+                            //now do bottom
+                            if (bottomBlock != null)//there is a block to the lower right of the newly placed block
+                            {
+                                bottomBlock = bottomBlock.ConnectedModules[2];
+
+                                if (bottomBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockWidth = bottomBlock.blockWidth;
+                                }
+
+                            }
+                            break;
+
+                        case 3:
+                            //left side
+                            PlacedBlockComponent.blockHeight = HitBlockComponent.blockHeight;
+                            //start with above
+                            if (topBlock != null)//there is a block to the upper left of the newly placed block
+                            {
+                                topBlock = topBlock.ConnectedModules[3];
+                                if (topBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockWidth = topBlock.blockWidth;
+                                }
+                            }
+                            //now do bottom
+                            if (bottomBlock != null)//there is a block to the lower left of the newly placed block
+                            {
+                                bottomBlock = bottomBlock.ConnectedModules[3];
+                                if (bottomBlock != null)
+                                {
+
+                                    PlacedBlockComponent.blockWidth = bottomBlock.blockWidth;
+                                }
+                            }
+                            break;
+
+                    }
+
+                    PlacedBlockComponent.recalculateDimentions();
+                    //recalculate the dimentions for the newly placed block
+                    PlacedBlockComponent.SetPositionAndRotation(HitBlockSnap.snapPos, HitBlockSnap.targetsnapIndex);
+                    //set the position of the newly created block
+                }
+                else {
+                    ModulePreview.transform.position = hit.point;
+                }
+            }
+            else { 
+            //not in a snapping location
+           
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            //mouse was released
+            if (Dragingblock)
+            {
+                Dragingblock = false;
+                oldModulePreview = ModulePreview;
+                Destroy(oldModulePreview);
+
                 RaycastHit hit;
-                
-                if (Physics.Raycast(ray, out hit,100f, PlacementLayers))
+
+                if (Physics.Raycast(ray, out hit, 100f, PlacementLayers))
                 {
                     var HitBlockSnap = hit.collider.gameObject.GetComponent<BlockSnap>(); //stores the blocksnap of the blocksnap that was clicked
                     var HitBlockComponent = hit.collider.gameObject.GetComponentInParent<ScalableComponent>(); //stores the scalablecomponent of the block that was clicked on
@@ -220,38 +439,9 @@ public class BlockPlacer : MonoBehaviour
 
                 }
 
-                RaycastHit hit2;
-                if (Physics.Raycast(ray, out hit2, 1000f,SelecionLayer))
-                {
-                    Debug.Log(hit2.collider.gameObject.name + " with layer " + hit2.collider.gameObject.layer);
-                    //did we hit any component volumes
-                    var hitComponent = hit2.collider.gameObject.GetComponentInParent<ScalableComponent>();
-
-                    if (hitComponent != null)
-                    {
-                        SelectedModule = hitComponent;
-                        SelectionPannel.SetActive(true);
-                        HeightInput.text = SelectedModule.blockHeight + "";
-                        WidthInput.text = SelectedModule.blockWidth + "";
-                        WidthBInput.text = SelectedModule.blockWidthB + "";
-                    }
-                }
-                else
-                {
-                    //clicked but didnt hit UI, block volumes or snapping points
-                    SelectedModule = null;
-                    SelectionPannel.SetActive(false);
-                }
-
-
 
             }
-           
-            
-
         }
-
-        
     }
 
     public void RepositionFurnitureOnGround()
@@ -268,7 +458,7 @@ public class BlockPlacer : MonoBehaviour
             }
         }
 
-        float RequiredYchange =  - currentBottomY;
+        float RequiredYchange = -currentBottomY;
 
         foreach (var item in AllBlocks)
         {
@@ -309,12 +499,12 @@ public class BlockPlacer : MonoBehaviour
         //clear all references that other blocks have to this block
         for (int i = 0; i < SelectedModule.ConnectedModules.Length; i++)
         {
-            if(SelectedModule.ConnectedModules[i] != null)
+            if (SelectedModule.ConnectedModules[i] != null)
             {
                 //we are connected to this module
                 for (int ii = 0; ii < SelectedModule.ConnectedModules[i].ConnectedModules.Length; ii++)
                 {
-                    if(SelectedModule.ConnectedModules[i].ConnectedModules[ii] != null)
+                    if (SelectedModule.ConnectedModules[i].ConnectedModules[ii] != null)
                     {
                         if (SelectedModule.ConnectedModules[i].ConnectedModules[ii].Equals(SelectedModule))
                         {
@@ -323,7 +513,7 @@ public class BlockPlacer : MonoBehaviour
                             break;
                         }
                     }
-                    
+
                 }
 
             }

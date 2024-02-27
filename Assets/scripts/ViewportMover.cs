@@ -17,6 +17,7 @@ public class ViewportMover : MonoBehaviour
     {
         if(Input.GetButtonDown("Fire2"))//right mouse button was just clicked
         {
+            //record initial mouse position when click starts
             mouseX = Input.mousePosition.x;
             mouseY = Input.mousePosition.y;
             oldXRot = sceneXRot;
