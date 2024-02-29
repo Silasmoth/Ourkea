@@ -119,13 +119,17 @@ public class BlockPlacer : MonoBehaviour
         {
             //update the visual of the ModulePreview
             //first see if we are in a plausible location for scnapping
+            
+
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, 100f, PlacementLayers))
             {
                 var HitBlockSnap = hit.collider.gameObject.GetComponent<BlockSnap>(); //stores the blocksnap of the blocksnap that was clicked
                 var HitBlockComponent = hit.collider.gameObject.GetComponentInParent<ScalableComponent>(); //stores the scalablecomponent of the block that was clicked on
-                if (HitBlockSnap != null)
+
+                
+                if (HitBlockSnap != null && HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] == null)
                 {
                     //mouse over snaping point of furniture
                     var PlacedBlockComponent = ModulePreview.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
@@ -263,12 +267,13 @@ public class BlockPlacer : MonoBehaviour
                     //set the position of the newly created block
                 }
                 else {
-                    ModulePreview.transform.position = hit.point;
+                    //ModulePreview.transform.position = hit.point;
+                    DragPreviewToMouse();
                 }
             }
-            else { 
-            //not in a snapping location
-           
+            else {
+                //not in a snapping location
+                DragPreviewToMouse();
             }
         }
 
@@ -289,7 +294,7 @@ public class BlockPlacer : MonoBehaviour
                     var HitBlockComponent = hit.collider.gameObject.GetComponentInParent<ScalableComponent>(); //stores the scalablecomponent of the block that was clicked on
 
 
-                    if (HitBlockSnap != null)
+                    if (HitBlockSnap != null && HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] == null)
                     {
                         //mouse over snaping point of furniture
                         GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
@@ -444,6 +449,29 @@ public class BlockPlacer : MonoBehaviour
         }
     }
 
+    void DragPreviewToMouse()
+    {
+        Plane m_Plane;
+
+
+
+        m_Plane = new Plane(camera.transform.forward, Vector3.zero);
+
+        //Create a ray from the Mouse click position
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        //Initialise the enter variable
+        float enter = 0.0f;
+
+        if (m_Plane.Raycast(ray, out enter))
+        {
+            //Get the point that is clicked
+            Vector3 hitPoint = ray.GetPoint(enter);
+
+            //Move your cube GameObject to the point where you clicked
+            ModulePreview.transform.position = hitPoint;
+        }
+    }
     public void RepositionFurnitureOnGround()
     {
         float currentBottomY = 10000;//will store the lowest current point on the furniture
