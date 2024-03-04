@@ -550,6 +550,7 @@ MonoBehaviour:
   BL: {fileID: 4651564752252016417}
   L: {fileID: 840102567123047657}
   TL: {fileID: 1314272187155413731}
+  C: {fileID: 0}
   TMR: {fileID: 8890298030247649329}
   TM: {fileID: 7509370148947992965}
   TML: {fileID: 4023668464395239321}
@@ -565,6 +566,12 @@ MonoBehaviour:
   oldBlockWidth: 0
   oldBlockHeight: 0
   oldBlockWidthB: 0
+  maxWidth: 1.5
+  maxWidthB: 1.5
+  Maxheight: 2
+  minWidth: 0.55
+  minWidthB: 0.55
+  minheight: 0.3
   blockWidth: 0.7
   blockWidthB: 0.7
   blockHeight: 0.4

@@ -22,6 +22,19 @@ public class ScalableComponent : MonoBehaviour
     public ScalableComponent[] ConnectedModules; //this holds connected modules, with the index indicating which snappingpoint they are connected to on the array above
     public float oldBlockWidth,oldBlockHeight,oldBlockWidthB; //stores previous dimentions, so that the block knows if something updated or not
 
+
+    //Dimention information
+
+    //maximums
+    public float maxWidth = 1.5f;
+    public float maxWidthB = 1.5f;
+    public float Maxheight = 2.0f;
+
+    //minimums
+    public float minWidth = 0.3f;
+    public float minWidthB = 0.55f;
+    public float minheight = 0.3f;
+
     public float blockWidth = 1.0f; //the width of this module (in the case of a corner module this is the L side width)
     public float blockWidthB = 1.0f; //the other width of this module in the case of a corner module (R side width)
     public float blockHeight = 1.0f;   //the height of this module
@@ -30,6 +43,51 @@ public class ScalableComponent : MonoBehaviour
 
 
     public GameObject componentVolume; //the object with the collider for this module
+    public bool CheckDimentionsMinMax()
+    {
+        bool rulebroken = false;
+
+        //check if under minimums
+        if (blockWidth < minWidth)
+        {
+            blockWidth = minWidth;
+            rulebroken = true;
+        }
+
+        if (blockWidthB < minWidthB)
+        {
+            blockWidthB = minWidthB;
+            rulebroken = true;
+        }
+
+        if (blockHeight < minheight)
+        {
+            blockHeight = minheight;
+            rulebroken = true;
+        }
+
+        //check if over maximums
+        if (blockWidth > maxWidth)
+        {
+            blockWidth = maxWidth;
+            rulebroken = true;
+        }
+        if (blockWidthB > maxWidthB)
+        {
+            blockWidthB = maxWidthB;
+            rulebroken = true;
+        }
+        if (blockHeight > Maxheight)
+        {
+            blockHeight = Maxheight;
+            rulebroken = true;
+        }
+
+
+
+        return rulebroken;
+    }
+
     public void recalculateDimentions(bool effectAdjacent)
     {
         //For basic flat bocks------------------------------------------------------------
