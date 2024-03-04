@@ -25,12 +25,22 @@ PrefabInstance:
     - target: {fileID: 1619880345002929824, guid: c8d86e6d606742245b29c7fca188781d,
         type: 3}
       propertyPath: m_Name
-      value: Scalable Shelf Variant Preview
+      value: PreviewScalable Shelf Variant Preview
       objectReference: {fileID: 0}
     - target: {fileID: 1619880345002929824, guid: c8d86e6d606742245b29c7fca188781d,
         type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1926292997917751586, guid: c8d86e6d606742245b29c7fca188781d,
+        type: 3}
+      propertyPath: blockWidth
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1926292997917751586, guid: c8d86e6d606742245b29c7fca188781d,
+        type: 3}
+      propertyPath: blockHeight
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 1926292998034977142, guid: c8d86e6d606742245b29c7fca188781d,
         type: 3}

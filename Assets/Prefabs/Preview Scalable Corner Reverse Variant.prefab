@@ -127,6 +127,21 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4508070739466864372, guid: b53f8344d70aea44bbe17b32b219e916,
+        type: 3}
+      propertyPath: blockWidth
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4508070739466864372, guid: b53f8344d70aea44bbe17b32b219e916,
+        type: 3}
+      propertyPath: blockHeight
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4508070739466864372, guid: b53f8344d70aea44bbe17b32b219e916,
+        type: 3}
+      propertyPath: blockWidthB
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 4651564752252016417, guid: b53f8344d70aea44bbe17b32b219e916,
         type: 3}
       propertyPath: m_Layer

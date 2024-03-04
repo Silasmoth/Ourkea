@@ -18,6 +18,10 @@ public class BlockPlacer : MonoBehaviour
     public TMP_InputField HeightInput, WidthInput, WidthBInput;//the input feilds for changing block dimensions
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
 
+    //Block Index vertical compatabilities
+    // Flat blocks : 0
+    // Concave Blocks (open inside):1
+    //Convex Blocks (open outside):2
     public int placingBlockIndex = 0;
     public GameObject[] blockPrefab;
     public GameObject[] previewBlockPrefab;
@@ -29,9 +33,11 @@ public class BlockPlacer : MonoBehaviour
     //Drag and drop
     public ModuleUI[] DragableModules;
     public bool Dragingblock = false;
+
     public List<ScalableComponent> AllBlocks; //a list containing all placed modules
     public GameObject ModulePreview;//the preview of the module being dragged
     public GameObject oldModulePreview; //used for gc
+
 
 
     // Start is called before the first frame update
@@ -137,7 +143,7 @@ public class BlockPlacer : MonoBehaviour
                     PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
 
                     //HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index in its connectedmodules array
-                    PlacedBlockComponent.ConnectedModules[HitBlockSnap.targetsnapIndex] = HitBlockComponent; //sets the reference on the new clock to the clicked bloxk at the correct index in its connectedmodules array
+                    PlacedBlockComponent.ConnectedModules[HitBlockSnap.targetsnapIndex] = HitBlockComponent; //sets the reference on the new block to the clicked bloxk at the correct index in its connectedmodules array
 
 
 
@@ -261,7 +267,7 @@ public class BlockPlacer : MonoBehaviour
 
                     }
 
-                    PlacedBlockComponent.recalculateDimentions();
+                    PlacedBlockComponent.recalculateDimentions(false);
                     //recalculate the dimentions for the newly placed block
                     PlacedBlockComponent.SetPositionAndRotation(HitBlockSnap.snapPos, HitBlockSnap.targetsnapIndex);
                     //set the position of the newly created block
@@ -435,7 +441,7 @@ public class BlockPlacer : MonoBehaviour
 
                         }
 
-                        PlacedBlockComponent.recalculateDimentions();
+                        PlacedBlockComponent.recalculateDimentions(true);
                         //recalculate the dimentions for the newly placed block
                         PlacedBlockComponent.SetPositionAndRotation(HitBlockSnap.snapPos, HitBlockSnap.targetsnapIndex);
                         //set the position of the newly created block
@@ -510,7 +516,7 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.blockHeight = float.Parse(HeightInput.text);
         SelectedModule.startChange = true;
         SelectedModule.wasChanged = true;
-        SelectedModule.recalculateDimentions();
+        SelectedModule.recalculateDimentions(true);
 
         RepositionFurnitureOnGround();
     }

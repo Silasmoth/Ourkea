@@ -45,7 +45,7 @@ PrefabInstance:
     - target: {fileID: 4651694378702805382, guid: 489c401122b71f14da02c650b812fd2d,
         type: 3}
       propertyPath: m_Name
-      value: Scalable Corner Variant preview
+      value: Preview Scalable Corner Variant preview
       objectReference: {fileID: 0}
     - target: {fileID: 4651694378702805382, guid: 489c401122b71f14da02c650b812fd2d,
         type: 3}
@@ -111,6 +111,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5498695814015231189, guid: 489c401122b71f14da02c650b812fd2d,
+        type: 3}
+      propertyPath: blockWidth
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5498695814015231189, guid: 489c401122b71f14da02c650b812fd2d,
+        type: 3}
+      propertyPath: blockHeight
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5498695814015231189, guid: 489c401122b71f14da02c650b812fd2d,
+        type: 3}
+      propertyPath: blockWidthB
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 6235534254339862674, guid: 489c401122b71f14da02c650b812fd2d,
         type: 3}

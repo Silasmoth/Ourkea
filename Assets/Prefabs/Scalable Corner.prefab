@@ -657,6 +657,7 @@ MonoBehaviour:
   startChange: 0
   wasChanged: 0
   isCorner: 1
+  reverseCorner: 0
   T: {fileID: 0}
   TR: {fileID: 141724035265528637}
   R: {fileID: 6466866139364830462}
@@ -680,9 +681,9 @@ MonoBehaviour:
   oldBlockWidth: 0
   oldBlockHeight: 0
   oldBlockWidthB: 0
-  blockWidth: 1
-  blockWidthB: 1
-  blockHeight: 1
+  blockWidth: 0.7
+  blockWidthB: 0.7
+  blockHeight: 0.4
   blockDepth: 0.4
   startingwidth: 0.1333333
   componentVolume: {fileID: 4907828953643206404}

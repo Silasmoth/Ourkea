@@ -13,7 +13,7 @@ public class ScalableComponent : MonoBehaviour
     public bool reverseCorner = false; //is this a corner or reversed corner, only relevant if isCorner is also true
 
     //Flat module mesh components
-    public GameObject T, TR, R, BR, B, BL, L, TL;   //these are the mesh components of the sides of the furniture module
+    public GameObject T, TR, R, BR, B, BL, L, TL, C;   //these are the mesh components of the sides of the furniture module
 
     //Corner module mesh Components
     public GameObject TMR, TM, TML, BMR, BM, BML;
@@ -30,7 +30,7 @@ public class ScalableComponent : MonoBehaviour
 
 
     public GameObject componentVolume; //the object with the collider for this module
-    public void recalculateDimentions()
+    public void recalculateDimentions(bool effectAdjacent)
     {
         //For basic flat bocks------------------------------------------------------------
         if (!isCorner)
@@ -57,7 +57,9 @@ public class ScalableComponent : MonoBehaviour
             //update the volume that fills this module
             componentVolume.transform.localScale = new Vector3(blockDepth - 0.01f, blockHeight - 0.01f, blockWidth - 0.01f);
 
-
+            //scale the center mesh component if there is one
+            if(C != null)
+            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - 2 * startingwidth) / startingwidth);
            
 
             #endregion
@@ -119,7 +121,7 @@ public class ScalableComponent : MonoBehaviour
                         {
                             ConnectedModules[i].wasChanged = true;
                             ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
-                            ConnectedModules[i].recalculateDimentions();//needs to be called to propegte the position update to further connected modules
+                            ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
                         }
 
                     }
@@ -170,53 +172,66 @@ public class ScalableComponent : MonoBehaviour
             //update the volume that fills this module - box is not very accurate for corner, need to find a different way
             componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
             componentVolume.transform.localPosition = new Vector3((blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
-
-            CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
-
-            if (wasChanged)
+            if (effectAdjacent)
             {
-                //position has been changed or the origin module for a scale change
+                CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
 
-                for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                if (wasChanged)
                 {
-                    if (ConnectedModules[i] != null)//this side has a connected module
+                    //position has been changed or the origin module for a scale change
+
+                    for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
                     {
-                        if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                        if (ConnectedModules[i] != null)//this side has a connected module
                         {
-                            ConnectedModules[i].wasChanged = true;
-                            ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
-                            ConnectedModules[i].recalculateDimentions();//needs to be called to propegte the position update to further connected modules
+                            if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                            {
+                                ConnectedModules[i].wasChanged = true;
+                                ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                            }
+
                         }
-
                     }
-                }
 
+                }
             }
+           
             #endregion
         }
 
-        CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
-
-        if (wasChanged)
+        if(!isCorner)
         {
-            //position has been changed or the origin module for a scale change
-
-            for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+            #region normal block update adjacent
+            if(effectAdjacent)
             {
-                if (ConnectedModules[i] != null)//this side has a connected module
-                {
-                    if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
-                    {
+                CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
 
-                        ConnectedModules[i].wasChanged = true;
-                        ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
-                        ConnectedModules[i].recalculateDimentions();//needs to be called to propegte the position update to further connected modules
+                if (wasChanged)
+                {
+                    //position has been changed or the origin module for a scale change
+
+                    for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                    {
+                        if (ConnectedModules[i] != null)//this side has a connected module
+                        {
+                            if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                            {
+
+                                ConnectedModules[i].wasChanged = true;
+                                ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                            }
+
+                        }
                     }
 
                 }
             }
-
+           
+            #endregion
         }
+        
     }
     public bool CheckChangeScale() //checks to see if dimention was changed, in which case we should update the scale and positions of adjacent blocks
     {
@@ -232,7 +247,7 @@ public class ScalableComponent : MonoBehaviour
                 {
                     ConnectedModules[0].blockWidth = blockWidth;
                     ConnectedModules[0].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
-                    ConnectedModules[0].recalculateDimentions();
+                    ConnectedModules[0].recalculateDimentions(true);
                 }
                 
             }
@@ -242,7 +257,7 @@ public class ScalableComponent : MonoBehaviour
                 {
                     ConnectedModules[1].blockWidth = blockWidth;
                     ConnectedModules[1].blockWidthB = blockWidthB;//only relevant for corners but no issue giving it to non corners
-                    ConnectedModules[1].recalculateDimentions();
+                    ConnectedModules[1].recalculateDimentions(true);
                 }
                 
             }
@@ -259,7 +274,7 @@ public class ScalableComponent : MonoBehaviour
                 if(!ConnectedModules[2].wasChanged)//make sure it wasnt the block that started the updating
                 {
                     ConnectedModules[2].blockHeight = blockHeight;
-                    ConnectedModules[2].recalculateDimentions();
+                    ConnectedModules[2].recalculateDimentions(true);
                 }
                 
             }
@@ -268,7 +283,7 @@ public class ScalableComponent : MonoBehaviour
                 if(!ConnectedModules[3].wasChanged)//make sure it wasnt the block that started the updating
                 {
                     ConnectedModules[3].blockHeight = blockHeight;
-                    ConnectedModules[3].recalculateDimentions();
+                    ConnectedModules[3].recalculateDimentions(true);
                 }
                 
             }
@@ -310,10 +325,11 @@ public class ScalableComponent : MonoBehaviour
         {
             wasChanged = true;
             startChange = false;
+            recalculateDimentions(true);
         }
             
 
-            recalculateDimentions();
+            
         
             wasChanged = false;
             
