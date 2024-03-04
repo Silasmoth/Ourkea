@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
-
+using AsciiFBXExporter;
+using SFB;
 public class BlockPlacer : MonoBehaviour
 {
     public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
@@ -39,6 +40,13 @@ public class BlockPlacer : MonoBehaviour
     public List<ScalableComponent> AllBlocks; //a list containing all placed modules
     public GameObject ModulePreview;//the preview of the module being dragged
     public GameObject oldModulePreview; //used for gc
+
+
+    //For exporting model
+    public RuntimeExporterMono Exporter;
+    private string _path;
+
+
 
 
 
@@ -466,13 +474,7 @@ public class BlockPlacer : MonoBehaviour
 
                         }
                     }
-
-                    
-
-                    
                 }
-
-
             }
         }
     }
@@ -606,5 +608,18 @@ public class BlockPlacer : MonoBehaviour
         
     }
 
+    public void Exportmodel()
+    {
+        //get file location and file name
+        _path = StandaloneFileBrowser.SaveFilePanel("Export File", "", "Custom_Furniture", ".fbx");
+        Exporter.Fullpath = _path;
+        for (int i = 0; i < AllBlocks.Count; i++)
+        {
+            AllBlocks[i].transform.SetParent(this.transform);
+        }
+        Exporter.rootObjectToExport = this.gameObject;
+        Exporter.ExportGameObject();
+    }
 
+    
 }
