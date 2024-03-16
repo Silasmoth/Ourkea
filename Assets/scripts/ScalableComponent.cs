@@ -5,6 +5,10 @@ using UnityEngine;
 public class ScalableComponent : MonoBehaviour
 {
 
+
+    public bool selected = false;
+    public Material unselectedMat;
+    public Material selectedMat;
     //Theese are used for updating dimensions, to determine which dimension should be kept and which need to be changed
     public bool startChange = false; //set to true to define the origin when a change is made from which to update all other blocks around
     public bool wasChanged = false; //has this object been given a new scale and or is in the correct position
@@ -400,5 +404,22 @@ public class ScalableComponent : MonoBehaviour
     public float GetBottomY()
     {
         return transform.position.y - blockHeight / 2;
+    }
+
+    public void SetSelected(bool _selected)
+    {
+        selected = _selected;
+        var renderers = transform.GetComponentsInChildren<MeshRenderer>( false);
+
+        foreach (var item in renderers)
+        {
+            if (selected)
+            {
+                item.sharedMaterial = selectedMat;
+            }
+            else {
+                item.sharedMaterial = unselectedMat;
+            }
+        }
     }
 }

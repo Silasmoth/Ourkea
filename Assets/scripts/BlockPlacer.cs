@@ -109,13 +109,22 @@ public class BlockPlacer : MonoBehaviour
 
                     if (hitComponent != null)
                     {
+                        if (SelectedModule != null)
+                        {
+                            SelectedModule.SetSelected(false);
+                        }
                         SelectedModule = hitComponent;
+                        SelectedModule.SetSelected(true);
                         UpdateSelectionUI(true);
                     }
                 }
                 else
                 {
                     //clicked but didnt hit UI, block volumes or snapping points
+                    if (SelectedModule != null)
+                    {
+                        SelectedModule.SetSelected(false);
+                    }
                     SelectedModule = null;
                     UpdateSelectionUI(false);
                 }
@@ -531,6 +540,7 @@ public class BlockPlacer : MonoBehaviour
     {
         if (SelectedModule == null)
         {
+            
             SelectionPannel.SetActive(false);
             return;//there is no module selected so we cant update it
         }
@@ -560,7 +570,7 @@ public class BlockPlacer : MonoBehaviour
            
             return;//there is no module selected to delete
         }
-
+        
         AllBlocks.Remove(SelectedModule);
         //clear all references that other blocks have to this block
         for (int i = 0; i < SelectedModule.ConnectedModules.Length; i++)
