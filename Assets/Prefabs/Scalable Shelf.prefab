@@ -217,8 +217,14 @@ MonoBehaviour:
   selected: 0
   unselectedMat: {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
   selectedMat: {fileID: 2100000, guid: 803263546368da349a031525dd93a38e, type: 2}
-  startChange: 0
-  wasChanged: 0
+  allowHorizontalDividers: 1
+  HDividerprefab: {fileID: 2750565845966639760, guid: 628a517e0cd73c7428abb85e7390ce48,
+    type: 3}
+  HDividers: []
+  minHDividerspacing: 0.1
+  HDividercount: 0
+  HdividerStartingWidth: 0.364
+  HdividerEdgeBuffer: 0.036
   isCorner: 0
   reverseCorner: 0
   T: {fileID: 5190520468145133783}
@@ -241,6 +247,8 @@ MonoBehaviour:
   - {fileID: 7565978930493668924}
   - {fileID: 3782695463846644538}
   - {fileID: 616195394873453272}
+  startChange: 0
+  wasChanged: 0
   ConnectedModules: []
   oldBlockWidth: 0
   oldBlockHeight: 0
