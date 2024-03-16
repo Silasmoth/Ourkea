@@ -18,7 +18,7 @@ public class BlockPlacer : MonoBehaviour
     public ScalableComponent SelectedModule; //this holds a reference to the currently selected module, null if there are non selected
 
     //references to input fields and UI for modyfiying selection
-    public TMP_InputField HeightInput, WidthInput, WidthBInput;//the input feilds for changing block dimensions
+    public TMP_InputField HeightInput, WidthInput, WidthBInput, ShelfInput;//the input feilds for changing block dimensions
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
 
     //Block Index vertical compatabilities
@@ -558,6 +558,11 @@ public class BlockPlacer : MonoBehaviour
                 UpdateSelectionUI(true);
             }
         }
+
+        if (SelectedModule.allowHorizontalDividers)
+        {
+            SelectedModule.HDividercount = int.Parse(ShelfInput.text);
+        }
         SelectedModule.recalculateDimentions(true);
 
         RepositionFurnitureOnGround();
@@ -611,6 +616,11 @@ public class BlockPlacer : MonoBehaviour
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
             WidthBInput.text = SelectedModule.blockWidthB + "";
+
+            if (SelectedModule.allowHorizontalDividers)
+            {
+                ShelfInput.text = SelectedModule.HDividercount + "";
+            }
         }
         else {
             SelectionPannel.SetActive(false);

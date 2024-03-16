@@ -5,30 +5,52 @@ using UnityEngine;
 public class ScalableComponent : MonoBehaviour
 {
 
-
+    //selection
+    [Header("Selection")]
     public bool selected = false;
     public Material unselectedMat;
     public Material selectedMat;
-    //Theese are used for updating dimensions, to determine which dimension should be kept and which need to be changed
-    public bool startChange = false; //set to true to define the origin when a change is made from which to update all other blocks around
-    public bool wasChanged = false; //has this object been given a new scale and or is in the correct position
 
+    [Header("Internal Dividers - Horizontal")]
+    public bool allowHorizontalDividers = false;//
+    public GameObject HDividerprefab;
+    public List<GameObject> HDividers;
+    public float minHDividerspacing = 0.1f;
+    public int HDividercount;
+    public float HdividerStartingWidth = 0.364f;
+    public float HdividerEdgeBuffer = 0.036f;
+
+    [Header("Module Settings")]
+    //For module Type
     public bool isCorner = false; //should this be treated as a corner module or not
     public bool reverseCorner = false; //is this a corner or reversed corner, only relevant if isCorner is also true
+    [Space(10)]
 
+    [Header("Mesh component references")]
+    [Space(10)]
     //Flat module mesh components
-    public GameObject T, TR, R, BR, B, BL, L, TL, C;   //these are the mesh components of the sides of the furniture module
-
+    public GameObject T;    //these are the mesh components of the sides of the furniture module
+    public GameObject TR, R, BR, B, BL, L, TL, C;
     //Corner module mesh Components
     public GameObject TMR, TM, TML, BMR, BM, BML;
 
+    [Space(10)]
+
+    [Header("Snapping point references")]
     public GameObject[] snappingPoints; //these are the snapping points that this module has
-    public ScalableComponent[] ConnectedModules; //this holds connected modules, with the index indicating which snappingpoint they are connected to on the array above
-    public float oldBlockWidth,oldBlockHeight,oldBlockWidthB; //stores previous dimentions, so that the block knows if something updated or not
+
+    [Space(10)]
+    //Theese are used for updating dimensions, to determine which dimension should be kept and which need to be changed
+    [HideInInspector] public bool startChange = false; //set to true to define the origin when a change is made from which to update all other blocks around
+    [HideInInspector] public bool wasChanged = false; //has this object been given a new scale and or is in the correct position
+
+
+    [HideInInspector] public ScalableComponent[] ConnectedModules; //this holds connected modules, with the index indicating which snappingpoint they are connected to on the array above
+    [HideInInspector] public float oldBlockWidth,oldBlockHeight,oldBlockWidthB; //stores previous dimentions, so that the block knows if something updated or not
 
 
     //Dimention information
-
+    [Header("Block dimention limits")]
     //maximums
     public float maxWidth = 1.5f;
     public float maxWidthB = 1.5f;
@@ -38,14 +60,18 @@ public class ScalableComponent : MonoBehaviour
     public float minWidth = 0.3f;
     public float minWidthB = 0.55f;
     public float minheight = 0.3f;
+    [Space(10)]
 
+    [Header("Block dimention")]
     public float blockWidth = 1.0f; //the width of this module (in the case of a corner module this is the L side width)
     public float blockWidthB = 1.0f; //the other width of this module in the case of a corner module (R side width)
     public float blockHeight = 1.0f;   //the height of this module
     public float blockDepth = 0.4f; //the depth of this module, for now set as 0.4 (should probably also be variable but I'll have to split up the modules even more)
+    [Space(10)]
     public float startingwidth = 3 / 4; //the size of each 9 tile component at scale of 1
+    [Space(10)]
 
-
+    [Header("Module volume collider reference")]
     public GameObject componentVolume; //the object with the collider for this module
     public bool CheckDimentionsMinMax()
     {
@@ -293,6 +319,11 @@ public class ScalableComponent : MonoBehaviour
            
             #endregion
         }
+
+        if (allowHorizontalDividers)
+        {
+            RegenerateDividers();//this should only be done when the number of dividers is changed, I should add another function for only adjusting position/scale of dividers
+        }
         
     }
     public bool CheckChangeScale() //checks to see if dimention was changed, in which case we should update the scale and positions of adjacent blocks
@@ -377,6 +408,8 @@ public class ScalableComponent : MonoBehaviour
         {
             ConnectedModules = new ScalableComponent[snappingPoints.Length];
         }
+
+        
     }
 
     // Update is called once per frame
@@ -421,5 +454,45 @@ public class ScalableComponent : MonoBehaviour
                 item.sharedMaterial = unselectedMat;
             }
         }
+    }
+
+    public void RegenerateDividers()
+    {
+        //Horizontal Dividers
+
+        //remove existing horizontal dividers
+        for (int i = 0; i < HDividers.Count; i++)
+        {
+            Destroy(HDividers[i]);
+        }
+
+        HDividers = new List<GameObject>();
+        if (HDividercount == 0)
+        {
+            return;
+        }
+
+        //instantiate new dividers and add the to the list
+        for (int i = 0; i < HDividercount; i++)
+        {
+            var temp = Instantiate(HDividerprefab, transform);
+            HDividers.Add(temp);
+        }
+
+        //position dividers
+        float spacing = blockHeight / (HDividercount+1);
+
+        for (int i = 0; i < HDividers.Count; i++)
+        {
+            HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
+        }
+
+        float desiredwidth = (blockWidth - HdividerEdgeBuffer) / HdividerStartingWidth;
+        //scale dividers
+        for (int i = 0; i < HDividers.Count; i++)
+        {
+            HDividers[i].transform.localScale = new Vector3(1, 1, desiredwidth);
+        }
+
     }
 }

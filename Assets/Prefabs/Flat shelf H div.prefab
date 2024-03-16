@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 824988162899581241}
   - component: {fileID: 6651557968799049185}
   m_Layer: 0
-  m_Name: Flat shelf Closed
+  m_Name: Flat shelf H div
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
     type: 3}
   HDividers: []
   minHDividerspacing: 0.1
-  HDividercount: 0
+  HDividercount: 1
   HdividerStartingWidth: 0.364
   HdividerEdgeBuffer: 0.036
   isCorner: 0
