@@ -563,6 +563,11 @@ public class BlockPlacer : MonoBehaviour
         {
             SelectedModule.HDividercount = int.Parse(ShelfInput.text);
         }
+
+        if (SelectedModule.allowVerticalDividers)
+        {
+            SelectedModule.VDividercount = int.Parse(ShelfInput.text);
+        }
         SelectedModule.recalculateDimentions(true);
 
         RepositionFurnitureOnGround();
@@ -620,6 +625,11 @@ public class BlockPlacer : MonoBehaviour
             if (SelectedModule.allowHorizontalDividers)
             {
                 ShelfInput.text = SelectedModule.HDividercount + "";
+            }
+
+            if (SelectedModule.allowVerticalDividers)
+            {
+                ShelfInput.text = SelectedModule.VDividercount + "";
             }
         }
         else {

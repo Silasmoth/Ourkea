@@ -20,6 +20,15 @@ public class ScalableComponent : MonoBehaviour
     public float HdividerStartingWidth = 0.364f;
     public float HdividerEdgeBuffer = 0.036f;
 
+    [Header("Internal Dividers - Vertical")]
+    public bool allowVerticalDividers = false;//
+    public GameObject VDividerprefab;
+    public List<GameObject> VDividers;
+    public float minVDividerspacing = 0.1f;
+    public int VDividercount;
+    public float VdividerStartingWidth = 0.364f;
+    public float VdividerEdgeBuffer = 0.036f;
+
     [Header("Module Settings")]
     //For module Type
     public bool isCorner = false; //should this be treated as a corner module or not
@@ -320,7 +329,7 @@ public class ScalableComponent : MonoBehaviour
             #endregion
         }
 
-        if (allowHorizontalDividers)
+        if (allowHorizontalDividers || allowVerticalDividers)
         {
             RegenerateDividers();//this should only be done when the number of dividers is changed, I should add another function for only adjusting position/scale of dividers
         }
@@ -459,40 +468,81 @@ public class ScalableComponent : MonoBehaviour
     public void RegenerateDividers()
     {
         //Horizontal Dividers
-
-        //remove existing horizontal dividers
-        for (int i = 0; i < HDividers.Count; i++)
+        if (allowHorizontalDividers)
         {
-            Destroy(HDividers[i]);
+            //remove existing horizontal dividers
+            for (int i = 0; i < HDividers.Count; i++)
+            {
+                Destroy(HDividers[i]);
+            }
+
+            HDividers = new List<GameObject>();
+            if (HDividercount == 0)
+            {
+                return;
+            }
+
+            //instantiate new dividers and add the to the list
+            for (int i = 0; i < HDividercount; i++)
+            {
+                var temp = Instantiate(HDividerprefab, transform);
+                HDividers.Add(temp);
+            }
+
+            //position dividers
+            float spacing = blockHeight / (HDividercount + 1);
+
+            for (int i = 0; i < HDividers.Count; i++)
+            {
+                HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
+            }
+
+            float desiredwidth = (blockWidth - HdividerEdgeBuffer) / HdividerStartingWidth;
+            //scale dividers
+            for (int i = 0; i < HDividers.Count; i++)
+            {
+                HDividers[i].transform.localScale = new Vector3(1, 1, desiredwidth);
+            }
         }
 
-        HDividers = new List<GameObject>();
-        if (HDividercount == 0)
+        //Vertical Dividers
+        if (allowVerticalDividers)
         {
-            return;
+            //remove existing horizontal dividers
+            for (int i = 0; i < VDividers.Count; i++)
+            {
+                Destroy(VDividers[i]);
+            }
+
+            VDividers = new List<GameObject>();
+            if (VDividercount == 0)
+            {
+                return;
+            }
+
+            //instantiate new dividers and add the to the list
+            for (int i = 0; i < VDividercount; i++)
+            {
+                var temp = Instantiate(VDividerprefab, transform);
+                VDividers.Add(temp);
+            }
+
+            //position dividers
+            float spacing = blockWidth / (VDividercount + 1);
+
+            for (int i = 0; i < VDividers.Count; i++)
+            {
+                VDividers[i].transform.localPosition = new Vector3(0, 0,(-blockWidth / 2) + spacing * (i + 1));
+            }
+
+            float desiredwidth = (blockHeight - VdividerEdgeBuffer) / VdividerStartingWidth;
+            //scale dividers
+            for (int i = 0; i < VDividers.Count; i++)
+            {
+                VDividers[i].transform.localScale = new Vector3(1, desiredwidth, 1);
+            }
         }
 
-        //instantiate new dividers and add the to the list
-        for (int i = 0; i < HDividercount; i++)
-        {
-            var temp = Instantiate(HDividerprefab, transform);
-            HDividers.Add(temp);
-        }
-
-        //position dividers
-        float spacing = blockHeight / (HDividercount+1);
-
-        for (int i = 0; i < HDividers.Count; i++)
-        {
-            HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
-        }
-
-        float desiredwidth = (blockWidth - HdividerEdgeBuffer) / HdividerStartingWidth;
-        //scale dividers
-        for (int i = 0; i < HDividers.Count; i++)
-        {
-            HDividers[i].transform.localScale = new Vector3(1, 1, desiredwidth);
-        }
 
     }
 }
