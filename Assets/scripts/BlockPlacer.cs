@@ -46,7 +46,10 @@ public class BlockPlacer : MonoBehaviour
     public RuntimeExporterMono Exporter;
     private string _path;
 
-
+    //material options
+    public TMP_Dropdown materialDropdown;
+    public Material[] UnselectedMat;
+    public Material[] SelectedMat;
 
 
 
@@ -670,6 +673,7 @@ public class BlockPlacer : MonoBehaviour
             return;//there is no module selected so we cant update it
         }
 
+
         SelectedModule.blockWidth = float.Parse(WidthInput.text);
         SelectedModule.blockWidthB = float.Parse(WidthBInput.text);
         SelectedModule.blockHeight = float.Parse(HeightInput.text);
@@ -696,8 +700,26 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.recalculateDimentions(true);
 
         RepositionFurnitureOnGround();
+
+        //should add a check here to avoid an out of bounds error
+        SelectedModule.materialID = materialDropdown.value;
+        SelectedModule.selectedMat = SelectedMat[materialDropdown.value];
+        SelectedModule.unselectedMat = UnselectedMat[materialDropdown.value];
+        SelectedModule.SetSelected(true);
     }
 
+    public void ApplyMaterialToAll()
+    {
+        foreach (var item in AllBlocks)
+        {
+            item.materialID = materialDropdown.value;
+            item.selectedMat = SelectedMat[materialDropdown.value];
+            item.unselectedMat = UnselectedMat[materialDropdown.value];
+            item.SetSelected(false);
+            
+        }
+        SelectedModule.SetSelected(true);
+    }
     public void DeleteSelection()
     {
         if (SelectedModule == null)
@@ -746,6 +768,7 @@ public class BlockPlacer : MonoBehaviour
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
             WidthBInput.text = SelectedModule.blockWidthB + "";
+            materialDropdown.value = SelectedModule.materialID;
 
             if (SelectedModule.allowHorizontalDividers)
             {

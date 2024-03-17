@@ -7,6 +7,7 @@ public class ScalableComponent : MonoBehaviour
 
     //selection
     [Header("Selection")]
+    public int materialID;
     public bool selected = false;
     public Material unselectedMat;
     public Material selectedMat;
@@ -31,6 +32,7 @@ public class ScalableComponent : MonoBehaviour
 
     [Header("Module Settings")]
     //For module Type
+    public bool isCounter = false; //is this a counter (no height)
     public bool isCorner = false; //should this be treated as a corner module or not
     public bool reverseCorner = false; //is this a corner or reversed corner, only relevant if isCorner is also true
     [Space(10)]
@@ -129,148 +131,84 @@ public class ScalableComponent : MonoBehaviour
 
     public void recalculateDimentions(bool effectAdjacent)
     {
-        //For basic flat bocks------------------------------------------------------------
-        if (!isCorner)
+
+        if (!isCounter)
         {
-            #region Flat rectangular shapes
-            //updates this modules mesh components positions and scales
-            //first do positions for flat sides (top,bottom,left,right)
-            T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-            B.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
-            R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);
-            L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
-            //then stetch the sides to be the right lengths
-            T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
-            B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
-            R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-            L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-
-            //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);
-            BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
-            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);
-            BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
-
-            //update the volume that fills this module
-            componentVolume.transform.localScale = new Vector3(blockDepth - 0.01f, blockHeight - 0.01f, blockWidth - 0.01f);
-
-            //scale the center mesh component if there is one
-            if(C != null)
-            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - 2 * startingwidth) / startingwidth);
-           
-
-            #endregion
-        }
-        //For basic corner blocks------------------------------------------------------------
-        if(isCorner && !reverseCorner)
-        {
-            #region corner blocks
-            //updates this modules mesh components positions and scales
-            //first do the positions for the top and bottom middle parts 
-            TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-            BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
-
-            //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
-            TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
-            BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
-            TMR.transform.localPosition = new Vector3(-blockDepth / 2, blockHeight / 2, 0);
-            BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
-
-            //Then do positions for the side mesh components that are scaled vertically
-
-            R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
-            L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
-
-
-            //then stetch the sides to be the right lengths
-
-            R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-            L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-
-            TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-            BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-
-            TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1,1);
-            BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-
-
-            //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-            TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), blockHeight / 2, 0);
-            BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
-            TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
-            BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
-
-            //update the volume that fills this module - box is not very accurate for corner, need to find a different way
-            componentVolume.transform.localScale = new Vector3(blockWidthB -0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
-            componentVolume.transform.localPosition = new Vector3(-(blockWidthB/2 - blockDepth / 2), 0, blockWidth/2 - blockDepth / 2);
-
-            CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
-
-            if (wasChanged)
+            //For basic flat bocks------------------------------------------------------------
+            if (!isCorner)
             {
-                //position has been changed or the origin module for a scale change
+                #region Flat rectangular shapes
+                //updates this modules mesh components positions and scales
+                //first do positions for flat sides (top,bottom,left,right)
+                T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                B.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+                R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);
+                L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
+                //then stetch the sides to be the right lengths
+                T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
+                B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
+                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
 
-                for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
-                {
-                    if (ConnectedModules[i] != null)//this side has a connected module
-                    {
-                        if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
-                        {
-                            ConnectedModules[i].wasChanged = true;
-                            ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
-                            ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
-                        }
+                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);
+                BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
+                TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);
+                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
 
-                    }
-                }
+                //update the volume that fills this module
+                componentVolume.transform.localScale = new Vector3(blockDepth - 0.01f, blockHeight - 0.01f, blockWidth - 0.01f);
 
+                //scale the center mesh component if there is one
+                if (C != null)
+                    C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - 2 * startingwidth) / startingwidth);
+
+
+                #endregion
             }
-            #endregion
-        }
-        //For reversed corner blocks-------------------------------------------------------
-        if (isCorner && reverseCorner)
-        {
-            #region corner blocks
-            //updates this modules mesh components positions and scales
-            //first do the positions for the top and bottom middle parts 
-            TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-            BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
-
-            //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
-            TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
-            BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
-            TMR.transform.localPosition = new Vector3(blockDepth / 2, blockHeight / 2, 0);
-            BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
-
-            //Then do positions for the side mesh components that are scaled vertically
-
-            R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
-            L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
-
-
-            //then stetch the sides to be the right lengths
-
-            R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-            L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-
-            TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-            BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-
-            TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-            BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-
-
-            //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-            TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
-            BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
-            TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
-            BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
-
-            //update the volume that fills this module - box is not very accurate for corner, need to find a different way
-            componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
-            componentVolume.transform.localPosition = new Vector3((blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
-            if (effectAdjacent)
+            //For basic corner blocks------------------------------------------------------------
+            if (isCorner && !reverseCorner)
             {
+                #region corner blocks
+                //updates this modules mesh components positions and scales
+                //first do the positions for the top and bottom middle parts 
+                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                TMR.transform.localPosition = new Vector3(-blockDepth / 2, blockHeight / 2, 0);
+                BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
+
+                //Then do positions for the side mesh components that are scaled vertically
+
+                R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
+                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                //then stetch the sides to be the right lengths
+
+                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
+                TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+
+                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
+                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
+                componentVolume.transform.localPosition = new Vector3(-(blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
+
                 CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
 
                 if (wasChanged)
@@ -292,16 +230,172 @@ public class ScalableComponent : MonoBehaviour
                     }
 
                 }
+                #endregion
             }
-           
-            #endregion
-        }
-
-        if(!isCorner)
-        {
-            #region normal block update adjacent
-            if(effectAdjacent)
+            //For reversed corner blocks-------------------------------------------------------
+            if (isCorner && reverseCorner)
             {
+                #region corner blocks
+                //updates this modules mesh components positions and scales
+                //first do the positions for the top and bottom middle parts 
+                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                TMR.transform.localPosition = new Vector3(blockDepth / 2, blockHeight / 2, 0);
+                BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
+
+                //Then do positions for the side mesh components that are scaled vertically
+
+                R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
+                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                //then stetch the sides to be the right lengths
+
+                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
+                TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+
+                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
+                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
+                componentVolume.transform.localPosition = new Vector3((blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
+                if (effectAdjacent)
+                {
+                    CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
+                    if (wasChanged)
+                    {
+                        //position has been changed or the origin module for a scale change
+
+                        for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                        {
+                            if (ConnectedModules[i] != null)//this side has a connected module
+                            {
+                                if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                                {
+                                    ConnectedModules[i].wasChanged = true;
+                                    ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                    ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+                #endregion
+            }
+
+            if (!isCorner)
+            {
+                #region normal block update adjacent
+                if (effectAdjacent)
+                {
+                    CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
+                    if (wasChanged)
+                    {
+                        //position has been changed or the origin module for a scale change
+
+                        for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                        {
+                            if (ConnectedModules[i] != null)//this side has a connected module
+                            {
+                                if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                                {
+
+                                    ConnectedModules[i].wasChanged = true;
+                                    ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                    ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+                #endregion
+            }
+
+            if (allowHorizontalDividers || allowVerticalDividers)
+            {
+                RegenerateDividers();//this should only be done when the number of dividers is changed, I should add another function for only adjusting position/scale of dividers
+            }
+        }
+        else
+        {
+            //For basic flat bocks------------------------------------------------------------
+            if (!isCorner)
+            {
+                #region Flat rectangular shapes
+                //updates this modules mesh components positions and scales
+                //first do positions for flat sides (top,bottom,left,right)
+                T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                B.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+                R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);
+                L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
+                //then stetch the sides to be the right lengths
+                
+                B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
+                
+
+                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes    
+                BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
+                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
+
+                //update the volume that fills this module
+                componentVolume.transform.localScale = new Vector3(blockDepth - 0.01f, blockHeight - 0.01f, blockWidth - 0.01f);
+
+               
+
+
+                #endregion
+            }
+            //For basic corner blocks------------------------------------------------------------
+            if (isCorner && !reverseCorner)
+            {
+                #region corner blocks
+                //updates this modules mesh components positions and scales
+                //first do the positions for the top and bottom middle parts 
+                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+               
+
+                //Then do positions for the side mesh components that are scaled vertically
+
+                R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
+                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                //then stetch the sides to be the right lengths
+
+                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                
+
+                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
+                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
+                componentVolume.transform.localPosition = new Vector3(-(blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
+
                 CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
 
                 if (wasChanged)
@@ -314,7 +408,6 @@ public class ScalableComponent : MonoBehaviour
                         {
                             if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
                             {
-
                                 ConnectedModules[i].wasChanged = true;
                                 ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
                                 ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
@@ -324,15 +417,95 @@ public class ScalableComponent : MonoBehaviour
                     }
 
                 }
+                #endregion
             }
-           
-            #endregion
-        }
+            //For reversed corner blocks-------------------------------------------------------
+            if (isCorner && reverseCorner)
+            {
+                #region corner blocks
+                //updates this modules mesh components positions and scales
+                //first do the positions for the top and bottom middle parts 
+                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
 
-        if (allowHorizontalDividers || allowVerticalDividers)
-        {
-            RegenerateDividers();//this should only be done when the number of dividers is changed, I should add another function for only adjusting position/scale of dividers
+                
+                //Then do positions for the side mesh components that are scaled vertically
+
+                R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
+                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                //then stetch the sides to be the right lengths
+
+                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+
+                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
+                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
+                componentVolume.transform.localPosition = new Vector3((blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
+                if (effectAdjacent)
+                {
+                    CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
+                    if (wasChanged)
+                    {
+                        //position has been changed or the origin module for a scale change
+
+                        for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                        {
+                            if (ConnectedModules[i] != null)//this side has a connected module
+                            {
+                                if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                                {
+                                    ConnectedModules[i].wasChanged = true;
+                                    ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                    ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+                #endregion
+            }
+
+            if (!isCorner)
+            {
+                #region normal block update adjacent
+                if (effectAdjacent)
+                {
+                    CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
+                    if (wasChanged)
+                    {
+                        //position has been changed or the origin module for a scale change
+
+                        for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                        {
+                            if (ConnectedModules[i] != null)//this side has a connected module
+                            {
+                                if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                                {
+
+                                    ConnectedModules[i].wasChanged = true;
+                                    ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                    ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+                #endregion
+            }
+
         }
+        
         
     }
     public bool CheckChangeScale() //checks to see if dimention was changed, in which case we should update the scale and positions of adjacent blocks
@@ -544,5 +717,18 @@ public class ScalableComponent : MonoBehaviour
         }
 
 
+        var renderers = transform.GetComponentsInChildren<MeshRenderer>(false);
+
+        foreach (var item in renderers)
+        {
+            if (selected)
+            {
+                item.sharedMaterial = selectedMat;
+            }
+            else
+            {
+                item.sharedMaterial = unselectedMat;
+            }
+        }
     }
 }
