@@ -1710,6 +1710,10 @@ MonoBehaviour:
       m_Image: {fileID: 21300000, guid: 392ef30fcce8b274e95d6ee552402819, type: 3}
     - m_Text: Black
       m_Image: {fileID: 21300000, guid: 3908deee9369fb948ad57e86c3ecb904, type: 3}
+    - m_Text: Walnut
+      m_Image: {fileID: 21300000, guid: ec879095dde7cfb43b225e92ff13760b, type: 3}
+    - m_Text: Ash
+      m_Image: {fileID: 21300000, guid: e416662be756f32469a00f9f7f397940, type: 3}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -2628,10 +2632,14 @@ MonoBehaviour:
   - {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
   - {fileID: 2100000, guid: 85f4fc9f81d8cbe448d51269bcb4e487, type: 2}
   - {fileID: 2100000, guid: df36775430104df4ea4e5b9b2f1ca96c, type: 2}
+  - {fileID: 2100000, guid: eb6d4a48001b81c4e94f4b16f4a9a5dd, type: 2}
+  - {fileID: 2100000, guid: 1db89c666d7979947a527ea98b08d02d, type: 2}
   SelectedMat:
   - {fileID: 2100000, guid: 803263546368da349a031525dd93a38e, type: 2}
   - {fileID: 2100000, guid: b442756eb5087464ebf89438dd32a8bd, type: 2}
   - {fileID: 2100000, guid: de1f2f2d2a16d624eb3587f43d3bb17c, type: 2}
+  - {fileID: 2100000, guid: 4eae13ac6cb7c9143bcc6239da4dfdf5, type: 2}
+  - {fileID: 2100000, guid: ee4bf9dbc61194343b08ccc93ad27d36, type: 2}
 --- !u!114 &559569286
 MonoBehaviour:
   m_ObjectHideFlags: 0
