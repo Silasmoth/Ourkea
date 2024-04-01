@@ -843,20 +843,14 @@ public class ScalableComponent : MonoBehaviour
         if (isCorner)
         {
             volume = (blockWidth * blockDepth * blockHeight) + ((blockWidthB - blockDepth) * blockDepth * blockHeight);
+            volume -= GetmaterialVolume();
             return volume;
         }
         else {
             volume = blockWidth * blockDepth * blockHeight;
 
-            if (allowHorizontalDividers)
-            {
-                volume -= blockWidth * blockDepth * HDividercount;
-            }
-
-            if (allowVerticalDividers)
-            {
-                volume -= blockHeight * blockDepth * HDividercount;
-            }
+           
+            volume -= GetmaterialVolume();
             return volume;
         }
     }
@@ -868,7 +862,7 @@ public class ScalableComponent : MonoBehaviour
         {
             shelfArea = (blockWidth * blockDepth) + ((blockWidthB - blockDepth) * blockDepth);
 
-            if (ConnectedModules[0] == null)
+            if (ConnectedModules[0] == null && !isCounter)
             { 
             // no shelf above
             shelfArea += (blockWidth * blockDepth) + ((blockWidthB - blockDepth) * blockDepth);
@@ -884,7 +878,7 @@ public class ScalableComponent : MonoBehaviour
                 shelfArea *= 1 + HDividercount;
             }
 
-            if (ConnectedModules[0] == null)
+            if (ConnectedModules[0] == null && !isCounter)
             {
                 // no shelf above
                 shelfArea += blockWidth * blockDepth;
