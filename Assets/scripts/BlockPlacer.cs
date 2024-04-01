@@ -7,6 +7,20 @@ using AsciiFBXExporter;
 using SFB;
 public class BlockPlacer : MonoBehaviour
 {
+
+    public bool showstats = false; //show the millwork stats or not
+    public TMP_Text showStatsButton; // the text on the "show/hide stats" button
+    public TMP_Text StatisticsText; // the text for showing stats
+    
+    public bool ShowDim = true; //show the dimension lines or not
+    public TMP_Text showdimButton; // the text on the "show/hide dimentions" button
+
+
+    public DimentionDisplay VerticalDimDisplay; //the dimdiesplay for Y
+    public DimentionDisplay XlDimDisplay; // dimentiondisplay for X
+    public DimentionDisplay ZlDimDisplay; // dimentionDisplay for z
+
+
     public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
 
     public ScalableComponent starterBlock;//reference to the block that already exists in the scene
@@ -322,8 +336,155 @@ public class BlockPlacer : MonoBehaviour
                 PlaceBlockAtMouse();
             }
         }
+
+        if (ShowDim)
+        {
+            VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
+            VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
+
+            XlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMaxZ());
+            XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
+
+            ZlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMinZ());
+            ZlDimDisplay.Coord2 = new Vector3(GetMixX(), 0, GetMaxZ());
+            ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
+
+            VerticalDimDisplay.UpdateCoords();
+            XlDimDisplay.UpdateCoords();
+            ZlDimDisplay.UpdateCoords();
+        }
+
+        if (showstats)
+        {
+            StatisticsText.text = "Storage Volume: " + GetTotalStorageVolume() + "m^3 Shelf Area: " + GetTotalShelfArea();
+        }
+        else {
+            StatisticsText.text = "";
+        }
+    
     }
 
+
+    public void ToggleDim()
+    {
+        //toggle showDim
+        ShowDim = !ShowDim;
+
+        //update button
+        if (ShowDim)
+        {
+            VerticalDimDisplay.gameObject.SetActive(true);
+            XlDimDisplay.gameObject.SetActive(true);
+            ZlDimDisplay.gameObject.SetActive(true);
+            showdimButton.text = "Hide Dimensions";
+
+            VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
+            VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
+
+            XlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMaxZ());
+            XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
+
+            ZlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMinZ());
+            ZlDimDisplay.Coord2 = new Vector3(GetMixX(), 0, GetMaxZ());
+            ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
+
+            VerticalDimDisplay.UpdateCoords();
+            XlDimDisplay.UpdateCoords();
+            ZlDimDisplay.UpdateCoords();
+        }
+        else {
+            VerticalDimDisplay.gameObject.SetActive(false);
+            XlDimDisplay.gameObject.SetActive(false);
+            ZlDimDisplay.gameObject.SetActive(false);
+            showdimButton.text = "Show Dimensions";
+        }
+
+    }
+
+    public void ToggleStats()
+    {
+        showstats = !showstats;
+        if (showstats)
+        {
+            showStatsButton.text = "Hide Statistics";
+        }
+        else {
+            showStatsButton.text = "Show Statistics";
+        }
+    }
+    float GetMaxY()
+    {
+        float maxY = 0f;
+
+        for (int i = 0; i < AllBlocks.Count; i++)
+        {
+            if ((AllBlocks[i].transform.position.y + AllBlocks[i].blockHeight / 2) > maxY)
+            {
+                maxY = (AllBlocks[i].transform.position.y + AllBlocks[i].blockHeight / 2);
+            }
+        }
+
+        return maxY;
+    }
+
+    float GetMixX()
+    {
+        float minX = 999;
+        foreach (var item in AllBlocks)
+        {
+            var temp = item.GetMinX();
+            if (temp < minX)
+            {
+                minX = temp;
+            }
+        }
+        return minX;
+    }
+
+    float GetMaxX()
+    {
+        float maxX = -999;
+        foreach (var item in AllBlocks)
+        {
+            var temp = item.GetMaxX();
+            if (temp > maxX)
+            {
+                maxX = temp;
+            }
+        }
+        return maxX;
+    }
+
+    float GetMaxZ()
+    {
+        float maxZ = -999;
+        foreach (var item in AllBlocks)
+        {
+            var temp = item.GetMaxZ();
+            if (temp > maxZ)
+            {
+                maxZ = temp;
+            }
+        }
+        return maxZ;
+    }
+    float GetMinZ()
+    {
+        float minZ = 9999;
+        foreach (var item in AllBlocks)
+        {
+            var temp = item.GetMinZ();
+            if (temp < minZ)
+            {
+                minZ = temp;
+            }
+        }
+        return minZ;
+    }
     void PlaceBlockAtMouse()
     {
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
@@ -799,5 +960,25 @@ public class BlockPlacer : MonoBehaviour
         Exporter.ExportGameObject();
     }
 
+    public float GetTotalStorageVolume()
+    {
+        float volume = 0f;
+        foreach (var item in AllBlocks)
+        {
+            volume += item.GetStorageVolume();
+        }
+
+        return volume;
+    }
+
+    public float GetTotalShelfArea()
+    {
+        float area = 0f;
+        foreach (var item in AllBlocks)
+        {
+            area += item.GetShelfArea();
+        }
+        return area;
+    }
     
 }

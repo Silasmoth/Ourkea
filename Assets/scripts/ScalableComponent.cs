@@ -731,4 +731,153 @@ public class ScalableComponent : MonoBehaviour
             }
         }
     }
+
+    public float GetMaxX()
+    {
+
+        float maxX = -999999 ;
+        //chek right side
+        if (R.transform.position.x > maxX)
+        {
+            maxX = R.transform.position.x;
+        }
+
+        //chek left side
+        if (L.transform.position.x > maxX)
+        {
+            maxX = L.transform.position.x;
+        }
+
+        if (transform.position.x + blockDepth / 2 > maxX)
+        {
+            maxX = transform.position.x + blockDepth / 2;
+        }
+        return maxX;
+
+    }
+
+    public float GetMinX()
+    {
+
+        float minX = 999999;
+        //chek right side
+        if (R.transform.position.x < minX)
+        {
+            minX = R.transform.position.x;
+        }
+
+        //chek left side
+        if (L.transform.position.x < minX)
+        {
+            minX = L.transform.position.x;
+        }
+
+        if (transform.position.x - blockDepth / 2 < minX)
+        {
+            minX = transform.position.x - blockDepth / 2;
+        }
+        return minX;
+
+    }
+
+    public float GetMaxZ()
+    {
+
+        float maxZ = -99999;
+        //chek right side
+        if (R.transform.position.z > maxZ)
+        {
+            maxZ = R.transform.position.z;
+        }
+
+        //chek left side
+        if (L.transform.position.z > maxZ)
+        {
+            maxZ = L.transform.position.z;
+        }
+
+        if (transform.position.z + blockDepth / 2 > maxZ)
+        {
+            maxZ = transform.position.z + blockDepth / 2;
+        }
+        return maxZ;
+
+    }
+
+    public float GetMinZ()
+    {
+
+        float minZ = 9999;
+        //chek right side
+        if (R.transform.position.z < minZ)
+        {
+            minZ = R.transform.position.z;
+        }
+
+        //chek left side
+        if (L.transform.position.z < minZ)
+        {
+            minZ = L.transform.position.z;
+        }
+
+        if (transform.position.z - blockDepth / 2 < minZ)
+        {
+            minZ = transform.position.z - blockDepth / 2;
+        }
+        return minZ;
+
+    }
+
+    public float GetStorageVolume()
+    {
+        float volume = 0;
+        if (isCounter)
+        {
+            return 0;
+        }
+        if (isCorner)
+        {
+            volume = (blockWidth * blockDepth * blockHeight) + ((blockWidthB - blockDepth) * blockDepth * blockHeight);
+            return volume;
+        }
+        else {
+            volume = blockWidth * blockDepth * blockHeight;
+            return volume;
+        }
+    }
+
+    public float GetShelfArea()
+    {
+        float shelfArea = 0;
+        if (isCorner)
+        {
+            shelfArea = (blockWidth * blockDepth) + ((blockWidthB - blockDepth) * blockDepth);
+
+            if (ConnectedModules[0] == null)
+            { 
+            // no shelf above
+            shelfArea += (blockWidth * blockDepth) + ((blockWidthB - blockDepth) * blockDepth);
+            }
+            return shelfArea;
+        }
+        else
+        {
+            shelfArea = blockWidth * blockDepth;
+            if (ConnectedModules[0] == null)
+            {
+                // no shelf above
+                shelfArea += blockWidth * blockDepth;
+            }
+            if (allowHorizontalDividers)
+            {
+                shelfArea *= 1 + HDividercount;
+            }
+
+            return shelfArea;
+        }
+
+        return shelfArea;
+    }
+
+    
 }
