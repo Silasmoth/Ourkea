@@ -358,7 +358,7 @@ public class BlockPlacer : MonoBehaviour
 
         if (showstats)
         {
-            StatisticsText.text = "Storage Volume: " + GetTotalStorageVolume() + "m^3 Shelf Area: " + GetTotalShelfArea() + "m^2";
+            StatisticsText.text = "Storage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f)/1000 + "m^3 \nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2 \nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2 \nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg";
         }
         else {
             StatisticsText.text = "";
@@ -979,6 +979,26 @@ public class BlockPlacer : MonoBehaviour
             area += item.GetShelfArea();
         }
         return area;
+    }
+
+    public float GetTotalMaterialArea()
+    {
+        float area = 0;
+        foreach (var item in AllBlocks)
+        {
+            area += item.GetMaterialArea();
+        }
+        return area;
+    }
+
+    public float GetTotalMaterialVolume()
+    {
+        float volume = 0;
+        foreach (var item in AllBlocks)
+        {
+            volume += item.GetmaterialVolume();
+        }
+        return volume;
     }
     
 }

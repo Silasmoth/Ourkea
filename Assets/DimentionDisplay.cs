@@ -23,7 +23,7 @@ public class DimentionDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //UpdateCoords();//not needed every frame
+        UpdateCoords();//not needed every frame
     }
 
     public void UpdateCoords()
@@ -37,6 +37,6 @@ public class DimentionDisplay : MonoBehaviour
 
 
         DimText.transform.position = ((Coord1 + Coord2) / 2) + DisplayOffset*2;
-        DimText.text = (Coord1 - Coord2).magnitude + "m";
+        DimText.text =  Mathf.Round((Coord1 - Coord2).magnitude * 1000f) + "mm";
     }
 }

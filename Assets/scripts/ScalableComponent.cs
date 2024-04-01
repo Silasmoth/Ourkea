@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class ScalableComponent : MonoBehaviour
 {
+    [Header("Volume Calculaitons")]
+    public float matThickness = 0.02f;//thickness of sheet material
+    public float WD, WH, HD;//multiples of front/back, sides and top/bottom face areas
+    public float subtracttionArea;//static amount to be subtracted for connections etc
+    
 
     //selection
     [Header("Selection")]
@@ -842,6 +847,16 @@ public class ScalableComponent : MonoBehaviour
         }
         else {
             volume = blockWidth * blockDepth * blockHeight;
+
+            if (allowHorizontalDividers)
+            {
+                volume -= blockWidth * blockDepth * HDividercount;
+            }
+
+            if (allowVerticalDividers)
+            {
+                volume -= blockHeight * blockDepth * HDividercount;
+            }
             return volume;
         }
     }
@@ -881,5 +896,28 @@ public class ScalableComponent : MonoBehaviour
         return shelfArea;
     }
 
+    public float GetMaterialArea()
+    {
+        float area = 0;
+        area += blockHeight * blockDepth * HD;
+        area += blockWidth * blockDepth * WD;
+        area += blockWidth * blockHeight * WH;
+        area -= subtracttionArea;
+        if (allowHorizontalDividers)
+        {
+            area += blockWidth * blockDepth * HDividercount;
+        }
+        if (allowVerticalDividers)
+        {
+            area += blockHeight * blockDepth * VDividercount;
+        }
+        return area;
+    }
+
+    public float GetmaterialVolume()
+    {
+        float volume = GetMaterialArea() * matThickness;
+        return volume;
+    }
     
 }

@@ -654,11 +654,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3f32237914aaa48afa578911174221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  matThickness: 0.02
+  WD: 2
+  WH: 0
+  HD: 2
+  subtracttionArea: 0
+  materialID: 0
   selected: 0
   unselectedMat: {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
   selectedMat: {fileID: 2100000, guid: 803263546368da349a031525dd93a38e, type: 2}
-  startChange: 0
-  wasChanged: 0
+  allowHorizontalDividers: 0
+  HDividerprefab: {fileID: 0}
+  HDividers: []
+  minHDividerspacing: 0.1
+  HDividercount: 0
+  HdividerStartingWidth: 0.364
+  HdividerEdgeBuffer: 0.036
+  allowVerticalDividers: 0
+  VDividerprefab: {fileID: 0}
+  VDividers: []
+  minVDividerspacing: 0.1
+  VDividercount: 0
+  VdividerStartingWidth: 0.364
+  VdividerEdgeBuffer: 0.036
+  isCounter: 0
   isCorner: 1
   reverseCorner: 0
   T: {fileID: 0}
@@ -681,6 +700,8 @@ MonoBehaviour:
   - {fileID: 351970802996439277}
   - {fileID: 6466866139364830462}
   - {fileID: 4104663530496827748}
+  startChange: 0
+  wasChanged: 0
   ConnectedModules: []
   oldBlockWidth: 0
   oldBlockHeight: 0
