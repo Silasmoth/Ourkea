@@ -863,14 +863,16 @@ public class ScalableComponent : MonoBehaviour
         else
         {
             shelfArea = blockWidth * blockDepth;
+            
+            if (allowHorizontalDividers)
+            {
+                shelfArea *= 1 + HDividercount;
+            }
+
             if (ConnectedModules[0] == null)
             {
                 // no shelf above
                 shelfArea += blockWidth * blockDepth;
-            }
-            if (allowHorizontalDividers)
-            {
-                shelfArea *= 1 + HDividercount;
             }
 
             return shelfArea;

@@ -358,7 +358,7 @@ public class BlockPlacer : MonoBehaviour
 
         if (showstats)
         {
-            StatisticsText.text = "Storage Volume: " + GetTotalStorageVolume() + "m^3 Shelf Area: " + GetTotalShelfArea();
+            StatisticsText.text = "Storage Volume: " + GetTotalStorageVolume() + "m^3 Shelf Area: " + GetTotalShelfArea() + "m^2";
         }
         else {
             StatisticsText.text = "";
