@@ -936,7 +936,7 @@ public class ScalableComponent : MonoBehaviour
                 costperm2 = 21.18f;
                 break;
             case (2):
-                costperm2 = 21.18f;
+                costperm2 = 18.58f;
                 break;
             default:
                 break;
