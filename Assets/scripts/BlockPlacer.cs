@@ -7,7 +7,8 @@ using AsciiFBXExporter;
 using SFB;
 public class BlockPlacer : MonoBehaviour
 {
-
+    public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
+    public TMP_Text doubleWallsButton; // the text on the toggle double walls button
     
     public GameObject ScaleFigure;
     public bool showFigure = false;
@@ -522,6 +523,26 @@ public class BlockPlacer : MonoBehaviour
 
     }
 
+    public void ToggleDoubleWalls()
+    {
+        doubleWalls = !doubleWalls;
+        foreach (var item in AllBlocks)
+        {
+            item.DoubleWall = doubleWalls;
+            item.recalculateDimentions(false);
+        }
+       
+        if (doubleWalls)
+        {
+            doubleWallsButton.text = "Double Wall Thickness";
+        }
+        else
+        {
+            doubleWallsButton.text = "Single Wall Thickness";
+        }
+
+    }
+
     void UpdateFigurePos()
     {
         ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
@@ -608,6 +629,7 @@ public class BlockPlacer : MonoBehaviour
                 GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0), Quaternion.identity);//create the new block
                 var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                 AllBlocks.Add(PlacedBlockComponent);
+                PlacedBlockComponent.DoubleWall = doubleWalls;
                 PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
                 PlacedBlockComponent.recalculateDimentions(true);
             }
@@ -623,6 +645,7 @@ public class BlockPlacer : MonoBehaviour
                     GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
                     var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                     AllBlocks.Add(PlacedBlockComponent);
+                    PlacedBlockComponent.DoubleWall = doubleWalls;
                     PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
 
                     HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] = PlacedBlockComponent; //sets the reference on the clicked block to the new block at the correct index in its connectedmodules array
