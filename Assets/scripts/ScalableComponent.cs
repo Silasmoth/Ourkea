@@ -926,17 +926,64 @@ public class ScalableComponent : MonoBehaviour
 
             //position dividers
             float spacing = blockHeight / (HDividercount + 1);
+            float desiredwidth = (blockWidth - HdividerEdgeBuffer) / HdividerStartingWidth;
 
+            if (!DoubleWall)
+            {
+                if (ConnectedModules[2] != null && ConnectedModules[3] != null)
+                {
+                    desiredwidth = (blockWidth - HdividerEdgeBuffer + wallThickness) / HdividerStartingWidth;
+
+                }
+                else
+                {
+                    if (ConnectedModules[2] != null || ConnectedModules[3] != null)
+                    {
+                        desiredwidth = (blockWidth - HdividerEdgeBuffer + wallThickness/2) / HdividerStartingWidth;
+                    }
+                    
+                }
+            }
+            
+            
             for (int i = 0; i < HDividers.Count; i++)
             {
-                HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
+
+                if (!DoubleWall && (ConnectedModules[2] != null || ConnectedModules[3] != null))
+                {
+                    if (ConnectedModules[2] != null && ConnectedModules[3] != null)
+                    {
+                        HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
+
+                    }
+                    else
+                    {
+                        if (ConnectedModules[2] != null)
+                        {
+                            HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), -wallThickness / 4);
+                        }
+                        if (ConnectedModules[3] != null)
+                        {
+                            HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), wallThickness / 4);
+                        }
+                    }
+                }
+                else
+                {
+                    HDividers[i].transform.localPosition = new Vector3(0, (-blockHeight / 2) + spacing * (i + 1), 0);
+                }
+
+                    HDividers[i].transform.localScale = new Vector3(1, 1, desiredwidth);
+                
+
             }
 
-            float desiredwidth = (blockWidth - HdividerEdgeBuffer) / HdividerStartingWidth;
+            
             //scale dividers
             for (int i = 0; i < HDividers.Count; i++)
             {
-                HDividers[i].transform.localScale = new Vector3(1, 1, desiredwidth);
+                
+                
             }
         }
 
@@ -967,10 +1014,22 @@ public class ScalableComponent : MonoBehaviour
 
             for (int i = 0; i < VDividers.Count; i++)
             {
-                VDividers[i].transform.localPosition = new Vector3(0, 0,(-blockWidth / 2) + spacing * (i + 1));
+                if (!DoubleWall && ConnectedModules[1] != null)
+                {
+                    VDividers[i].transform.localPosition = new Vector3(0, -wallThickness/2, (-blockWidth / 2) + spacing * (i + 1));
+                }
+                else {
+                    VDividers[i].transform.localPosition = new Vector3(0, 0, (-blockWidth / 2) + spacing * (i + 1));
+                }
+                
             }
 
             float desiredwidth = (blockHeight - VdividerEdgeBuffer) / VdividerStartingWidth;
+            if (!DoubleWall && ConnectedModules[1] != null)
+            {
+            desiredwidth = (blockHeight - VdividerEdgeBuffer + wallThickness) / VdividerStartingWidth;
+            }
+
             //scale dividers
             for (int i = 0; i < VDividers.Count; i++)
             {

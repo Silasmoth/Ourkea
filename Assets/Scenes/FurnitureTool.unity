@@ -1750,6 +1750,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
     - target: {fileID: 6651557968799049185, guid: 9b634ebdfd695974598660ff7cb92b7c,
         type: 3}
+      propertyPath: DoubleWall
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651557968799049185, guid: 9b634ebdfd695974598660ff7cb92b7c,
+        type: 3}
       propertyPath: HdividerEdgeBuffer
       value: 0.036
       objectReference: {fileID: 0}
@@ -2745,7 +2750,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1618072107}
   m_Direction: 2
   m_Value: 1.0000002
-  m_Size: 0.33232358
+  m_Size: 0.41122276
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3583,7 +3588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef59f63f3d7904ca2ec6fda5725ece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doubleWalls: 0
+  doubleWalls: 1
   doubleWallsButton: {fileID: 1759151011}
   ScaleFigure: {fileID: 189578576}
   showFigure: 0
