@@ -7,7 +7,12 @@ using AsciiFBXExporter;
 using SFB;
 public class BlockPlacer : MonoBehaviour
 {
+
     
+    public GameObject ScaleFigure;
+    public bool showFigure = false;
+    public TMP_Text ShowFigureButton; // the text on the "show/hide scale figure" button
+
     public ViewportMover viewport;// reference to the viewport mover, used to get the camera rotation when placing the dimention lines
 
     public bool showstats = false; //show the millwork stats or not
@@ -316,6 +321,10 @@ public class BlockPlacer : MonoBehaviour
                     }else
                     {
                         DragPreviewToMouse();
+                        if (ModulePreview.transform.position.y - ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2 <= 0)
+                        {
+                            ModulePreview.transform.position = hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0);
+                        }
                     }
 
                     
@@ -343,7 +352,7 @@ public class BlockPlacer : MonoBehaviour
         if (ShowDim)
         {
             float maxX = GetMaxX();
-            float minX = GetMixX();
+            float minX = GetMinX();
             float maxY = GetMaxY();
             float maxZ = GetMaxZ();
             float minZ = GetMinZ();
@@ -436,6 +445,13 @@ public class BlockPlacer : MonoBehaviour
         else {
             StatisticsText.text = "";
         }
+
+        if (showFigure)
+        {
+            
+            UpdateFigurePos();
+        }
+
     
     }
 
@@ -457,12 +473,12 @@ public class BlockPlacer : MonoBehaviour
             VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
             VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
 
-            XlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMaxZ());
+            XlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMaxZ());
             XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
             XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
 
-            ZlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMinZ());
-            ZlDimDisplay.Coord2 = new Vector3(GetMixX(), 0, GetMaxZ());
+            ZlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMinZ());
+            ZlDimDisplay.Coord2 = new Vector3(GetMinX(), 0, GetMaxZ());
             ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
 
             VerticalDimDisplay.UpdateCoords();
@@ -489,6 +505,27 @@ public class BlockPlacer : MonoBehaviour
             showStatsButton.text = "Show Statistics";
         }
     }
+
+    public void ToggleScaleFigure()
+    {
+        showFigure = !showFigure;
+
+        ScaleFigure.SetActive(showFigure);
+        if (showFigure)
+        {
+            ShowFigureButton.text = "Hide Scale Figure";
+        }
+        else
+        {
+            ShowFigureButton.text = "Show Scale Figure";
+        }
+
+    }
+
+    void UpdateFigurePos()
+    {
+        ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
+    }
     float GetMaxY()
     {
         float maxY = 0f;
@@ -504,7 +541,7 @@ public class BlockPlacer : MonoBehaviour
         return maxY;
     }
 
-    float GetMixX()
+    float GetMinX()
     {
         float minX = 999;
         foreach (var item in AllBlocks)
