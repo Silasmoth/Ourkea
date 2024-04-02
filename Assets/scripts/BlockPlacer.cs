@@ -61,7 +61,8 @@ public class BlockPlacer : MonoBehaviour
     private string _path;
 
     //material options
-    public TMP_Dropdown materialDropdown;
+    public TMP_Dropdown SurfaceMaterialDropdown;
+    public TMP_Dropdown CoreMaterialDropDown;
     public Material[] UnselectedMat;
     public Material[] SelectedMat;
 
@@ -358,7 +359,7 @@ public class BlockPlacer : MonoBehaviour
 
         if (showstats)
         {
-            StatisticsText.text = "Storage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f)/1000 + "m^3 \nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2 \nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2 \nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg";
+            StatisticsText.text = "Storage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f)/1000 + "m^3 \nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2 \nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2 \nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg \nCost: $" + Mathf.Round(GetTotalCost() * 100f) / 100 + "CAD";
         }
         else {
             StatisticsText.text = "";
@@ -863,9 +864,10 @@ public class BlockPlacer : MonoBehaviour
         RepositionFurnitureOnGround();
 
         //should add a check here to avoid an out of bounds error
-        SelectedModule.materialID = materialDropdown.value;
-        SelectedModule.selectedMat = SelectedMat[materialDropdown.value];
-        SelectedModule.unselectedMat = UnselectedMat[materialDropdown.value];
+        SelectedModule.CoreMaterial = CoreMaterialDropDown.value;
+        SelectedModule.materialID = SurfaceMaterialDropdown.value;
+        SelectedModule.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
+        SelectedModule.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
         SelectedModule.SetSelected(true);
     }
 
@@ -873,9 +875,10 @@ public class BlockPlacer : MonoBehaviour
     {
         foreach (var item in AllBlocks)
         {
-            item.materialID = materialDropdown.value;
-            item.selectedMat = SelectedMat[materialDropdown.value];
-            item.unselectedMat = UnselectedMat[materialDropdown.value];
+            item.materialID = SurfaceMaterialDropdown.value;
+            item.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
+            item.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
+            item.CoreMaterial = CoreMaterialDropDown.value;
             item.SetSelected(false);
             
         }
@@ -929,7 +932,7 @@ public class BlockPlacer : MonoBehaviour
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
             WidthBInput.text = SelectedModule.blockWidthB + "";
-            materialDropdown.value = SelectedModule.materialID;
+            
 
             if (SelectedModule.allowHorizontalDividers)
             {
@@ -940,6 +943,9 @@ public class BlockPlacer : MonoBehaviour
             {
                 ShelfInput.text = SelectedModule.VDividercount + "";
             }
+
+            SurfaceMaterialDropdown.value = SelectedModule.materialID;
+            CoreMaterialDropDown.value = SelectedModule.CoreMaterial;
         }
         else {
             SelectionPannel.SetActive(false);
@@ -1000,5 +1006,14 @@ public class BlockPlacer : MonoBehaviour
         }
         return volume;
     }
-    
+
+    public float GetTotalCost()
+    {
+        float cost = 0;
+        foreach (var item in AllBlocks)
+        {
+            cost += item.GetCost();
+        }
+        return cost;
+    }
 }

@@ -8,10 +8,14 @@ public class ScalableComponent : MonoBehaviour
     public float matThickness = 0.02f;//thickness of sheet material
     public float WD, WH, HD;//multiples of front/back, sides and top/bottom face areas
     public float subtracttionArea;//static amount to be subtracted for connections etc
-    
+
 
     //selection
     [Header("Selection")]
+    public int CoreMaterial = 0;
+    //0-Premium Pine Plywood = 91.88/2.9729 = 30.90
+    //1-spruce plywood = 62.98 /2.9729 = 21.18
+    //2-MDF = 56.98/3.066445 = 18.58
     public int materialID;
     public bool selected = false;
     public Material unselectedMat;
@@ -913,5 +917,31 @@ public class ScalableComponent : MonoBehaviour
         float volume = GetMaterialArea() * matThickness;
         return volume;
     }
-    
+
+    public float GetCost()
+    {
+        //costs per m2
+        //Premium Pine Plywood = 91.88/2.9729 = 30.90
+        //spruce plywood = 62.98 /2.9729 = 21.18
+        //MDF = 56.98/3.066445 = 18.58
+
+        float cost = 0;
+        float costperm2 = 0;
+        switch (CoreMaterial)
+        {
+            case (0):
+                costperm2 = 30.90f;
+                break;
+            case (1):
+                costperm2 = 21.18f;
+                break;
+            case (2):
+                costperm2 = 21.18f;
+                break;
+            default:
+                break;
+        }
+        cost = GetMaterialArea() * costperm2;
+        return cost;
+    }
 }
