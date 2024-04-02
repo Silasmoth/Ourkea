@@ -7,6 +7,8 @@ using AsciiFBXExporter;
 using SFB;
 public class BlockPlacer : MonoBehaviour
 {
+    
+    public ViewportMover viewport;// reference to the viewport mover, used to get the camera rotation when placing the dimention lines
 
     public bool showstats = false; //show the millwork stats or not
     public TMP_Text showStatsButton; // the text on the "show/hide stats" button
@@ -340,17 +342,87 @@ public class BlockPlacer : MonoBehaviour
 
         if (ShowDim)
         {
-            VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
-            VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
-            VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
+            float maxX = GetMaxX();
+            float minX = GetMixX();
+            float maxY = GetMaxY();
+            float maxZ = GetMaxZ();
+            float minZ = GetMinZ();
 
-            XlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMaxZ());
-            XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            if (viewport.clampedXRot >= 90 && viewport.clampedXRot <= 180)
+            {
+                VerticalDimDisplay.Coord1 = new Vector3(maxX, 0, maxZ);
+                VerticalDimDisplay.Coord2 = new Vector3(maxX, maxY, maxZ);
+                VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
+            }
+            else {
+
+                if (viewport.clampedXRot >= 180 && viewport.clampedXRot < 270)
+                {
+                    VerticalDimDisplay.Coord1 = new Vector3(maxX, 0, minZ);
+                    VerticalDimDisplay.Coord2 = new Vector3(maxX, maxY, minZ);
+                    VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, -0.1f);
+                }
+                else
+                {
+                    if (viewport.clampedXRot >= 270 && viewport.clampedXRot < 360)
+                    {
+                        VerticalDimDisplay.Coord1 = new Vector3(minX, 0, minZ);
+                        VerticalDimDisplay.Coord2 = new Vector3(minX, maxY, minZ);
+                        VerticalDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, -0.1f);
+                    }
+                    else
+                    {
+                        VerticalDimDisplay.Coord1 = new Vector3(minX, 0, maxZ);
+                        VerticalDimDisplay.Coord2 = new Vector3(minX, maxY, maxZ);
+                        VerticalDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0.1f);
+
+                    }
+
+                }
+            }
+            
+
+            XlDimDisplay.Coord1 = new Vector3(minX, 0, maxZ);
+            XlDimDisplay.Coord2 = new Vector3(maxX, 0, maxZ);
             XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
 
-            ZlDimDisplay.Coord1 = new Vector3(GetMixX(), 0, GetMinZ());
-            ZlDimDisplay.Coord2 = new Vector3(GetMixX(), 0, GetMaxZ());
-            ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
+
+            if (viewport.clampedXRot >= 0 && viewport.clampedXRot <= 180)
+            {
+                ZlDimDisplay.Coord1 = new Vector3(minX, 0, minZ);
+                ZlDimDisplay.Coord2 = new Vector3(minX, 0, maxZ);
+                ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
+            }
+            else {
+                ZlDimDisplay.Coord1 = new Vector3(maxX, 0, minZ);
+                ZlDimDisplay.Coord2 = new Vector3(maxX, 0, maxZ);
+                ZlDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0);
+            }
+
+            if ((viewport.clampedXRot >= 90 && viewport.clampedXRot <= 180) || (viewport.clampedXRot >= 270 && viewport.clampedXRot <= 360))
+            {
+                XlDimDisplay.textoffset = 2;
+                ZlDimDisplay.textoffset = 0;
+            }
+            else {
+                XlDimDisplay.textoffset = 0;
+                ZlDimDisplay.textoffset = 2;
+            }
+            
+
+
+            if (viewport.clampedXRot >= 90 && viewport.clampedXRot <= 270)
+            {
+                XlDimDisplay.Coord1 = new Vector3(minX, 0, maxZ);
+                XlDimDisplay.Coord2 = new Vector3(maxX, 0, maxZ);
+                XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
+            }
+            else
+            {
+                XlDimDisplay.Coord1 = new Vector3(minX, 0, minZ);
+                XlDimDisplay.Coord2 = new Vector3(maxX, 0, minZ);
+                XlDimDisplay.DisplayOffset = new Vector3(0, 0, -0.1f);
+            }
 
             VerticalDimDisplay.UpdateCoords();
             XlDimDisplay.UpdateCoords();
@@ -1015,5 +1087,15 @@ public class BlockPlacer : MonoBehaviour
             cost += item.GetCost();
         }
         return cost;
+    }
+
+    public float GetTotalMass()
+    {
+        float mass = 0;
+        foreach (var item in AllBlocks)
+        {
+            mass += item.Getmass();
+        }
+        return mass;
     }
 }

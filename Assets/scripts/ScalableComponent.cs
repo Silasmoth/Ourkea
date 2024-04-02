@@ -944,4 +944,31 @@ public class ScalableComponent : MonoBehaviour
         cost = GetMaterialArea() * costperm2;
         return cost;
     }
+
+    public float Getmass()
+    {
+        //costs per m2
+        //Premium Pine Plywood = 91.88/2.9729 = 30.90
+        //spruce plywood = 62.98 /2.9729 = 21.18
+        //MDF = 56.98/3.066445 = 18.58
+
+        float mass = 0;
+        float massPerM3 = 0;
+        switch (CoreMaterial)
+        {
+            case (0):
+                massPerM3 = 650;
+                break;
+            case (1):
+                massPerM3 = 650;
+                break;
+            case (2):
+                massPerM3 = 700;
+                break;
+            default:
+                break;
+        }
+        mass = GetmaterialVolume() * massPerM3;
+        return mass;
+    }
 }

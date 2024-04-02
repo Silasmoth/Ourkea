@@ -10,7 +10,7 @@ public class ViewportMover : MonoBehaviour
     public GameObject cameraTarget;
     public float zoomlevel;
     float zoomscale = 0.1f;
-    
+    public float clampedXRot;
 
     // Update is called once per frame
     void Update()
@@ -29,11 +29,17 @@ public class ViewportMover : MonoBehaviour
         sceneYRot = Mathf.Clamp( Input.mousePosition.y - mouseY + oldYRot,-300,50);
         }
 
-        cameraTarget.transform.rotation = Quaternion.EulerAngles(-sceneYRot/360, sceneXRot/360, 0);
+        cameraTarget.transform.rotation = Quaternion.Euler(-sceneYRot/Mathf.PI, sceneXRot/Mathf.PI, 0);
 
         zoomlevel -= Input.mouseScrollDelta.y * zoomscale;
         zoomlevel = Mathf.Clamp(zoomlevel, 1, 10);
 
         Camera.main.transform.localPosition = new Vector3(0, 1, -zoomlevel);
+
+        clampedXRot = (sceneXRot/Mathf.PI) % 360;
+        if (clampedXRot < 0)
+        {
+            clampedXRot += 360;
+        }
     }
 }

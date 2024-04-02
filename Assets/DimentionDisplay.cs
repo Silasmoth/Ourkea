@@ -5,6 +5,8 @@ using UnityEngine;
 using TMPro;
 public class DimentionDisplay : MonoBehaviour
 {
+
+    public int textoffset = 0; // 0 - left, 1 - center, 2 - right
     public Vector3 Coord1;
     public Vector3 Coord2;
     public Vector3 DisplayOffset;
@@ -38,5 +40,24 @@ public class DimentionDisplay : MonoBehaviour
 
         DimText.transform.position = ((Coord1 + Coord2) / 2) + DisplayOffset*2;
         DimText.text =  Mathf.Round((Coord1 - Coord2).magnitude * 1000f) + "mm";
+        switch (textoffset)
+        {
+            case (0):
+                DimText.alignment = TextAlignmentOptions.Left;
+                break;
+
+            case (1):
+                DimText.alignment = TextAlignmentOptions.Center;
+                break;
+
+            case (2):
+                DimText.alignment = TextAlignmentOptions.Right;
+                break;
+
+            default:
+                DimText.alignment = TextAlignmentOptions.Center;
+                break;
+        }
+        
     }
 }
