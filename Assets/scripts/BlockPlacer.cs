@@ -7,7 +7,7 @@ using AsciiFBXExporter;
 using SFB;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using UnityEngine.Windows;
+//using UnityEngine.Windows;
 
 public class BlockPlacer : MonoBehaviour
 {
@@ -1304,6 +1304,10 @@ public class BlockPlacer : MonoBehaviour
             }
             PlacedBlockComponent.index = i;
             PlacedBlockComponent.recalculateDimentions(false);
+            PlacedBlockComponent.selectedMat = SelectedMat[_Model.FinishMaterial[i]];
+            PlacedBlockComponent.unselectedMat = UnselectedMat[_Model.FinishMaterial[i]];
+            PlacedBlockComponent.SetSelected(false);
+
         }
 
         //now create all connections
@@ -1311,6 +1315,12 @@ public class BlockPlacer : MonoBehaviour
         {
             AllBlocks[_Model.Mod1[i]].ConnectedModules[_Model.ConnectionSlotMod1[i]] = AllBlocks[_Model.Mod2[i]];
             AllBlocks[_Model.Mod2[i]].ConnectedModules[_Model.ConnectionSlotMod2[i]] = AllBlocks[_Model.Mod1[i]];
+        }
+
+        foreach (var item in AllBlocks)
+        {
+            item.DoubleWall = doubleWalls;
+            item.recalculateDimentions(false);
         }
     }
 
@@ -1380,10 +1390,36 @@ public class BlockPlacer : MonoBehaviour
         _path = StandaloneFileBrowser.OpenFilePanel("Export File", "", "shelf", false)[0];
 
         BinaryReader Reader = null;
-        byte[] buffer = UnityEngine.Windows.File.ReadAllBytes(_path);
+        byte[] buffer = File.ReadAllBytes(_path);
 
         var modelDesc = BytesToModel(buffer);
 
         OpenModel(modelDesc);
+    }
+
+    public void LoadExampleModel(int _exampleNum)
+    {
+        switch (_exampleNum)
+        {
+
+            case (0):
+                _path = Application.dataPath + "/StreamingAssets/Example1.shelf";
+                break;
+
+            case (1):
+                _path = Application.dataPath + "/StreamingAssets/Example2.shelf";
+                break;
+
+            default:
+                break;
+        }
+
+        BinaryReader Reader = null;
+        byte[] buffer = File.ReadAllBytes(_path);
+
+        var modelDesc = BytesToModel(buffer);
+
+        OpenModel(modelDesc);
+
     }
 }
