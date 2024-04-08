@@ -436,7 +436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   index: 0
-  moduleType: 4
+  moduleType: 8
   DoubleWall: 1
   wallThickness: 0.018
   matThickness: 0.02

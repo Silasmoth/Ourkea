@@ -82,15 +82,35 @@ public class BlockPlacer : MonoBehaviour
     public Material[] UnselectedMat;
     public Material[] SelectedMat;
 
-
+    SceneMem sceneMem;
 
     // Start is called before the first frame update
     void Start()
     {
+
+
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
         AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
         if (starterBlock != null)//add the starter block to the list if there is one
             AllBlocks.Add(starterBlock);
+
+        //see if there is a scene memory in which case find it then load correct project
+        try
+        {
+            sceneMem = GameObject.Find("SceneMemory").GetComponent<SceneMem>();
+            if (sceneMem.sceneType != -1)
+            {
+                LoadExampleModel(sceneMem.sceneType);
+            }
+            
+
+        }
+        catch (System.Exception)
+        {
+
+            throw;
+        }
+
     }
 
 
