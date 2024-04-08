@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using AsciiFBXExporter;
 using SFB;
@@ -12,7 +13,8 @@ using System.IO;
 public class BlockPlacer : MonoBehaviour
 {
 
-    const int BYTE_SIZE = 8000;
+    const int BYTE_SIZE = 8000;//used for saving, means max blocks around 100
+    public ScrollRect moduleScroll;//used to allow/prevent scrolling while dragging
     public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
     public TMP_Text doubleWallsButton; // the text on the toggle double walls button
     
@@ -171,9 +173,10 @@ public class BlockPlacer : MonoBehaviour
 
         if (Dragingblock)
         {
+            moduleScroll.enabled = false;
             //update the visual of the ModulePreview
             //first see if we are in a plausible location for scnapping
-            
+
 
             RaycastHit hit;
 
@@ -182,7 +185,7 @@ public class BlockPlacer : MonoBehaviour
                 var HitBlockSnap = hit.collider.gameObject.GetComponent<BlockSnap>(); //stores the blocksnap of the blocksnap that was clicked
                 var HitBlockComponent = hit.collider.gameObject.GetComponentInParent<ScalableComponent>(); //stores the scalablecomponent of the block that was clicked on
 
-                
+
                 if (HitBlockSnap != null && HitBlockComponent.ConnectedModules[HitBlockSnap.mySnapIndex] == null)
                 {
                     //mouse over snaping point of furniture
@@ -320,12 +323,14 @@ public class BlockPlacer : MonoBehaviour
                     PlacedBlockComponent.SetPositionAndRotation(HitBlockSnap.snapPos, HitBlockSnap.targetsnapIndex);
                     //set the position of the newly created block
                 }
-                else {
-                    if(AllBlocks.Count == 0)
+                else
+                {
+                    if (AllBlocks.Count == 0)
                     {
                         //there are no blocks in the scene, let them place one on the ground
-                        ModulePreview.transform.position = hit.point + new Vector3(0,ModulePreview.GetComponent<ScalableComponent>().blockHeight/2,0);
-                    }else
+                        ModulePreview.transform.position = hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0);
+                    }
+                    else
                     {
                         DragPreviewToMouse();
                         if (ModulePreview.transform.position.y - ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2 <= 0)
@@ -334,14 +339,20 @@ public class BlockPlacer : MonoBehaviour
                         }
                     }
 
-                    
+
                 }
             }
-            else {
+            else
+            {
                 //not in a snapping location
                 DragPreviewToMouse();
             }
         }
+        else
+        {
+            moduleScroll.enabled = true;
+        }
+
 
         if (UnityEngine.Input.GetMouseButtonUp(0))
         {
@@ -559,9 +570,10 @@ public class BlockPlacer : MonoBehaviour
 
         for (int i = 0; i < AllBlocks.Count; i++)
         {
-            if ((AllBlocks[i].transform.position.y + AllBlocks[i].blockHeight / 2) > maxY)
+
+            if (AllBlocks[i].GetMaxY() > maxY)
             {
-                maxY = (AllBlocks[i].transform.position.y + AllBlocks[i].blockHeight / 2);
+                maxY = AllBlocks[i].GetMaxY();
             }
         }
 

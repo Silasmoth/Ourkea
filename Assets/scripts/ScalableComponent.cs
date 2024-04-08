@@ -1298,4 +1298,19 @@ public class ScalableComponent : MonoBehaviour
         mass = GetmaterialVolume() * massPerM3;
         return mass;
     }
+
+    public float GetMaxY()
+    {
+        if (!isCounter)
+        {
+            return transform.position.y + blockHeight / 2;
+        }
+        else
+        { 
+        return transform.position.y - blockHeight / 2 + matThickness;
+        }
+        
+    }
+
+    
 }
