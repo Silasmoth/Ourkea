@@ -5,8 +5,14 @@ using TMPro;
 using UnityEngine.EventSystems;
 using AsciiFBXExporter;
 using SFB;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using UnityEngine.Windows;
+
 public class BlockPlacer : MonoBehaviour
 {
+
+    const int BYTE_SIZE = 8000;
     public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
     public TMP_Text doubleWallsButton; // the text on the toggle double walls button
     
@@ -91,9 +97,9 @@ public class BlockPlacer : MonoBehaviour
     {
 
         //this is just temporary way of switching bewteen block types, it should be something visible
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 
-        if (Input.GetMouseButtonDown(0))
+        if (UnityEngine.Input.GetMouseButtonDown(0))
         {
             //mouse down
             //there was a click
@@ -337,7 +343,7 @@ public class BlockPlacer : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonUp(0))
+        if (UnityEngine.Input.GetMouseButtonUp(0))
         {
             //mouse was released
             if (Dragingblock)
@@ -618,7 +624,7 @@ public class BlockPlacer : MonoBehaviour
     }
     void PlaceBlockAtMouse()
     {
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 100f, PlacementLayers))
@@ -919,7 +925,7 @@ public class BlockPlacer : MonoBehaviour
         m_Plane = new Plane(camera.transform.forward, Vector3.zero);
 
         //Create a ray from the Mouse click position
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
 
         //Initialise the enter variable
         float enter = 0.0f;
@@ -997,7 +1003,7 @@ public class BlockPlacer : MonoBehaviour
 
         //should add a check here to avoid an out of bounds error
         SelectedModule.CoreMaterial = CoreMaterialDropDown.value;
-        SelectedModule.materialID = SurfaceMaterialDropdown.value;
+        SelectedModule.FinishMaterial = SurfaceMaterialDropdown.value;
         SelectedModule.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
         SelectedModule.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
         SelectedModule.SetSelected(true);
@@ -1007,7 +1013,7 @@ public class BlockPlacer : MonoBehaviour
     {
         foreach (var item in AllBlocks)
         {
-            item.materialID = SurfaceMaterialDropdown.value;
+            item.FinishMaterial = SurfaceMaterialDropdown.value;
             item.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
             item.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
             item.CoreMaterial = CoreMaterialDropDown.value;
@@ -1076,7 +1082,7 @@ public class BlockPlacer : MonoBehaviour
                 ShelfInput.text = SelectedModule.VDividercount + "";
             }
 
-            SurfaceMaterialDropdown.value = SelectedModule.materialID;
+            SurfaceMaterialDropdown.value = SelectedModule.FinishMaterial;
             CoreMaterialDropDown.value = SelectedModule.CoreMaterial;
         }
         else {
@@ -1088,7 +1094,7 @@ public class BlockPlacer : MonoBehaviour
     public void Exportmodel()
     {
         //get file location and file name
-        _path = StandaloneFileBrowser.SaveFilePanel("Export File", "", "Custom_Furniture", ".fbx");
+        _path = StandaloneFileBrowser.SaveFilePanel("Export File", "", "Custom_Furniture", "fbx");
         Exporter.Fullpath = _path;
         for (int i = 0; i < AllBlocks.Count; i++)
         {
@@ -1157,5 +1163,227 @@ public class BlockPlacer : MonoBehaviour
             mass += item.Getmass();
         }
         return mass;
+    }
+
+    public void ReloadModel() //saves and them imediately loads the saved model, for testing save/load
+    {
+        var temp = SaveModel();
+
+        OpenModel(temp);
+    }
+    public ModelDescription SaveModel()
+    {
+        ModelDescription output = new ModelDescription();
+        output.DoubleWall = doubleWalls;
+
+        
+
+        //fill out all module types, positions and rotations
+        output.ModuleType = new byte[AllBlocks.Count];
+        output.ModulePosX = new float[AllBlocks.Count];
+        output.ModulePosY = new float[AllBlocks.Count];
+        output.ModulePosZ = new float[AllBlocks.Count];
+        output.ModuleRotY = new float[AllBlocks.Count];
+        output.CoreMaterial = new byte[AllBlocks.Count];
+        output.FinishMaterial = new byte[AllBlocks.Count];
+        output.Width = new float[AllBlocks.Count];
+        output.WidthB = new float[AllBlocks.Count];
+        output.Height = new float[AllBlocks.Count];
+        output.ShelfCount = new byte[AllBlocks.Count];
+        for (int i = 0; i < AllBlocks.Count; i++)
+        {
+            AllBlocks[i].index = i;
+            output.ModuleType[i] = AllBlocks[i].moduleType;
+            output.ModulePosX[i] = AllBlocks[i].transform.position.x;
+            output.ModulePosY[i] = AllBlocks[i].transform.position.y;
+            output.ModulePosZ[i] = AllBlocks[i].transform.position.z;
+            output.ModuleRotY[i] = AllBlocks[i].transform.eulerAngles.y;
+            output.CoreMaterial[i] = (byte)AllBlocks[i].CoreMaterial;
+            output.FinishMaterial[i] = (byte)AllBlocks[i].FinishMaterial;
+            output.Width[i] = AllBlocks[i].blockWidth;
+            output.WidthB[i] = AllBlocks[i].blockWidthB;
+            output.Height[i] = AllBlocks[i].blockHeight;
+            if (AllBlocks[i].allowHorizontalDividers)
+            {
+                output.ShelfCount[i] = (byte)AllBlocks[i].HDividercount;
+            }
+            else
+            {
+                output.ShelfCount[i] = (byte)AllBlocks[i].VDividercount;
+            }
+        }
+
+
+        //fill out all connections
+        //first find how many connections there are
+        //only look at top and right connections to avoid getting double connections in array
+        int connectioncount = 0;
+        foreach (var item in AllBlocks)
+        {
+            if (item.ConnectedModules[0] != null)
+            {
+                //connection top side
+                connectioncount++;
+            }
+            if (item.ConnectedModules[2] != null)
+            {
+                //connection right side
+                connectioncount++;
+            }
+        }
+
+        output.Mod1 = new int[connectioncount];
+        output.Mod2 = new int[connectioncount];
+        output.ConnectionSlotMod1 = new byte[connectioncount];
+        output.ConnectionSlotMod2 = new byte[connectioncount];
+
+        int counter = 0;
+        foreach (var item in AllBlocks)
+        {
+            if (item.ConnectedModules[0] != null)
+            {
+                //connection top side
+                output.Mod1[counter] = item.index;
+                output.Mod2[counter] = item.ConnectedModules[0].index;
+                output.ConnectionSlotMod1[counter] = 0;
+                output.ConnectionSlotMod2[counter] = 1;
+                counter++;
+            }
+            if (item.ConnectedModules[2] != null)
+            {
+                //connection right side
+                output.Mod1[counter] = item.index;
+                output.Mod2[counter] = item.ConnectedModules[2].index;
+                output.ConnectionSlotMod1[counter] = 2;
+                output.ConnectionSlotMod2[counter] = 3;
+                counter++;
+            }
+        }
+
+        
+        return output;
+    }
+
+    public void OpenModel(ModelDescription _Model)
+    {
+
+        //first, clear up existing model
+        SelectedModule = null;
+        UpdateSelectionUI(false);
+        List<GameObject> toDelete = new List<GameObject>();
+        foreach (var item in AllBlocks)
+        {
+            
+            Destroy(item.gameObject);
+        }
+
+        doubleWalls = _Model.DoubleWall;
+        //now, create all modules
+        AllBlocks = new List<ScalableComponent>();
+        for (int i = 0; i < _Model.ModuleType.Length; i++)
+        {
+            GameObject PlacedBlock = Instantiate(blockPrefab[_Model.ModuleType[i]], new Vector3(_Model.ModulePosX[i], _Model.ModulePosY[i], _Model.ModulePosZ[i]), Quaternion.Euler(0,_Model.ModuleRotY[i],0));//create the new block
+            var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
+            
+            AllBlocks.Add(PlacedBlockComponent);
+            PlacedBlockComponent.DoubleWall = doubleWalls;
+            PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
+            PlacedBlockComponent.CoreMaterial = _Model.CoreMaterial[i];
+            PlacedBlockComponent.FinishMaterial = _Model.FinishMaterial[i];
+            PlacedBlockComponent.blockWidth = _Model.Width[i];
+            PlacedBlockComponent.blockWidthB = _Model.WidthB[i];
+            PlacedBlockComponent.blockHeight = _Model.Height[i];
+            if (PlacedBlockComponent.allowHorizontalDividers)
+            {
+                PlacedBlockComponent.HDividercount = _Model.ShelfCount[i];
+
+            }
+            else
+            {
+                PlacedBlockComponent.VDividercount = _Model.ShelfCount[i];
+            }
+            PlacedBlockComponent.index = i;
+            PlacedBlockComponent.recalculateDimentions(false);
+        }
+
+        //now create all connections
+        for (int i = 0; i < _Model.Mod1.Length; i++)
+        {
+            AllBlocks[_Model.Mod1[i]].ConnectedModules[_Model.ConnectionSlotMod1[i]] = AllBlocks[_Model.Mod2[i]];
+            AllBlocks[_Model.Mod2[i]].ConnectedModules[_Model.ConnectionSlotMod2[i]] = AllBlocks[_Model.Mod1[i]];
+        }
+    }
+
+    public byte[] ModelToBytes(ModelDescription _Model)
+    {
+        
+        byte[] buffer = new byte[BYTE_SIZE];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        formatter.Serialize(ms, _Model);
+        var shortbuffer = new byte[ms.Position + 1];
+        for (int i = 0; i < shortbuffer.Length; i++)
+        {
+            shortbuffer[i] = buffer[i];
+        }
+
+        return shortbuffer;
+    }
+
+    public ModelDescription BytesToModel(byte[] _bytes)
+    {
+        ModelDescription output = new ModelDescription();
+
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(_bytes);
+        output = (ModelDescription)formatter.Deserialize(ms);
+        return output;
+    }
+    public void SaveModelAs()
+    {
+        //get file location and file name
+        _path = StandaloneFileBrowser.SaveFilePanel("Save File", "", "Custom_Furniture", "shelf");
+        var modelDesc = SaveModel();
+
+        var modelBytes = ModelToBytes(modelDesc);
+
+        SaveData(_path, modelBytes);
+    }
+    protected bool SaveData(string FileName, byte[] Data)
+    {
+        BinaryWriter Writer = null;
+       
+
+        try
+        {
+            // Create a new stream to write to the file
+            Writer = new BinaryWriter(System.IO.File.OpenWrite(FileName));
+
+            // Writer raw data                
+            Writer.Write(Data);
+            Writer.Flush();
+            Writer.Close();
+        }
+        catch
+        {
+            //...
+            return false;
+        }
+
+        return true;
+    }
+
+    public void OpenModelFromFile()
+    {
+        _path = StandaloneFileBrowser.OpenFilePanel("Export File", "", "shelf", false)[0];
+
+        BinaryReader Reader = null;
+        byte[] buffer = UnityEngine.Windows.File.ReadAllBytes(_path);
+
+        var modelDesc = BytesToModel(buffer);
+
+        OpenModel(modelDesc);
     }
 }

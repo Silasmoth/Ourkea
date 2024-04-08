@@ -146,7 +146,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3f32237914aaa48afa578911174221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materialID: 0
+  index: 0
+  moduleType: 7
+  DoubleWall: 1
+  wallThickness: 0.02
+  matThickness: 0.02
+  WD: 0
+  WH: 0
+  HD: 0
+  subtracttionArea: 0
+  CoreMaterial: 0
+  FinishMaterial: 0
   selected: 0
   unselectedMat: {fileID: 2100000, guid: ee480d7f2945a754d84c2bfc3f348ee2, type: 2}
   selectedMat: {fileID: 2100000, guid: bb79c122c2311fe44b60c251af74d533, type: 2}

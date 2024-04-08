@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class ScalableComponent : MonoBehaviour
 {
+    //for saving and loading
+    public int index;//each module is assigned an index to help with remembering which modules are connected to each other in the saving process
+
+    public byte moduleType = 0;
     public bool DoubleWall = true;
     public float wallThickness = 0.02f;
 
@@ -15,11 +19,11 @@ public class ScalableComponent : MonoBehaviour
 
     //selection
     [Header("Selection")]
-    public int CoreMaterial = 0;
+    public int CoreMaterial = 0;//core material
     //0-Premium Pine Plywood = 91.88/2.9729 = 30.90
     //1-spruce plywood = 62.98 /2.9729 = 21.18
     //2-MDF = 56.98/3.066445 = 18.58
-    public int materialID;
+    public int FinishMaterial;//finish material
     public bool selected = false;
     public Material unselectedMat;
     public Material selectedMat;
