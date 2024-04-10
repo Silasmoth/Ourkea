@@ -849,7 +849,7 @@ public class ScalableComponent : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         //make sure the connections array is initialised, normally it gets initialised when the block is placed by the blockplacer, but in case it already existed in the scene
         if(ConnectedModules.Length < snappingPoints.Length)

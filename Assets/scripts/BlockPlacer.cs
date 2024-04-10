@@ -12,6 +12,9 @@ using System.IO;
 
 public class BlockPlacer : MonoBehaviour
 {
+    public bool ShowBackWall = false;//used to determine if back wall should be shown or not
+    public TMP_Text BackwallButton; //the text on the toggle back wall button
+    public GameObject BackWall; //used for previewing furniture with a back wall
 
     const int BYTE_SIZE = 8000;//used for saving, means max blocks around 100
     public ScrollRect moduleScroll;//used to allow/prevent scrolling while dragging
@@ -84,16 +87,21 @@ public class BlockPlacer : MonoBehaviour
 
     SceneMem sceneMem;
 
+    //furniture bounds storage
+    float maxX, minX, maxY, minY, maxZ, minZ;
+
     // Start is called before the first frame update
     void Start()
     {
-
+       
 
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
         AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
         if (starterBlock != null)//add the starter block to the list if there is one
             AllBlocks.Add(starterBlock);
 
+        refreshToggles();//refresh all of the toggle buttons so that things are correctly shown/hidden and the buttons have correct text
+        UpdateMaxMins();
         //see if there is a scene memory in which case find it then load correct project
         try
         {
@@ -110,6 +118,8 @@ public class BlockPlacer : MonoBehaviour
 
             throw;
         }
+
+        
 
     }
 
@@ -379,15 +389,34 @@ public class BlockPlacer : MonoBehaviour
                     if (AllBlocks.Count == 0)
                     {
                         //there are no blocks in the scene, let them place one on the ground
-                        ModulePreview.transform.position = hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0);
+                        if (ShowBackWall)
+                        {
+                            ModulePreview.transform.position = new Vector3( - ModulePreview.GetComponent<ScalableComponent>().blockDepth / 2, Mathf.Clamp(hit.point.y, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 100), hit.point.z);
+                        }
+                        else {
+                            ModulePreview.transform.position = new Vector3(hit.point.x, Mathf.Clamp(hit.point.y, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 100), hit.point.z);
+                        }
+
+                       
                     }
                     else
                     {
-                        DragPreviewToMouse();
-                        if (ModulePreview.transform.position.y - ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2 <= 0)
+
+                        if (ShowBackWall)
                         {
-                            ModulePreview.transform.position = hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0);
+                            ModulePreview.transform.position = new Vector3(Mathf.Clamp(hit.point.x, -99, GetMaxX() - ModulePreview.GetComponent<ScalableComponent>().blockDepth / 2), Mathf.Clamp(hit.point.y, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 100), hit.point.z);
                         }
+                        else
+                        {
+                            DragPreviewToMouse();
+                            if (ModulePreview.transform.position.y - ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2 <= 0)
+                            {
+                                ModulePreview.transform.position = hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0);
+                            }
+                        }
+
+                        
+                        
                     }
 
 
@@ -524,7 +553,98 @@ public class BlockPlacer : MonoBehaviour
     
     }
 
+    public void refreshToggles()
+    {
+        //update button
+        if (ShowDim)
+        {
+            VerticalDimDisplay.gameObject.SetActive(true);
+            XlDimDisplay.gameObject.SetActive(true);
+            ZlDimDisplay.gameObject.SetActive(true);
+            showdimButton.text = "Hide Dimensions";
 
+            VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
+            VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
+
+            XlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMaxZ());
+            XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
+            XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
+
+            ZlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMinZ());
+            ZlDimDisplay.Coord2 = new Vector3(GetMinX(), 0, GetMaxZ());
+            ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
+
+            VerticalDimDisplay.UpdateCoords();
+            XlDimDisplay.UpdateCoords();
+            ZlDimDisplay.UpdateCoords();
+        }
+        else
+        {
+            VerticalDimDisplay.gameObject.SetActive(false);
+            XlDimDisplay.gameObject.SetActive(false);
+            ZlDimDisplay.gameObject.SetActive(false);
+            showdimButton.text = "Show Dimensions";
+        }
+
+        if (showstats)
+        {
+            showStatsButton.text = "Hide Statistics";
+        }
+        else
+        {
+            showStatsButton.text = "Show Statistics";
+        }
+
+        ScaleFigure.SetActive(showFigure);
+        if (showFigure)
+        {
+            ShowFigureButton.text = "Hide Scale Figure";
+        }
+        else
+        {
+            ShowFigureButton.text = "Show Scale Figure";
+        }
+
+        foreach (var item in AllBlocks)
+        {
+            item.DoubleWall = doubleWalls;
+            item.recalculateDimentions(false);
+        }
+
+        if (doubleWalls)
+        {
+            doubleWallsButton.text = "Double Wall Thickness";
+        }
+        else
+        {
+            doubleWallsButton.text = "Single Wall Thickness";
+        }
+
+        BackWall.SetActive(ShowBackWall);
+        if (ShowBackWall)
+        {
+            BackwallButton.text = "Hide Back Wall";
+        }
+        else
+        {
+            BackwallButton.text = "Show Back Wall";
+        }
+    }
+    public void ToggleBackWall()
+    {
+        ShowBackWall = !ShowBackWall;
+        BackWall.SetActive(ShowBackWall);
+        if (ShowBackWall)
+        {
+            BackwallButton.text = "Hide Back Wall";
+        }
+        else
+        {
+            BackwallButton.text = "Show Back Wall";
+        }
+        UpdateMaxMins();
+    }
     public void ToggleDim()
     {
         //toggle showDim
@@ -613,7 +733,31 @@ public class BlockPlacer : MonoBehaviour
 
     void UpdateFigurePos()
     {
-        ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
+        if (ShowBackWall)
+        {
+
+            if (AllBlocks.Count == 0)
+            {
+                ScaleFigure.transform.position = new Vector3( - 1, 0, - 1);
+            }
+            else
+            {
+                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2 - 1, 0, GetMinZ() - 1);
+            }
+           
+        }
+        else
+        {
+            if (AllBlocks.Count == 0)
+            {
+                ScaleFigure.transform.position = new Vector3(0, 0, -1);
+            }
+            else {
+                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
+            }
+            
+        }
+        
     }
     float GetMaxY()
     {
@@ -695,12 +839,31 @@ public class BlockPlacer : MonoBehaviour
             if (AllBlocks.Count == 0)
             {
                 //there are no blocks in the scene, place this one at mouse position : hit.point + new Vector3(0,ModulePreview.GetComponent<ScalableComponent>().blockHeight/2,0);
-                GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], hit.point + new Vector3(0, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 0), Quaternion.identity);//create the new block
+                Vector3 spawnpos;
+                if (ShowBackWall)
+                {
+                    spawnpos = new Vector3(-ModulePreview.GetComponent<ScalableComponent>().blockDepth / 2, Mathf.Clamp(hit.point.y, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 100), hit.point.z);
+                }
+                else
+                {
+                    spawnpos = new Vector3(hit.point.x, Mathf.Clamp(hit.point.y, ModulePreview.GetComponent<ScalableComponent>().blockHeight / 2, 100), hit.point.z);
+                }
+                GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], spawnpos, Quaternion.identity);//create the new block
                 var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                 AllBlocks.Add(PlacedBlockComponent);
                 PlacedBlockComponent.DoubleWall = doubleWalls;
                 PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
                 PlacedBlockComponent.recalculateDimentions(true);
+
+                if (SelectedModule != null)
+                {
+                    SelectedModule.SetSelected(false);
+                }
+
+                SelectedModule = PlacedBlockComponent;
+                SelectedModule.SetSelected(true);
+                UpdateSelectionUI(true);
+                ApplyUpdatesToSelection();
             }
             else
             {
@@ -999,6 +1162,8 @@ public class BlockPlacer : MonoBehaviour
 
            
         }
+
+        UpdateMaxMins();
     }
 
     void DragPreviewToMouse()
@@ -1020,7 +1185,7 @@ public class BlockPlacer : MonoBehaviour
             //Get the point that is clicked
             Vector3 hitPoint = ray.GetPoint(enter);
 
-            //Move your cube GameObject to the point where you clicked
+            
             ModulePreview.transform.position = hitPoint;
         }
     }
@@ -1047,6 +1212,8 @@ public class BlockPlacer : MonoBehaviour
                 item.transform.position += new Vector3(0, RequiredYchange, 0);
             }
         }
+
+        UpdateMaxMins();
     }
 
     public void ApplyUpdatesToSelection()
@@ -1092,6 +1259,8 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
         SelectedModule.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
         SelectedModule.SetSelected(true);
+
+        UpdateMaxMins();
     }
 
     public void ApplyMaterialToAll()
@@ -1407,6 +1576,8 @@ public class BlockPlacer : MonoBehaviour
             item.DoubleWall = doubleWalls;
             item.recalculateDimentions(false);
         }
+
+        UpdateMaxMins();
     }
 
     public byte[] ModelToBytes(ModelDescription _Model)
@@ -1506,5 +1677,33 @@ public class BlockPlacer : MonoBehaviour
 
         OpenModel(modelDesc);
 
+    }
+
+    public void UpdateMaxMins()
+    {
+        //updates all of the furnitures maximum bounds so that it oesnt need to be done every frame
+        maxX = GetMaxX();
+        maxY = GetMaxY();
+        maxZ = GetMaxZ();
+        minX = GetMinX();
+        minZ = GetMinZ();
+        if (ShowBackWall)
+        {
+            UpdateBackWallPos();
+        }
+        
+    }
+
+    public void UpdateBackWallPos()
+    {
+        if (AllBlocks.Count == 0)
+        {
+            BackWall.transform.position = new Vector3(0, 5, 0);//probably dont need to get max X every frame
+        }
+        else {
+            BackWall.transform.position = new Vector3(maxX, 5, 0);//probably dont need to get max X every frame
+        }
+
+           
     }
 }
