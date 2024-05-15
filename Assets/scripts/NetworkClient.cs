@@ -101,6 +101,132 @@ public class NetworkClient : MonoBehaviour
         }
     }
 
+
+    #region SendData
+    public void SendServerFast( NetMsg msg)
+    {
+        //Ser_fastSends++;
+        byte[] buffer = new byte[BYTE_SIZE];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        try
+        {
+            formatter.Serialize(ms, msg);
+        }
+        catch
+        {
+            Debug.Log("message of type: " + msg.OP + "is too big");
+        }
+
+        NativeArray<Byte> package = new NativeArray<byte>(buffer, Allocator.Temp);
+        m_Driver.BeginSend(NetworkPipeline.Null, m_Connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+    }
+
+    public void SendServerFast(NetworkConnection connection, NetMsg msg)
+    {
+        //Ser_fastSends++;
+        byte[] buffer = new byte[BYTE_SIZE];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        formatter.Serialize(ms, msg);
+        NativeArray<Byte> package = new NativeArray<byte>(buffer, Allocator.Temp);
+        m_Driver.BeginSend(NetworkPipeline.Null, connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+    }
+
+    public void SendServer(NetworkConnection connection, NetMsg msg)
+    {
+
+        byte[] buffer = new byte[BYTE_SIZE];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        formatter.Serialize(ms, msg);
+        NativeArray<Byte> package = new NativeArray<byte>(buffer, Allocator.Temp);
+        m_Driver.BeginSend(m_PipelineSlow, connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+    }
+    public void SendServer( NetMsg msg)
+    {
+        //Ser_slowsends++;
+
+
+        byte[] buffer = new byte[BYTE_SIZE];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        try
+        {
+            formatter.Serialize(ms, msg);
+        }
+        catch
+        {
+            Debug.Log("message of type: " + msg.OP + "is too big");
+        }
+        var shortbuffer = new byte[ms.Position + 1];
+        for (int i = 0; i < shortbuffer.Length; i++)
+        {
+            shortbuffer[i] = buffer[i];
+        }
+        NativeArray<Byte> package = new NativeArray<byte>(shortbuffer, Allocator.Temp);
+        m_Driver.BeginSend(m_PipelineSlow, m_Connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+        //Debug.Log("finished slow send to user " + connectionID);
+    }
+
+
+    public void SendServerBig(NetworkConnection connection, NetMsg msg)
+    {
+
+        byte[] buffer = new byte[BYTE_SIZE * 32];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        formatter.Serialize(ms, msg);
+        NativeArray<Byte> package = new NativeArray<byte>(buffer, Allocator.Temp);
+        m_Driver.BeginSend(m_PipelineBig, connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+    }
+    public void SendServerBig(NetMsg msg)
+    {
+        byte[] buffer = new byte[BYTE_SIZE * 32];
+
+        //this is where we crush data into byte array
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream(buffer);
+        formatter.Serialize(ms, msg);
+        var shortbuffer = new byte[ms.Position + 1];
+        for (int i = 0; i < shortbuffer.Length; i++)
+        {
+            shortbuffer[i] = buffer[i];
+        }
+        NativeArray<Byte> package = new NativeArray<byte>(shortbuffer, Allocator.Temp);
+        m_Driver.BeginSend(m_PipelineBig, m_Connection, out var writer);
+        writer.WriteBytes(package);
+        m_Driver.EndSend(writer);
+        package.Dispose();
+        
+    }
+
+    #endregion
     private void OnData(NetMsg msg)
     {
         //Debug.Log("Received a message of type "  + msg.OP);
@@ -111,7 +237,22 @@ public class NetworkClient : MonoBehaviour
                 Debug.Log("Unexpected NET_OP");
                 break;
 
+            case NetOP.UserInfo:
+                //we were connected to the server, they are requesting our user info
+                SendUserInfo();
+                break;
 
         }
     }
+
+    void SendUserInfo()
+    {
+        Net_UserInfo msg = new Net_UserInfo();
+
+        msg.client = client;
+
+        SendServer(msg);
+    }
+
+    
 }
