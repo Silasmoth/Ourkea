@@ -1207,7 +1207,7 @@ public class ScalableComponent : MonoBehaviour
             return shelfArea;
         }
 
-        return shelfArea;
+        
     }
 
     public float GetMaterialArea()

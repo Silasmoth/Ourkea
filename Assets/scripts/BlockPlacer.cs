@@ -106,9 +106,19 @@ public class BlockPlacer : MonoBehaviour
         try
         {
             sceneMem = GameObject.Find("SceneMemory").GetComponent<SceneMem>();
-            if (sceneMem.sceneType != -1)
+            if (sceneMem.sceneType >= 0)
             {
                 LoadExampleModel(sceneMem.sceneType);
+            }
+            
+            if (sceneMem.sceneType == -2)
+            {
+                OpenModelFromFile(sceneMem.openModelPath);
+            }
+
+            if (sceneMem.sceneType == -1)
+            {
+                ToggleBackWall(sceneMem.wallmounted);
             }
             
 
@@ -634,6 +644,21 @@ public class BlockPlacer : MonoBehaviour
     public void ToggleBackWall()
     {
         ShowBackWall = !ShowBackWall;
+        BackWall.SetActive(ShowBackWall);
+        if (ShowBackWall)
+        {
+            BackwallButton.text = "Hide Back Wall";
+        }
+        else
+        {
+            BackwallButton.text = "Show Back Wall";
+        }
+        UpdateMaxMins();
+    }
+
+    public void ToggleBackWall(bool _enabled)
+    {
+        ShowBackWall = _enabled;
         BackWall.SetActive(ShowBackWall);
         if (ShowBackWall)
         {
@@ -1643,7 +1668,19 @@ public class BlockPlacer : MonoBehaviour
 
     public void OpenModelFromFile()
     {
-        _path = StandaloneFileBrowser.OpenFilePanel("Export File", "", "shelf", false)[0];
+        _path = StandaloneFileBrowser.OpenFilePanel("Open File", "", "shelf", false)[0];
+
+        BinaryReader Reader = null;
+        byte[] buffer = File.ReadAllBytes(_path);
+
+        var modelDesc = BytesToModel(buffer);
+
+        OpenModel(modelDesc);
+    }
+
+    public void OpenModelFromFile(string path)
+    {
+        _path = path;
 
         BinaryReader Reader = null;
         byte[] buffer = File.ReadAllBytes(_path);
