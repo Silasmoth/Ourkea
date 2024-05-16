@@ -97,6 +97,10 @@ public class SceneMemBuilder : MonoBehaviour
 
         if (!shouldsend)
         {
+            emailInput.interactable = true;
+            emailInputConfirm.interactable = true;
+            passwordInput.interactable = true;
+            passwordConfirm.interactable = true;
             return;
         }
         else

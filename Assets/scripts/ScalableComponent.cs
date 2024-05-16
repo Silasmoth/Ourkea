@@ -8,6 +8,7 @@ public class ScalableComponent : MonoBehaviour
     public int index;//each module is assigned an index to help with remembering which modules are connected to each other in the saving process
 
     public byte moduleType = 0;
+    //
     public bool DoubleWall = true;
     public float wallThickness = 0.02f;
 
@@ -1312,5 +1313,290 @@ public class ScalableComponent : MonoBehaviour
         
     }
 
+    public FlatShape[] getShapesInside()
+    {
+        //firs see if there are any shelves
+
+        int shapes = 0;
+        if (allowHorizontalDividers)
+        {
+            shapes += HDividercount;
+        }
+        else {
+            if (allowVerticalDividers)
+            {
+                shapes += VDividercount;
+            }
+        }
+
+        switch (moduleType)
+        {
+            case (0):
+                //closed shelf
+                shapes += 1;
+                break;
+
+            case (1):
+                //corner
+                break;
+
+            case (2):
+                //corner reverse
+                break;
+
+            case (3):
+                //closed helf H div
+                shapes += 1;
+                break;
+
+            case (4):
+                //closed shelf drawer
+                shapes += 6;
+                break;
+
+            case (5):
+                //open shelf
+                break;
+
+            case (6):
+                //closed shelf V div
+                shapes += 1;
+                break;
+
+            case (7):
+                //counter
+                break;
+
+            case (8):
+                //closed swing door
+                shapes += 2;
+                break;
+
+        }
+
+        FlatShape[] results = new FlatShape[shapes];
+
+        int nextindex = 0;
+        switch (moduleType)
+        {
+            case (0):
+                //closed shelf
+                results[0] = new FlatShape();
+                results[0].depth = blockHeight; //should be smaller if it fits in between the shelves
+                results[0].width = blockWidth;//should depend on if doublewalls is active or not
+                nextindex++;
+                break;
+
+            case (1):
+                //corner
+                break;
+
+            case (2):
+                //corner reverse
+                break;
+
+            case (3):
+                //closed helf H div
+                results[0] = new FlatShape();
+                results[0].depth = blockHeight; //should be smaller if it fits in between the shelves
+                results[0].width = blockWidth;//should depend on if doublewalls is active or not
+                nextindex++;
+                break;
+
+            case (4):
+                //closed shelf drawer
+               
+                //0 - back plate
+                results[0] = new FlatShape();
+                results[0].depth = blockHeight; //should be smaller if it fits in between the shelves
+                results[0].width = blockWidth;//should depend on if doublewalls is active or not
+                nextindex++;
+
+                //1 -  back of drawer
+                results[1] = new FlatShape();
+                results[1].depth = blockHeight -  matThickness*2; 
+                results[1].width = blockWidth - matThickness * 2;
+                nextindex++;
+
+                //2 -  front of drawer
+                results[2] = new FlatShape();
+                results[2].shapeType = 1;
+                results[2].depth = blockHeight - matThickness * 2;
+                results[2].width = blockWidth - matThickness * 2;
+                nextindex++;
+
+                //3 -  bottom of drawer
+                results[3] = new FlatShape();
+                results[3].depth = blockDepth - matThickness;
+                results[3].width = blockWidth - matThickness * 2;
+                nextindex++;
+
+                //4 -  side of drawer
+                results[4] = new FlatShape();
+                results[4].depth = blockDepth - matThickness;
+                results[4].width = blockHeight - matThickness * 2;
+                nextindex++;
+
+                //5 -  other side of drawer
+                results[5] = new FlatShape();
+                results[5].depth = blockDepth - matThickness;
+                results[5].width = blockHeight - matThickness * 2;
+                nextindex++;
+
+                break;
+
+            case (5):
+                //open shelf
+                break;
+
+            case (6):
+                //closed shelf V div
+                results[0] = new FlatShape();
+                results[0].depth = blockHeight; //should be smaller if it fits in between the shelves
+                results[0].width = blockWidth;//should depend on if doublewalls is active or not
+                nextindex++;
+                break;
+
+            case (7):
+                //counter
+                break;
+
+            case (8):
+                //closed swing door
+                results[0] = new FlatShape();
+                results[0].depth = blockHeight; //should be smaller if it fits in between the shelves
+                results[0].width = blockWidth;//should depend on if doublewalls is active or not
+                nextindex++;
+
+                //the front swing door
+                results[1] = new FlatShape();
+                results[1].depth = blockHeight -  matThickness; 
+                results[1].width = blockWidth - matThickness;
+                nextindex++;
+                break;
+
+        }
+
+
+        if (allowHorizontalDividers)
+        {
+            
+            for (int i = 0; i < HDividercount; i++)
+            {
+                results[nextindex + i] = new FlatShape();
+                results[nextindex + i].depth = blockDepth - matThickness; 
+                results[nextindex + i].width = blockWidth - matThickness*2; //should depend on if doublewalls is active or not
+            }
+        }
+        else
+        {
+            if (allowVerticalDividers)
+            {
+                for (int i = 0; i < VDividercount; i++)
+                {
+                    results[nextindex + i] = new FlatShape();
+                    results[nextindex + i].depth = blockDepth - matThickness; 
+                    results[nextindex + i].width = blockHeight - matThickness * 2; //should depend on if doublewalls is active or not
+                }
+            }
+        }
+
+        return results;
+    }
+
+    public FlatShape[] getShapesTopBottom(bool removeBottom)
+    {
+        //does not work with corner peices or counter peices yet
+
+        //returns the top and bottom faces of this module, bottom face is not returned if removebottom is true and there is a module (non counter) connected below
+        if (removeBottom && ConnectedModules[1] != null && !ConnectedModules[1].isCounter)
+        {
+            //only return top face
+            FlatShape[] results = new FlatShape[1];
+            results[0] = new FlatShape();
+            results[0].width = blockWidth - matThickness; //since doublewalls is false, only 1 matthickness is removed
+            results[0].depth = blockDepth - matThickness;
+            return results;
+        }
+        else {
+            if (removeBottom)
+            {
+                //return top and bottom face
+                FlatShape[] results = new FlatShape[2];
+                results[0] = new FlatShape();
+                results[0].width = blockWidth - matThickness; //since doublewalls is false, only 1 matthickness is removed
+                results[0].depth = blockDepth - matThickness;
+                results[1] = new FlatShape();
+                results[1].width = blockWidth - matThickness; //since doublewalls is false, only 1 matthickness is removed
+                results[1].depth = blockDepth - matThickness;
+                return results;
+            }
+            else {
+                //return top and bottom face
+                FlatShape[] results = new FlatShape[2];
+                results[0] = new FlatShape();
+                results[0].width = blockWidth - matThickness *2;
+                results[0].depth = blockDepth - matThickness;
+                results[1] = new FlatShape();
+                results[1].width = blockWidth - matThickness *2;
+                results[1].depth = blockDepth - matThickness;
+                return results;
+            }
+            
+        }
+
+    }
+
+    public FlatShape[] getShapesSides(bool removeRight, bool joinbellow)
+    {
+        if (isCounter)
+        {
+            return null;
+        }
+        //returns the vertical shapes on either side of the unit, if remove right is true it will not return the right if there is a module connected to the right
+        //if joinbelow is true, it will not return any shapes if there is a module connected above, and if there are any connected below it will add their heights to this module
+
+        //first lets get the combined height
+        float combinedheight = blockHeight;
+        if (joinbellow)
+        {
+            
+            ScalableComponent temp = ConnectedModules[1];
+            while (temp != null && !temp.isCounter)
+            {
+                combinedheight += temp.blockHeight;
+                temp = temp.ConnectedModules[1];
+            }
+
+            if (ConnectedModules[0] != null)
+            {
+                //there is a module above this, return nothing
+                return null;
+            }
+        }
+
+        if (removeRight && ConnectedModules[2] != null)
+        {
+            //only return left side
+            FlatShape[] results = new FlatShape[1];
+            results[0] = new FlatShape();
+            results[0].width = blockDepth;
+            results[0].depth = combinedheight;
+            return results;
+        }
+        else {
+            //return both sides
+            //only return left side
+            FlatShape[] results = new FlatShape[2];
+            results[0] = new FlatShape();
+            results[0].width = blockDepth;
+            results[0].depth = combinedheight;
+            results[1] = new FlatShape();
+            results[1].width = blockDepth;
+            results[1].depth = combinedheight;
+            return results;
+        }
+    
+    }
     
 }

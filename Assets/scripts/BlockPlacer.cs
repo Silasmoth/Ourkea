@@ -90,6 +90,8 @@ public class BlockPlacer : MonoBehaviour
     //furniture bounds storage
     float maxX, minX, maxY, minY, maxZ, minZ;
 
+    //for creating just the shapes
+    public GameObject shapeSimple;
     // Start is called before the first frame update
     void Start()
     {
@@ -1743,4 +1745,73 @@ public class BlockPlacer : MonoBehaviour
 
            
     }
+
+    public FlatShape[] FurnitureToComponents()
+    {
+        //converts the whole scene into sheets that could make up the furninture
+        List<FlatShape> results = new List<FlatShape>();
+
+        
+        foreach (var item in AllBlocks)
+        {
+
+            //first lets get all of the interior shapes (not top/bottom or sides)
+            var temp = item.getShapesInside();
+            foreach (var item2 in temp)
+            {
+                results.Add(item2);
+            }
+
+            //nexte lets get the horizontal surfaces
+            temp = item.getShapesSides(!doubleWalls,!doubleWalls);
+            if (temp != null)
+            {
+                foreach (var item2 in temp)
+                {
+                    results.Add(item2);
+                }
+            }
+            
+
+            //nexte lets get the vertical shapes
+            temp = item.getShapesTopBottom(!doubleWalls);
+            foreach (var item2 in temp)
+            {
+                results.Add(item2);
+            }
+        }
+        return results.ToArray(); ;
+    }
+
+    public void PlaceAllShapes()
+    {
+
+        //clean up all children from the last time all shapes were placed
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+
+        var allShapes = FurnitureToComponents();
+
+        float widthoffset = 0;
+        for (int i = 0; i < allShapes.Length; i++)
+        {
+            var temp = (GameObject)Instantiate(shapeSimple, transform);
+            temp.transform.position = new Vector3( widthoffset, 0,0);
+
+            widthoffset += allShapes[i].width/2 + 0.1f;
+            if(i < allShapes.Length - 1)
+            {
+                widthoffset += allShapes[i + 1].width / 2 + 0.1f;
+            }
+            
+
+            temp.transform.localScale = new Vector3(allShapes[i].width, 0.019f, allShapes[i].depth);
+
+        }
+    }
+
+    
 }
