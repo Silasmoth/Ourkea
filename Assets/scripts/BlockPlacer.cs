@@ -97,6 +97,11 @@ public class BlockPlacer : MonoBehaviour
     //for uploading the model to the server
     public GameObject uploadePannel; //the UI pannel with all of the uploading UI
     public NetworkClient client;
+    public TMP_InputField uploadProjectName;
+    public TMP_InputField uploadClientName;
+    public TMP_InputField uploadClientEmail;
+    public TMP_InputField uploadClientAddress;
+
 
     // Start is called before the first frame update
     void Start()
@@ -110,7 +115,8 @@ public class BlockPlacer : MonoBehaviour
 
         refreshToggles();//refresh all of the toggle buttons so that things are correctly shown/hidden and the buttons have correct text
         UpdateMaxMins();
-        //see if there is a scene memory in which case find it then load correct project
+        OpenCloseUploadPannel(false);//close the upload pannel
+        //see if there is a scene memory in which case find it then load correct project (also get reference to the client now while we're at it)
         try
         {
             sceneMem = GameObject.Find("SceneMemory").GetComponent<SceneMem>();
@@ -1784,7 +1790,75 @@ public class BlockPlacer : MonoBehaviour
     #endregion/export
 
     #region uploading model To builder
+    public void OpenCloseUploadPannel(bool _Open)
+    {
+        //used to open and close the window used for uploading the project to the server
+        if (_Open)
+        {
+            //should probably pause other things in the background while this is happening
+            uploadePannel.SetActive(true);
+        }
+        else {
+            //close the pannel and resume anything that was paused while it was opened
+            uploadePannel.SetActive(false);
+        }
+    }
 
+    public void TryuploadModel()
+    {
+        //make sure we are actually connected to a server
+        if (client == null)
+        {
+            //we aint connected
+            return;
+        }
+
+        //make sure everything is formatted properly in the upload input fields (email name etc)
+
+        //is email valid
+        if (Utility.IsValidEmail(uploadClientEmail.text))
+        {
+            //email is valid (at least the format is)
+        }
+        else
+        {
+            Debug.Log("invalid email");
+            //tell the user that email is invalid
+            return;
+
+        }
+
+        if (uploadClientName.text == "")
+        {
+            //name is empty
+            return;
+        }
+
+        if (uploadProjectName.text == "")
+        {
+            //no project name
+            return;
+        }
+
+        if (uploadClientAddress.text == "")
+        {
+            //no address - maybe in this case we should just use ip based location?
+            return;
+        }
+
+        //inputs are more or less valid (should probably also limit input lengths and maybe even add an email confirmation requirement)
+
+
+        //set up the net_furniture message
+        Net_Furniture msg = new Net_Furniture();
+
+        msg.ModelDescription = ModelToBytes(SaveModel());
+        msg.clientName = uploadClientName.text;
+        msg.clientEmail = uploadClientEmail.text;
+        msg.clientLocation = uploadClientAddress.text;
+        msg.jobType = 0;
+
+    }
 
     #endregion
 
