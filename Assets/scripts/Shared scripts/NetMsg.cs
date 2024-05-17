@@ -6,6 +6,7 @@
     public const byte CreateAccount = 3;
     public const byte LoginAtempt = 4;
     public const byte VerifyEmail = 5;
+    public const byte Furniture = 6;
 }
 
 [System.Serializable]

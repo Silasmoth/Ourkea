@@ -92,6 +92,12 @@ public class BlockPlacer : MonoBehaviour
 
     //for creating just the shapes
     public GameObject shapeSimple;
+
+
+    //for uploading the model to the server
+    public GameObject uploadePannel; //the UI pannel with all of the uploading UI
+    public NetworkClient client;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -108,6 +114,8 @@ public class BlockPlacer : MonoBehaviour
         try
         {
             sceneMem = GameObject.Find("SceneMemory").GetComponent<SceneMem>();
+
+            client = sceneMem.GetComponent<NetworkClient>();
             if (sceneMem.sceneType >= 0)
             {
                 LoadExampleModel(sceneMem.sceneType);
@@ -643,6 +651,8 @@ public class BlockPlacer : MonoBehaviour
             BackwallButton.text = "Show Back Wall";
         }
     }
+
+    #region Settings Toggles
     public void ToggleBackWall()
     {
         ShowBackWall = !ShowBackWall;
@@ -758,34 +768,11 @@ public class BlockPlacer : MonoBehaviour
 
     }
 
-    void UpdateFigurePos()
-    {
-        if (ShowBackWall)
-        {
+    #endregion
 
-            if (AllBlocks.Count == 0)
-            {
-                ScaleFigure.transform.position = new Vector3( - 1, 0, - 1);
-            }
-            else
-            {
-                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2 - 1, 0, GetMinZ() - 1);
-            }
-           
-        }
-        else
-        {
-            if (AllBlocks.Count == 0)
-            {
-                ScaleFigure.transform.position = new Vector3(0, 0, -1);
-            }
-            else {
-                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
-            }
-            
-        }
-        
-    }
+    
+
+    #region Getting bounds
     float GetMaxY()
     {
         float maxY = 0f;
@@ -856,6 +843,10 @@ public class BlockPlacer : MonoBehaviour
         }
         return minZ;
     }
+
+    #endregion
+
+    #region block placement
     void PlaceBlockAtMouse()
     {
         Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
@@ -1216,6 +1207,39 @@ public class BlockPlacer : MonoBehaviour
             ModulePreview.transform.position = hitPoint;
         }
     }
+
+    #endregion
+
+    #region repositioning
+
+    public void UpdateMaxMins()
+    {
+        //updates all of the furnitures maximum bounds so that it oesnt need to be done every frame
+        maxX = GetMaxX();
+        maxY = GetMaxY();
+        maxZ = GetMaxZ();
+        minX = GetMinX();
+        minZ = GetMinZ();
+        if (ShowBackWall)
+        {
+            UpdateBackWallPos();
+        }
+
+    }
+
+    public void UpdateBackWallPos()
+    {
+        if (AllBlocks.Count == 0)
+        {
+            BackWall.transform.position = new Vector3(0, 5, 0);//probably dont need to get max X every frame
+        }
+        else
+        {
+            BackWall.transform.position = new Vector3(maxX, 5, 0);//probably dont need to get max X every frame
+        }
+
+
+    }
     public void RepositionFurnitureOnGround()
     {
         float currentBottomY = 10000;//will store the lowest current point on the furniture
@@ -1242,7 +1266,39 @@ public class BlockPlacer : MonoBehaviour
 
         UpdateMaxMins();
     }
+    void UpdateFigurePos()
+    {
+        if (ShowBackWall)
+        {
 
+            if (AllBlocks.Count == 0)
+            {
+                ScaleFigure.transform.position = new Vector3(-1, 0, -1);
+            }
+            else
+            {
+                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2 - 1, 0, GetMinZ() - 1);
+            }
+
+        }
+        else
+        {
+            if (AllBlocks.Count == 0)
+            {
+                ScaleFigure.transform.position = new Vector3(0, 0, -1);
+            }
+            else
+            {
+                ScaleFigure.transform.position = new Vector3((GetMaxX() + GetMinX()) / 2, 0, GetMinZ() - 1);
+            }
+
+        }
+
+    }
+
+    #endregion
+
+    #region edit Selection
     public void ApplyUpdatesToSelection()
     {
         if (SelectedModule == null)
@@ -1372,19 +1428,11 @@ public class BlockPlacer : MonoBehaviour
         
     }
 
-    public void Exportmodel()
-    {
-        //get file location and file name
-        _path = StandaloneFileBrowser.SaveFilePanel("Export File", "", "Custom_Furniture", "fbx");
-        Exporter.Fullpath = _path;
-        for (int i = 0; i < AllBlocks.Count; i++)
-        {
-            AllBlocks[i].transform.SetParent(this.transform);
-        }
-        Exporter.rootObjectToExport = this.gameObject;
-        Exporter.ExportGameObject();
-    }
+    #endregion
 
+    
+
+    #region get Statistics
     public float GetTotalStorageVolume()
     {
         float volume = 0f;
@@ -1446,6 +1494,22 @@ public class BlockPlacer : MonoBehaviour
         return mass;
     }
 
+    #endregion
+
+    #region Model saving/loading/export
+
+    public void Exportmodel()
+    {
+        //get file location and file name
+        _path = StandaloneFileBrowser.SaveFilePanel("Export File", "", "Custom_Furniture", "fbx");
+        Exporter.Fullpath = _path;
+        for (int i = 0; i < AllBlocks.Count; i++)
+        {
+            AllBlocks[i].transform.SetParent(this.transform);
+        }
+        Exporter.rootObjectToExport = this.gameObject;
+        Exporter.ExportGameObject();
+    }
     public void ReloadModel() //saves and them imediately loads the saved model, for testing save/load
     {
         var temp = SaveModel();
@@ -1717,35 +1781,14 @@ public class BlockPlacer : MonoBehaviour
         OpenModel(modelDesc);
 
     }
+    #endregion/export
 
-    public void UpdateMaxMins()
-    {
-        //updates all of the furnitures maximum bounds so that it oesnt need to be done every frame
-        maxX = GetMaxX();
-        maxY = GetMaxY();
-        maxZ = GetMaxZ();
-        minX = GetMinX();
-        minZ = GetMinZ();
-        if (ShowBackWall)
-        {
-            UpdateBackWallPos();
-        }
-        
-    }
+    #region uploading model To builder
 
-    public void UpdateBackWallPos()
-    {
-        if (AllBlocks.Count == 0)
-        {
-            BackWall.transform.position = new Vector3(0, 5, 0);//probably dont need to get max X every frame
-        }
-        else {
-            BackWall.transform.position = new Vector3(maxX, 5, 0);//probably dont need to get max X every frame
-        }
 
-           
-    }
+    #endregion
 
+    #region conversion to components/shapes
     public FlatShape[] FurnitureToComponents()
     {
         //converts the whole scene into sheets that could make up the furninture
@@ -1813,5 +1856,6 @@ public class BlockPlacer : MonoBehaviour
         }
     }
 
-    
+    #endregion
+
 }
