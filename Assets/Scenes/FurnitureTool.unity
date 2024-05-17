@@ -1215,7 +1215,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 104839162}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 559569285}
+        m_TargetAssemblyTypeName: BlockPlacer, Assembly-CSharp
+        m_MethodName: TryuploadModel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &104839162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5095,10 +5107,10 @@ MonoBehaviour:
     type: 3}
   uploadePannel: {fileID: 443305253}
   client: {fileID: 0}
-  uploadProjectName: {fileID: 0}
-  uploadClientName: {fileID: 0}
-  uploadClientEmail: {fileID: 0}
-  uploadClientAddress: {fileID: 0}
+  uploadProjectName: {fileID: 1502007417}
+  uploadClientName: {fileID: 281747241}
+  uploadClientEmail: {fileID: 917769113}
+  uploadClientAddress: {fileID: 860644460}
 --- !u!114 &559569286
 MonoBehaviour:
   m_ObjectHideFlags: 0

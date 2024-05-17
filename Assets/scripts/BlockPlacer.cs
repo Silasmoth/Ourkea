@@ -1853,11 +1853,14 @@ public class BlockPlacer : MonoBehaviour
         Net_Furniture msg = new Net_Furniture();
 
         msg.ModelDescription = ModelToBytes(SaveModel());
+        msg.projectName = uploadProjectName.text;
         msg.clientName = uploadClientName.text;
         msg.clientEmail = uploadClientEmail.text;
         msg.clientLocation = uploadClientAddress.text;
         msg.jobType = 0;
 
+        client.SendServerBig(msg);
+        //message sent to server, should await response
     }
 
     #endregion

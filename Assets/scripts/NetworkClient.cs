@@ -17,7 +17,7 @@ public class NetworkClient : MonoBehaviour
 
     public string SERVER_IP = "127.0.0.1";
     ushort PORT = 8999;
-    const int BYTE_SIZE = 512;
+    const int BYTE_SIZE = 1024;
     //new networking code
     string SessionToken = "";
 
@@ -207,8 +207,9 @@ public class NetworkClient : MonoBehaviour
     }
     public void SendServerBig(NetMsg msg)
     {
-        byte[] buffer = new byte[BYTE_SIZE * 32];
+        byte[] buffer = new byte[BYTE_SIZE * 64];
 
+        //big send caps out at like 65 kilobytes - might not be big enough
         //this is where we crush data into byte array
         BinaryFormatter formatter = new BinaryFormatter();
         MemoryStream ms = new MemoryStream(buffer);
