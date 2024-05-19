@@ -11,6 +11,8 @@ using System;
 public class NetworkClient : MonoBehaviour
 {
     public bool client =  true; //is this a client (true) or builder (false)
+    public BlockPlacer blockPlacer;//reference to the blockplacer/scenemanager when in the tool scene
+    public SceneMemBuilder builderscene;//reference for popups and stuff in builder main menu
 
     public bool connected = false;
     //local ip "127.0.0.1"
@@ -243,6 +245,10 @@ public class NetworkClient : MonoBehaviour
                 SendUserInfo();
                 break;
 
+            case NetOP.GenericMessage:
+                GenericMessage((Net_GenerigMessage)msg);
+                break;
+
         }
     }
 
@@ -255,5 +261,88 @@ public class NetworkClient : MonoBehaviour
         SendServer(msg);
     }
 
-    
+    void GenericMessage(Net_GenerigMessage msg)
+    {
+        switch (msg.MessageId)
+        {
+            case (0):
+                //this is sent to the builder because they are trying to make an account with an email that is already in use
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else {
+                    if (builderscene != null)
+                    {
+                        builderscene.EmailInUse();
+                    }
+                }
+                break;
+
+            case (1):
+                //this is sent to the builder telling them that a verification code has been re-sent to their email
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.GoToVerifyEmailScreen();
+                        builderscene.showPopup("Email verification code was re-sent to " + builderscene.StoreEmail);
+                    }
+                }
+                break;
+            case (2):
+                //this is sent to the builder telling them that a verification code has been sent to their email
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.GoToVerifyEmailScreen();
+                    }
+                }
+                break;
+
+            case (7):
+                //this is sent to the builder telling them that login was a success and to go to account info set up
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.GoToAccountInfoSettup();
+                    }
+                }
+                break;
+
+            case (10):
+                //this is reply to client after they uploaded a project and confirmation email was sent (successfuly)
+                if (blockPlacer != null)
+                {
+                    blockPlacer.UploadResponce(true);
+                }
+            break;
+
+            case (11):
+                //this is reply to client after they uploaded a project and confirmation email was sent (unsuccessfuly)
+                if (blockPlacer != null)
+                {
+                    blockPlacer.UploadResponce(false);
+                }
+                break;
+        }
+    }
 }

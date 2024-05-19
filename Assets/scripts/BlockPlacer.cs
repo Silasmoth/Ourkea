@@ -12,6 +12,9 @@ using System.IO;
 
 public class BlockPlacer : MonoBehaviour
 {
+    public bool awaitingServer = false;//is the client waiting for a response from the server? if so just wait
+    public bool awaitingpopup = false;
+
     public bool ShowBackWall = false;//used to determine if back wall should be shown or not
     public TMP_Text BackwallButton; //the text on the toggle back wall button
     public GameObject BackWall; //used for previewing furniture with a back wall
@@ -95,6 +98,7 @@ public class BlockPlacer : MonoBehaviour
 
 
     //for uploading the model to the server
+    string email;
     public GameObject uploadePannel; //the UI pannel with all of the uploading UI
     public NetworkClient client;
     public TMP_InputField uploadProjectName;
@@ -102,11 +106,16 @@ public class BlockPlacer : MonoBehaviour
     public TMP_InputField uploadClientEmail;
     public TMP_InputField uploadClientAddress;
 
+    //for poopups
+    public GameObject PopUpPannel;
+    public TextMeshProUGUI PopupText;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
-       
+        closePopup();
 
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
         AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
@@ -122,6 +131,7 @@ public class BlockPlacer : MonoBehaviour
             sceneMem = GameObject.Find("SceneMemory").GetComponent<SceneMem>();
 
             client = sceneMem.GetComponent<NetworkClient>();
+            client.blockPlacer = this;
             if (sceneMem.sceneType >= 0)
             {
                 LoadExampleModel(sceneMem.sceneType);
@@ -153,7 +163,11 @@ public class BlockPlacer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (awaitingServer || awaitingpopup)
+        {
+            return;
 
+        }
         //this is just temporary way of switching bewteen block types, it should be something visible
         Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 
@@ -1806,43 +1820,53 @@ public class BlockPlacer : MonoBehaviour
 
     public void TryuploadModel()
     {
+        if (awaitingServer)
+        {
+            showPopup("Please wait for the first upload to complete before uploading a second project.");
+            return;
+        }
         //make sure we are actually connected to a server
         if (client == null)
         {
             //we aint connected
-            return;
-        }
-
-        //make sure everything is formatted properly in the upload input fields (email name etc)
-
-        //is email valid
-        if (Utility.IsValidEmail(uploadClientEmail.text))
-        {
-            //email is valid (at least the format is)
-        }
-        else
-        {
-            Debug.Log("invalid email");
-            //tell the user that email is invalid
-            return;
-
-        }
-
-        if (uploadClientName.text == "")
-        {
-            //name is empty
+            showPopup("unable to connect to the server, try again later or email shc@straymoth.ca for support");
             return;
         }
 
         if (uploadProjectName.text == "")
         {
             //no project name
+            showPopup("please enter a project name");
             return;
+        }
+
+        if (uploadClientName.text == "")
+        {
+            //name is empty
+            showPopup("please enter your name");
+            return;
+        }
+        //make sure everything is formatted properly in the upload input fields (email name etc)
+
+        //is email valid
+        if (Utility.IsValidEmail(uploadClientEmail.text))
+        {
+            email = uploadClientEmail.text;
+            //email is valid (at least the format is)
+        }
+        else
+        {
+            Debug.Log("invalid email");
+            //tell the user that email is invalid
+            showPopup("please enter a valid email");
+            return;
+
         }
 
         if (uploadClientAddress.text == "")
         {
             //no address - maybe in this case we should just use ip based location?
+            showPopup("please enter an address");
             return;
         }
 
@@ -1860,9 +1884,37 @@ public class BlockPlacer : MonoBehaviour
         msg.jobType = 0;
 
         client.SendServerBig(msg);
+        showPopup("Uploading project to server... this should only take a couple seconds.");
+        awaitingServer = true;
         //message sent to server, should await response
     }
 
+    public void UploadResponce(bool success)
+    {
+        awaitingServer = false;
+        if (success)
+        {
+            //let the client know that the model was uploaded successfully
+            OpenCloseUploadPannel(false);
+            showPopup("Upload was successful, check your email (" + email + ") for further information");
+        }
+        else {
+            showPopup("Upload was unsuccessful, try double checking your information and try again");
+        }
+    }
+
+    public void showPopup(string PopupMessage)
+    {
+        awaitingpopup = true;
+        PopUpPannel.SetActive(true);
+        PopupText.text = PopupMessage;
+    }
+
+    public void closePopup()
+    {
+        awaitingpopup = false;
+        PopUpPannel.SetActive(false);
+    }
     #endregion
 
     #region conversion to components/shapes

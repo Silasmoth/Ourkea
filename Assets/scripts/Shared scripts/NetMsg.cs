@@ -7,6 +7,7 @@
     public const byte LoginAtempt = 4;
     public const byte VerifyEmail = 5;
     public const byte Furniture = 6;
+    public const byte BuilderInfo = 7;
 }
 
 [System.Serializable]
