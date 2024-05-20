@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
+
 public class SceneMemBuilder : MonoBehaviour
 {
     //different main manu screens
@@ -59,16 +60,22 @@ public class SceneMemBuilder : MonoBehaviour
     public GameObject listParent;
     public List<ProjectEntry> projectList;
 
+    //for viewing projects
+    
     private void Start()
     {
+        if (client == null)
+        {
+            client = GameObject.Find("NetClient").GetComponent<NetworkClient>();
+            client.builderscene = this;
+            client.UpdateProjectList();
+        }
+        
         projectList = new List<ProjectEntry>();
         GoToStartmenu();
         closePopup();
     }
-    private void Awake()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
+    
 
     #region Popup
     public void showPopup(string PopupMessage)
@@ -408,10 +415,14 @@ public class SceneMemBuilder : MonoBehaviour
         var _entry = ((GameObject)Instantiate(projectEntryPrefab, listParent.transform)).GetComponent<ProjectEntry>();
         _entry.SetData(Data);
         _entry.SetText(_projectName, _clientName, _clientEmail);
-
+        _entry.sceneCallBack = this;
         noProjectsText.SetActive(false);
     }
 
-
+    public void viewProject(byte[] Data)
+    {
+        client.myProjects.projectToLoad = Data;
+        Application.LoadLevel(1);
+    }
    
 }

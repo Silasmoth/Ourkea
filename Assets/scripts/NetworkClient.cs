@@ -29,6 +29,23 @@ public class NetworkClient : MonoBehaviour
     NetworkPipeline m_PipelineSlow;
     NetworkPipeline m_PipelineBig;
     // Start is called before the first frame update
+    public BuilderProjects myProjects;
+    public static NetworkClient Instance { get; private set; }
+
+    private void Awake()
+    {
+        // If there is an instance, and it's not me, delete myself.
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
     void Start()
     {
         Init();
@@ -253,6 +270,11 @@ public class NetworkClient : MonoBehaviour
                 GetFurniture((Net_Furniture)msg);
                 break;
 
+            case NetOP.Ping:
+                //ping back
+                SendServerFast(msg);
+                break;
+
         }
     }
 
@@ -266,10 +288,19 @@ public class NetworkClient : MonoBehaviour
         }
         else
         {
+            myProjects.AddProject(msg);
             if (builderscene != null)
             {
                 builderscene.AddProject(msg.ModelDescription, msg.projectName, msg.clientName, msg.clientEmail);
             }
+        }
+    }
+
+    public void UpdateProjectList()
+    {
+        foreach (var item in myProjects.projectList)
+        {
+            builderscene.AddProject(item.ModelDescription, item.projectName, item.clientName, item.clientEmail);
         }
     }
     void SendUserInfo()

@@ -8,6 +8,7 @@
     public const byte VerifyEmail = 5;
     public const byte Furniture = 6;
     public const byte BuilderInfo = 7;
+    public const byte Ping = 8;
 }
 
 [System.Serializable]

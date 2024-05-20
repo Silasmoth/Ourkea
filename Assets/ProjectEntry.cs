@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class ProjectEntry : MonoBehaviour
 {
+    public SceneMemBuilder sceneCallBack;//reference to the builder scene memory so that we can tell it to do things when the buttons are pressed
 
     //references to UI elements
     public TextMeshProUGUI projectNameUI;
@@ -61,4 +62,10 @@ public class ProjectEntry : MonoBehaviour
             clientEmailUI.text = "Client email: " + clientEmail;
         }
     }
+
+    public void ViewProject()
+    {
+        sceneCallBack.viewProject(modelData);
+    }
+
 }
