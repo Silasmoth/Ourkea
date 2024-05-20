@@ -12,6 +12,7 @@ public class SceneMemBuilder : MonoBehaviour
     public GameObject createAccountMenu;//the create new accound screen (email and pass etc)
     public GameObject VerifyEmailScreen;//the enter email verification code screen
     public GameObject AccountSettup;//the account setup with everything from name, address, workshop capabilities etc
+    public GameObject BuilderHomePage;//the page with all of the builders current active and new projects
 
     //account creation
     public TMP_InputField emailInput;
@@ -51,6 +52,12 @@ public class SceneMemBuilder : MonoBehaviour
     public GameObject PopUpPannel;
     public TextMeshProUGUI PopupText;
 
+    //For builder main menu
+    public GameObject noProjectsText;
+    public ProjectEntry[] allProjects;
+    public GameObject projectEntryPrefab;
+    public GameObject listParent;
+
     private void Start()
     {
         GoToStartmenu();
@@ -61,7 +68,7 @@ public class SceneMemBuilder : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    
+    #region Popup
     public void showPopup(string PopupMessage)
     {
         awaitingpopup = true;
@@ -74,7 +81,9 @@ public class SceneMemBuilder : MonoBehaviour
         awaitingpopup = false;
         PopUpPannel.SetActive(false);
     }
+    #endregion
 
+    #region account creation/login
     public void TryCreateAccount()
     {
         createAccountButton.interactable = false;
@@ -175,6 +184,17 @@ public class SceneMemBuilder : MonoBehaviour
         client.SendServer(msg);
     }
 
+    public void EmailInUse()
+    {
+        emailInput.interactable = true;
+        emailInputConfirm.interactable = true;
+        passwordInput.interactable = true;
+        passwordConfirm.interactable = true;
+        createAccountButton.interactable = true;
+        showPopup("an account with that email already exists");
+
+    }
+
     public void TryLogin()
     {
         loginEmailInput.interactable = false;
@@ -229,72 +249,6 @@ public class SceneMemBuilder : MonoBehaviour
 
     }
 
-    #region screen navigation
-    public void GoToLogin()
-    {
-        //go to the login screen
-        loginMenu.SetActive(true);
-        Startmenu.SetActive(false);
-        createAccountMenu.SetActive(false);
-        VerifyEmailScreen.SetActive(false);
-        AccountSettup.SetActive(false);
-    }
-
-    public void GoToCreateAccount()
-    {
-        //go to the create account screen
-        loginMenu.SetActive(false);
-        Startmenu.SetActive(false);
-        createAccountMenu.SetActive(true);
-        VerifyEmailScreen.SetActive(false);
-        AccountSettup.SetActive(false);
-    }
-
-    public void GoToVerifyEmailScreen()
-    {
-        //go to the "enter email verification code" screen
-        loginMenu.SetActive(false);
-        Startmenu.SetActive(false);
-        createAccountMenu.SetActive(false);
-        VerifyEmailScreen.SetActive(true);
-        AccountSettup.SetActive(false);
-
-        VerifyButton.interactable = true;
-        ResendVerifyButton.interactable = true;
-    }
-
-    public void GoToStartmenu()
-    {
-        //go to the initial login or create account screen
-        loginMenu.SetActive(false);
-        Startmenu.SetActive(true);
-        createAccountMenu.SetActive(false);
-        VerifyEmailScreen.SetActive(false);
-        AccountSettup.SetActive(false);
-    }
-
-    public void GoToAccountInfoSettup()
-    {
-        //go to the screen with all of the workshop info and capabilities
-        loginMenu.SetActive(false);
-        Startmenu.SetActive(false);
-        createAccountMenu.SetActive(false);
-        VerifyEmailScreen.SetActive(false);
-        AccountSettup.SetActive(true);
-    }
-
-    #endregion
-
-    public void EmailInUse()
-    {
-        emailInput.interactable = true;
-        emailInputConfirm.interactable = true;
-        passwordInput.interactable = true;
-        passwordConfirm.interactable = true;
-        createAccountButton.interactable = true;
-        showPopup("an account with that email already exists");
-       
-    }
 
     public void ResendVerify()
     {
@@ -320,7 +274,7 @@ public class SceneMemBuilder : MonoBehaviour
             return;
         }
 
-        
+
 
 
         Net_BuilderInfo msg = new Net_BuilderInfo();
@@ -367,4 +321,81 @@ public class SceneMemBuilder : MonoBehaviour
         AccountInfoButton.interactable = false;//so that the builder can only send one at a time
         client.SendServer(msg);
     }
+    #endregion
+
+    #region screen navigation
+    public void GoToLogin()
+    {
+        //go to the login screen
+        loginMenu.SetActive(true);
+        Startmenu.SetActive(false);
+        createAccountMenu.SetActive(false);
+        VerifyEmailScreen.SetActive(false);
+        AccountSettup.SetActive(false);
+        BuilderHomePage.SetActive(false);
+    }
+
+    public void GoToCreateAccount()
+    {
+        //go to the create account screen
+        loginMenu.SetActive(false);
+        Startmenu.SetActive(false);
+        createAccountMenu.SetActive(true);
+        VerifyEmailScreen.SetActive(false);
+        AccountSettup.SetActive(false);
+        BuilderHomePage.SetActive(false);
+    }
+
+    public void GoToVerifyEmailScreen()
+    {
+        //go to the "enter email verification code" screen
+        loginMenu.SetActive(false);
+        Startmenu.SetActive(false);
+        createAccountMenu.SetActive(false);
+        VerifyEmailScreen.SetActive(true);
+        AccountSettup.SetActive(false);
+        BuilderHomePage.SetActive(false);
+
+        VerifyButton.interactable = true;
+        ResendVerifyButton.interactable = true;
+    }
+
+    public void GoToStartmenu()
+    {
+        //go to the initial login or create account screen
+        loginMenu.SetActive(false);
+        Startmenu.SetActive(true);
+        createAccountMenu.SetActive(false);
+        VerifyEmailScreen.SetActive(false);
+        AccountSettup.SetActive(false);
+        BuilderHomePage.SetActive(false);
+    }
+
+    public void GoToAccountInfoSettup()
+    {
+        //go to the screen with all of the workshop info and capabilities
+        loginMenu.SetActive(false);
+        Startmenu.SetActive(false);
+        createAccountMenu.SetActive(false);
+        VerifyEmailScreen.SetActive(false);
+        AccountSettup.SetActive(true);
+        BuilderHomePage.SetActive(false);
+    }
+
+
+    public void GoToBuilderHomePge()
+    {
+        //go to the screen with all of the builders current projects list
+        loginMenu.SetActive(false);
+        Startmenu.SetActive(false);
+        createAccountMenu.SetActive(false);
+        VerifyEmailScreen.SetActive(false);
+        AccountSettup.SetActive(false);
+        BuilderHomePage.SetActive(true);
+    }
+    #endregion
+
+
+
+   
 }

@@ -372,6 +372,22 @@ public class NetworkClient : MonoBehaviour
                     blockPlacer.UploadResponce(false);
                 }
                 break;
+
+            case (12):
+                //this is sent to the builder telling them that they should go to the builder home page and await projects
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.GoToBuilderHomePge();
+                    }
+                }
+                break;
         }
     }
 }
