@@ -57,9 +57,11 @@ public class SceneMemBuilder : MonoBehaviour
     public ProjectEntry[] allProjects;
     public GameObject projectEntryPrefab;
     public GameObject listParent;
+    public List<ProjectEntry> projectList;
 
     private void Start()
     {
+        projectList = new List<ProjectEntry>();
         GoToStartmenu();
         closePopup();
     }
@@ -401,6 +403,14 @@ public class SceneMemBuilder : MonoBehaviour
     }
     #endregion
 
+    public void AddProject(byte[] Data, string _projectName, string _clientName, string _clientEmail)
+    {
+        var _entry = ((GameObject)Instantiate(projectEntryPrefab, listParent.transform)).GetComponent<ProjectEntry>();
+        _entry.SetData(Data);
+        _entry.SetText(_projectName, _clientName, _clientEmail);
+
+        noProjectsText.SetActive(false);
+    }
 
 
    

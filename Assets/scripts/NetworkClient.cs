@@ -249,9 +249,29 @@ public class NetworkClient : MonoBehaviour
                 GenericMessage((Net_GenerigMessage)msg);
                 break;
 
+            case NetOP.Furniture:
+                GetFurniture((Net_Furniture)msg);
+                break;
+
         }
     }
 
+    void GetFurniture(Net_Furniture msg)
+    {
+        //we jsut got a furniture project from the server
+        if (client)
+        {
+            //something went wrong this is only a message for builders
+            Debug.Log("client received message designated for builder - something has gone horibly wrong");
+        }
+        else
+        {
+            if (builderscene != null)
+            {
+                builderscene.AddProject(msg.ModelDescription, msg.projectName, msg.clientName, msg.clientEmail);
+            }
+        }
+    }
     void SendUserInfo()
     {
         Net_UserInfo msg = new Net_UserInfo();
