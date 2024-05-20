@@ -311,7 +311,36 @@ public class NetworkClient : MonoBehaviour
                     }
                 }
                 break;
-
+            case (4):
+                //this is sent to the builder telling them that the email they put in is incorrect
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.LoginFail("No accounts with that email");
+                    }
+                }
+                break;
+            case (5):
+                //this is sent to the builder telling them that the email is correct but wrong password
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.LoginFail("Incorrect password");
+                    }
+                }
+                break;
             case (7):
                 //this is sent to the builder telling them that login was a success and to go to account info set up
                 if (client)

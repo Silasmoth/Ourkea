@@ -191,6 +191,14 @@ public class SceneMemBuilder : MonoBehaviour
         client.SendServer(msg);
     }
 
+    public void LoginFail(string message)
+    {
+        loginEmailInput.interactable = true;
+        loginPassInput.interactable = true;
+
+        showPopup(message);
+    }
+
     public void TryVerifyEmail()
     {
         //first lets just make sure that the input is a 4 digit number
