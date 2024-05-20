@@ -341,6 +341,21 @@ public class NetworkClient : MonoBehaviour
                     }
                 }
                 break;
+            case (6):
+                //this is sent to the builder telling them that the verification code they provided was incorrect
+                if (client)
+                {
+                    //something went wrong this is only a message for builders
+                    Debug.Log("client received message designated for builder - something has gone horibly wrong");
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.VerifyFail();
+                    }
+                }
+                break;
             case (7):
                 //this is sent to the builder telling them that login was a success and to go to account info set up
                 if (client)

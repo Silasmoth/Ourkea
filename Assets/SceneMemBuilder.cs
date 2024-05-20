@@ -219,6 +219,12 @@ public class SceneMemBuilder : MonoBehaviour
         showPopup(message);
     }
 
+    public void VerifyFail()
+    {
+        VerifyButton.interactable = true;
+        ResendVerifyButton.interactable = true;
+        showPopup("incorrect code");
+    }
     public void TryVerifyEmail()
     {
         //first lets just make sure that the input is a 4 digit number
