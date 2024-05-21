@@ -350,6 +350,13 @@ public class SceneMemBuilder : MonoBehaviour
         AccountInfoButton.interactable = false;//so that the builder can only send one at a time
         client.SendServer(msg);
     }
+
+    public void AccountInfoFail(string reason)
+    {
+        //failed to upload account info, most likely because address was incorrect
+        AccountInfoButton.interactable = true;//let the builder try again
+        showPopup(reason);
+    }
     #endregion
 
     #region screen navigation

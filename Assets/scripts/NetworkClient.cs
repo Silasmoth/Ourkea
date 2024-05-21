@@ -460,6 +460,25 @@ public class NetworkClient : MonoBehaviour
                     }
                 }
                 break;
+
+            case (13):
+                //address not found
+                if (client)
+                {
+                    if (blockPlacer != null)
+                    {
+                        blockPlacer.UploadResponce(false);
+
+                    }
+                }
+                else
+                {
+                    if (builderscene != null)
+                    {
+                        builderscene.AccountInfoFail("Failed to update account information, the address you provided was not found, double check your information and try again.");
+                    }
+                }
+                break;
         }
     }
 }

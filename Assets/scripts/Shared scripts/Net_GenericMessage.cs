@@ -25,6 +25,7 @@ public class Net_GenerigMessage : NetMsg
     //10 - email confirmation was sent (successfuly)
     //11 - email confirmation was not sent (failed)
     //12 - Builder preferences set, send builder to builder main menu
+    //13 - Invalid Address (nomatim did not find the address)
 
     //To Server
     //0 - resend email verify code
