@@ -11,6 +11,7 @@ using System;
 public class NetworkClient : MonoBehaviour
 {
     public bool client =  true; //is this a client (true) or builder (false)
+    public bool SingleTonChecked = false;
     public BlockPlacer blockPlacer;//reference to the blockplacer/scenemanager when in the tool scene
     public SceneMemBuilder builderscene;//reference for popups and stuff in builder main menu
 
@@ -18,7 +19,7 @@ public class NetworkClient : MonoBehaviour
     //local ip "127.0.0.1"
 
     public string SERVER_IP = "127.0.0.1";
-    ushort PORT = 8999;
+    ushort PORT = 9601;
     const int BYTE_SIZE = 1024;
     //new networking code
     string SessionToken = "";
@@ -38,10 +39,15 @@ public class NetworkClient : MonoBehaviour
 
         if (Instance != null && Instance != this)
         {
+            Debug.Log("This is a new netclient, destroy it");
+            builderscene.client = Instance;
+            Instance.builderscene = builderscene;
+            builderscene.scenereload = true;
             Destroy(this);
         }
         else
         {
+            SingleTonChecked = true;
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -272,7 +278,7 @@ public class NetworkClient : MonoBehaviour
 
             case NetOP.Ping:
                 //ping back
-                SendServerFast(msg);
+                SendServer(msg);
                 break;
 
         }

@@ -16,6 +16,9 @@ public class BlockPlacer : MonoBehaviour
     //this to dissable in view only mode
     public GameObject[] HideInViewMode;
 
+    //the go back button for exiting the project view
+    public GameObject GoBackButton;
+
     public bool awaitingServer = false;//is the client waiting for a response from the server? if so just wait
     public bool awaitingpopup = false;
 
@@ -2017,4 +2020,8 @@ public class BlockPlacer : MonoBehaviour
 
     #endregion
 
+    public void GoBackToMenu()
+    {
+        Application.LoadLevel(0);
+    }
 }

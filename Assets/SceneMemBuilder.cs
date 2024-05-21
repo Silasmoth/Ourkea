@@ -61,21 +61,35 @@ public class SceneMemBuilder : MonoBehaviour
     public List<ProjectEntry> projectList;
 
     //for viewing projects
+    public bool scenereload = false;//this is set to true if we are just returning to the scene from a project view
     
     private void Start()
     {
-        if (client == null)
+        if (scenereload)
         {
-            client = GameObject.Find("NetClient").GetComponent<NetworkClient>();
+            client = NetworkClient.Instance;
             client.builderscene = this;
             client.UpdateProjectList();
+
+            GoToBuilderHomePge();
+        }else
+        {
+            projectList = new List<ProjectEntry>();
+            GoToStartmenu();
+            closePopup();
         }
         
-        projectList = new List<ProjectEntry>();
-        GoToStartmenu();
-        closePopup();
+        
     }
     
+    public void GetClient()
+    {
+        client = NetworkClient.Instance;
+        client.builderscene = this;
+        client.UpdateProjectList();
+
+        GoToBuilderHomePge();
+    }
 
     #region Popup
     public void showPopup(string PopupMessage)
