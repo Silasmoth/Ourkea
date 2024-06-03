@@ -71,9 +71,9 @@ public class NetworkClient : MonoBehaviour
         Debug.Log("Trying to connect to : " + SERVER_IP + ", Port : " + PORT);
         m_Driver = NetworkDriver.Create();
         m_Connection = default(NetworkConnection);
-        _ = new NetworkEndPoint();
-        NetworkEndPoint endpoint;
-        NetworkEndPoint.TryParse(SERVER_IP, PORT, out endpoint, NetworkFamily.Ipv4);
+        _ = new NetworkEndpoint();
+        NetworkEndpoint endpoint;
+        NetworkEndpoint.TryParse(SERVER_IP, PORT, out endpoint, NetworkFamily.Ipv4);
         endpoint.Port = PORT;
         m_PipelineBig = m_Driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
         m_PipelineSlow = m_Driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));

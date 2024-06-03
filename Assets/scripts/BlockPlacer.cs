@@ -63,6 +63,8 @@ public class BlockPlacer : MonoBehaviour
     //references to input fields and UI for modyfiying selection
     public TMP_InputField HeightInput, WidthInput, WidthBInput, ShelfInput;//the input feilds for changing block dimensions
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
+    public Image FinishPreview;
+    public Sprite[] FinishSprites;
 
     //Block Index vertical compatabilities
     // Flat blocks : 0
@@ -90,10 +92,14 @@ public class BlockPlacer : MonoBehaviour
     private string _path;
 
     //material options
+    public bool setAllMaterial = true;//when finish is changed do we just change the selected module (false) or every module (true)
     public TMP_Dropdown SurfaceMaterialDropdown;
     public TMP_Dropdown CoreMaterialDropDown;
     public Material[] UnselectedMat;
     public Material[] SelectedMat;
+    public GameObject finishesPannel;
+    bool finishesOpen = false;
+    int lastMaterialFinish = 19;
 
     SceneMem sceneMem;
 
@@ -921,10 +927,12 @@ public class BlockPlacer : MonoBehaviour
                 }
                 GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], spawnpos, Quaternion.identity);//create the new block
                 var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
+                PlacedBlockComponent.FinishMaterial = lastMaterialFinish;
                 AllBlocks.Add(PlacedBlockComponent);
                 PlacedBlockComponent.DoubleWall = doubleWalls;
                 PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
                 PlacedBlockComponent.recalculateDimentions(true);
+                PlacedBlockComponent.FinishMaterial = lastMaterialFinish;
 
                 if (SelectedModule != null)
                 {
@@ -947,7 +955,7 @@ public class BlockPlacer : MonoBehaviour
                     //mouse over snaping point of furniture
                     GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
                     var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
-
+                    PlacedBlockComponent.FinishMaterial = lastMaterialFinish;
                     bool allowPlacement = true;
                     //check to see if the snapping point is compatible with the block we are dragging in
                     if (HitBlockSnap.mySnapIndex == 0 || HitBlockSnap.mySnapIndex == 1)
@@ -1352,6 +1360,54 @@ public class BlockPlacer : MonoBehaviour
     #endregion
 
     #region edit Selection
+
+    public void ViewFinishes()
+    {
+        finishesOpen = !finishesOpen;
+
+        finishesPannel.SetActive(finishesOpen);
+    }
+
+    public void HideFinishes()
+    {
+        finishesOpen = false;
+
+        finishesPannel.SetActive(finishesOpen);
+    }
+    public void SetFinish(int finishID)
+    {
+        lastMaterialFinish = finishID;
+        if (setAllMaterial)
+        {
+            //swap out the material for every module
+            foreach (var item in AllBlocks)
+            {
+                item.FinishMaterial = finishID;
+                item.selectedMat = SelectedMat[finishID];
+                item.unselectedMat = UnselectedMat[finishID];
+                item.SetSelected(false);
+
+            }
+            if (SelectedModule != null)
+            {
+                SelectedModule.SetSelected(true);
+            }
+        }
+        else
+        {
+            //just swap out the selected block material
+            SelectedModule.FinishMaterial = finishID;
+            SelectedModule.selectedMat = SelectedMat[finishID];
+            SelectedModule.unselectedMat = UnselectedMat[finishID];
+            SelectedModule.SetSelected(false);
+            SelectedModule.SetSelected(true);
+        }
+
+        UpdateSelectionUI(true);
+        
+    }
+
+
     public void ApplyUpdatesToSelection()
     {
         if (SelectedModule == null)
@@ -1391,27 +1447,15 @@ public class BlockPlacer : MonoBehaviour
 
         //should add a check here to avoid an out of bounds error
         SelectedModule.CoreMaterial = CoreMaterialDropDown.value;
-        SelectedModule.FinishMaterial = SurfaceMaterialDropdown.value;
-        SelectedModule.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
-        SelectedModule.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
+        SelectedModule.selectedMat = SelectedMat[SelectedModule.FinishMaterial];
+        SelectedModule.unselectedMat = UnselectedMat[SelectedModule.FinishMaterial];
+        SelectedModule.SetSelected(false);
         SelectedModule.SetSelected(true);
 
         UpdateMaxMins();
     }
 
-    public void ApplyMaterialToAll()
-    {
-        foreach (var item in AllBlocks)
-        {
-            item.FinishMaterial = SurfaceMaterialDropdown.value;
-            item.selectedMat = SelectedMat[SurfaceMaterialDropdown.value];
-            item.unselectedMat = UnselectedMat[SurfaceMaterialDropdown.value];
-            item.CoreMaterial = CoreMaterialDropDown.value;
-            item.SetSelected(false);
-            
-        }
-        SelectedModule.SetSelected(true);
-    }
+    
     public void DeleteSelection()
     {
         if (SelectedModule == null)
@@ -1456,6 +1500,7 @@ public class BlockPlacer : MonoBehaviour
     {
         if (Show)
         {
+            FinishPreview.sprite = FinishSprites[SelectedModule.FinishMaterial];
             SelectionPannel.SetActive(true);
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
@@ -1472,10 +1517,11 @@ public class BlockPlacer : MonoBehaviour
                 ShelfInput.text = SelectedModule.VDividercount + "";
             }
 
-            SurfaceMaterialDropdown.value = SelectedModule.FinishMaterial;
+            
             CoreMaterialDropDown.value = SelectedModule.CoreMaterial;
         }
         else {
+            HideFinishes();
             SelectionPannel.SetActive(false);
         }
         
