@@ -211,6 +211,12 @@ public class BlockPlacer : MonoBehaviour
 
         if (!ViewOnly)
         {
+            if (Input.GetKeyDown(KeyCode.Delete))
+            {
+                //pressed delete, delete the selected module
+                DeleteSelection();
+            }
+
             if (UnityEngine.Input.GetMouseButtonDown(0))
             {
                 //mouse down
