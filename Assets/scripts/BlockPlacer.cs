@@ -24,40 +24,34 @@ public class BlockPlacer : MonoBehaviour
 
 
     //Extra settings pannel
+    [Header("Extra Settings - Settings")]
     public bool inSettings = false;
-    public GameObject settingsPanel;
-
+    public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
+    public bool showFigure = false;
     public bool ShowBackWall = false;//used to determine if back wall should be shown or not
+    public bool showstats = false; //show the millwork stats or not
+    public bool ShowDim = true; //show the dimension lines or not
+    public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
+    public bool setAllMaterial = true;//when finish is changed do we just change the selected module (false) or every module (true)
+
+    [Header("Extra Settings - References")]
+    
+    public GameObject settingsPanel;
+    public TMP_Text doubleWallsButton; // the text on the toggle double walls button
+    public GameObject ScaleFigure;
+    public TMP_Text ShowFigureButton; // the text on the "show/hide scale figure" button
     public TMP_Text BackwallButton; //the text on the toggle back wall button
     public GameObject BackWall; //used for previewing furniture with a back wall
-
-    const int BYTE_SIZE = 8000;//used for saving, means max blocks around 100
-    public ScrollRect moduleScroll;//used to allow/prevent scrolling while dragging
-    public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
-    public TMP_Text doubleWallsButton; // the text on the toggle double walls button
-    
-    public GameObject ScaleFigure;
-    public bool showFigure = false;
-    public TMP_Text ShowFigureButton; // the text on the "show/hide scale figure" button
-
-    public ViewportMover viewport;// reference to the viewport mover, used to get the camera rotation when placing the dimention lines
-
-    public bool showstats = false; //show the millwork stats or not
     public TMP_Text showStatsButton; // the text on the "show/hide stats" button
     public TMP_Text StatisticsText; // the text for showing stats
-    
-    public bool ShowDim = true; //show the dimension lines or not
     public TMP_Text showdimButton; // the text on the "show/hide dimentions" button
-
-
     public DimentionDisplay VerticalDimDisplay; //the dimdiesplay for Y
     public DimentionDisplay XlDimDisplay; // dimentiondisplay for X
     public DimentionDisplay ZlDimDisplay; // dimentionDisplay for z
+    public ViewportMover viewport;// reference to the viewport mover, used to get the camera rotation when placing the dimention lines
+    
 
-
-    public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
-
-    public ScalableComponent starterBlock;//reference to the block that already exists in the scene
+    
 
 
     [SerializeField] private LayerMask SelecionLayer; //the layermask that is used for selecting modules
@@ -66,38 +60,42 @@ public class BlockPlacer : MonoBehaviour
     public ScalableComponent SelectedModule; //this holds a reference to the currently selected module, null if there are non selected
 
     //references to input fields and UI for modyfiying selection
-    public TMP_InputField HeightInput, WidthInput, WidthBInput, ShelfInput;//the input feilds for changing block dimensions
+    [Header("Customize Pannel - References")]
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
+    public TMP_InputField HeightInput, WidthInput, WidthBInput, ShelfInput;//the input feilds for changing block dimensions
     public Image FinishPreview;
     public Sprite[] FinishSprites;
+    public GameObject finishButton;
+    public Image ModuleIcon;
 
     //Block Index vertical compatabilities
     // Flat blocks : 0
     // Concave Blocks (open inside):1
     //Convex Blocks (open outside):2
+    [Header("Block Placement")]
     public int placingBlockIndex = 0;
     public GameObject[] blockPrefab;
     public GameObject[] previewBlockPrefab;
     public Camera camera;
-    public int DisplayMode;
-    //0-working/show snapping points
-    //1 - show finished shelf
 
     //Drag and drop
+    [Header("Drag and Drop")]
     public ModuleUI[] DragableModules;
     public bool Dragingblock = false;
-
-    public List<ScalableComponent> AllBlocks; //a list containing all placed modules
     public GameObject ModulePreview;//the preview of the module being dragged
     public GameObject oldModulePreview; //used for gc
+    public List<ScalableComponent> AllBlocks; //a list containing all placed modules
+
 
 
     //For exporting model
+    [Header("Model Exporting")]
     public RuntimeExporterMono Exporter;
+    public GameObject shapeSimple; //for just making the shapes
     private string _path;
 
     //material options
-    public bool setAllMaterial = true;//when finish is changed do we just change the selected module (false) or every module (true)
+    [Header("Materials")]
     public TMP_Dropdown SurfaceMaterialDropdown;
     public TMP_Dropdown CoreMaterialDropDown;
     public Material[] UnselectedMat;
@@ -111,11 +109,11 @@ public class BlockPlacer : MonoBehaviour
     //furniture bounds storage
     float maxX, minX, maxY, minY, maxZ, minZ;
 
-    //for creating just the shapes
-    public GameObject shapeSimple;
+
 
 
     //for uploading the model to the server
+    [Header("Model Uploading")]
     string email;
     public GameObject uploadePannel; //the UI pannel with all of the uploading UI
     public NetworkClient client;
@@ -125,10 +123,15 @@ public class BlockPlacer : MonoBehaviour
     public TMP_InputField uploadClientAddress;
 
     //for poopups
+    [Header("Popup messages")]
     public GameObject PopUpPannel;
     public TextMeshProUGUI PopupText;
 
+    [Header("Other references")]
+    const int BYTE_SIZE = 8000;//used for saving, means max blocks around 100
+    public ScrollRect moduleScroll;//used to allow/prevent scrolling while dragging
 
+    public ScalableComponent starterBlock;//reference to the block that already exists in the scene
 
     // Start is called before the first frame update
     void Start()
@@ -1489,11 +1492,13 @@ public class BlockPlacer : MonoBehaviour
         }
         
         AllBlocks.Remove(SelectedModule);
+        
         //clear all references that other blocks have to this block
         for (int i = 0; i < SelectedModule.ConnectedModules.Length; i++)
         {
             if (SelectedModule.ConnectedModules[i] != null)
             {
+                
                 //we are connected to this module
                 for (int ii = 0; ii < SelectedModule.ConnectedModules[i].ConnectedModules.Length; ii++)
                 {
@@ -1509,8 +1514,12 @@ public class BlockPlacer : MonoBehaviour
 
                 }
 
+                SelectedModule.ConnectedModules[i].recalculateDimentions(false);
+
             }
         }
+        //we should recalculate if this had any connections
+        
 
         Destroy(SelectedModule.gameObject);
         UpdateSelectionUI(false);
@@ -1524,6 +1533,18 @@ public class BlockPlacer : MonoBehaviour
     {
         if (Show)
         {
+            if (SelectedModule.fixedMat)
+            {
+                FinishPreview.gameObject.SetActive(false);
+                finishButton.SetActive(false);
+            }
+            else
+            {
+                FinishPreview.gameObject.SetActive(true);
+                finishButton.SetActive(true);
+            }
+            ModuleIcon.sprite = DragableModules[SelectedModule.moduleType].GetComponent<Image>().sprite;
+
             FinishPreview.sprite = FinishSprites[SelectedModule.FinishMaterial];
             SelectionPannel.SetActive(true);
             HeightInput.text = SelectedModule.blockHeight + "";

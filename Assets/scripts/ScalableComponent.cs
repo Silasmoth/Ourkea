@@ -63,6 +63,29 @@ public class ScalableComponent : MonoBehaviour
     //Flat module mesh components
     public GameObject T;    //these are the mesh components of the sides of the furniture module
     public GameObject TR, R, BR, B, BL, L, TL, C;
+
+    //for alternative mesh versions
+    [Header("Alternative Mesh component references")]
+    public bool UseAlternatives;
+    int alternativeVersion = 0;
+    //Original Version - automatically filled out based on gameobject references above
+    Mesh Orig_T, Orig_TR, Orig_R, Orig_BR, Orig_B, Orig_BL, Orig_L, Orig_TL, Orig_C;
+
+    //Right end
+    [Header("Right End")]
+    public Mesh Right_T;
+    public Mesh Right_TR, Right_R, Right_BR, Right_B, Right_BL, Right_L, Right_TL, Right_C;
+
+    //Left end
+    [Header("Left End")]
+    public Mesh Left_T;
+    public Mesh Left_TR, Left_R, Left_BR, Left_B, Left_BL, Left_L, Left_TL, Left_C;
+
+    //middle case
+    [Header("LMiddle Case")]
+    public Mesh Center_T;
+    public Mesh Center_TR, Center_R, Center_BR, Center_B, Center_BL, Center_L, Center_TL, Center_C;
+
     //Corner module mesh Components
     public GameObject TMR, TM, TML, BMR, BM, BML;
 
@@ -151,6 +174,103 @@ public class ScalableComponent : MonoBehaviour
         return rulebroken;
     }
 
+    void swapVersion(int version)//0 - original, 1 - right end, 2 - left end, 3 - middle case
+    {
+        switch (version)
+        {
+            case (0):
+                //original
+                //assign original component meshes for alternative versions
+                if (T != null)
+                    T.GetComponent<MeshFilter>().sharedMesh = Orig_T;
+                if (B != null)
+                    B.GetComponent<MeshFilter>().sharedMesh = Orig_B;
+                if (R != null)
+                    R.GetComponent<MeshFilter>().sharedMesh = Orig_R;
+                if (L != null)
+                    L.GetComponent<MeshFilter>().sharedMesh = Orig_L;
+                if (TL != null)
+                    TL.GetComponent<MeshFilter>().sharedMesh = Orig_TL;
+                if (TR != null)
+                    TR.GetComponent<MeshFilter>().sharedMesh = Orig_TR;
+                if (BR != null)
+                    BR.GetComponent<MeshFilter>().sharedMesh = Orig_BR;
+                if (BL != null)
+                    BL.GetComponent<MeshFilter>().sharedMesh = Orig_BL;
+                if (C != null)
+                    C.GetComponent<MeshFilter>().sharedMesh = Orig_C;
+                break;
+
+            case (1):
+                //right end
+                //assign original component meshes for alternative versions
+                if (T != null)
+                    T.GetComponent<MeshFilter>().sharedMesh = Right_T ;
+                if (B != null)
+                    B.GetComponent<MeshFilter>().sharedMesh = Right_B;
+                if (R != null)
+                    R.GetComponent<MeshFilter>().sharedMesh = Right_R;
+                if (L != null)
+                    L.GetComponent<MeshFilter>().sharedMesh = Right_L;
+                if (TL != null)
+                    TL.GetComponent<MeshFilter>().sharedMesh = Right_TL;
+                if (TR != null)
+                    TR.GetComponent<MeshFilter>().sharedMesh = Right_TR;
+                if (BR != null)
+                    BR.GetComponent<MeshFilter>().sharedMesh = Right_BR;
+                if (BL != null)
+                    BL.GetComponent<MeshFilter>().sharedMesh = Right_BL;
+                if (C != null)
+                    C.GetComponent<MeshFilter>().sharedMesh = Right_C;
+                break;
+
+            case (2):
+                //left end
+                //assign original component meshes for alternative versions
+                if (T != null)
+                    T.GetComponent<MeshFilter>().sharedMesh = Left_T;
+                if (B != null)
+                    B.GetComponent<MeshFilter>().sharedMesh = Left_B;
+                if (R != null)
+                    R.GetComponent<MeshFilter>().sharedMesh = Left_R;
+                if (L != null)
+                    L.GetComponent<MeshFilter>().sharedMesh = Left_L;
+                if (TL != null)
+                    TL.GetComponent<MeshFilter>().sharedMesh = Left_TL;
+                if (TR != null)
+                    TR.GetComponent<MeshFilter>().sharedMesh = Left_TR;
+                if (BR != null)
+                    BR.GetComponent<MeshFilter>().sharedMesh = Left_BR;
+                if (BL != null)
+                    BL.GetComponent<MeshFilter>().sharedMesh = Left_BL;
+                if (C != null)
+                    C.GetComponent<MeshFilter>().sharedMesh = Left_C;
+                break;
+
+            case (3):
+                //left end
+                //assign original component meshes for alternative versions
+                if (T != null)
+                    T.GetComponent<MeshFilter>().sharedMesh = Center_T;
+                if (B != null)
+                    B.GetComponent<MeshFilter>().sharedMesh = Center_B;
+                if (R != null)
+                    R.GetComponent<MeshFilter>().sharedMesh = Center_R;
+                if (L != null)
+                    L.GetComponent<MeshFilter>().sharedMesh = Center_L;
+                if (TL != null)
+                    TL.GetComponent<MeshFilter>().sharedMesh = Center_TL;
+                if (TR != null)
+                    TR.GetComponent<MeshFilter>().sharedMesh = Center_TR;
+                if (BR != null)
+                    BR.GetComponent<MeshFilter>().sharedMesh = Center_BR;
+                if (BL != null)
+                    BL.GetComponent<MeshFilter>().sharedMesh = Center_BL;
+                if (C != null)
+                    C.GetComponent<MeshFilter>().sharedMesh = Center_C;
+                break;
+        }
+    }
     public void recalculateDimentions(bool effectAdjacent)
     {
 
@@ -166,6 +286,30 @@ public class ScalableComponent : MonoBehaviour
                 bool shiftLeft = ConnectedModules[3] != null;
                 bool shiftDown = (ConnectedModules[1] != null) && ConnectedModules[1].mergeVertical;
 
+                if (UseAlternatives)
+                {
+                    if (shiftLeft && shiftRight)
+                    {
+                        swapVersion(3);
+                    }
+                    else
+                    {
+                        if (shiftLeft)
+                        {
+                            swapVersion(1);
+                        }
+
+                        if (shiftRight)
+                        {
+                            swapVersion(2);
+                        }
+                    }
+
+                    if (!shiftLeft && !shiftRight)
+                    {
+                        swapVersion(0);
+                    }
+                }
 
                 //update snapping points positions/scales
 
@@ -958,8 +1102,30 @@ public class ScalableComponent : MonoBehaviour
         {
             ConnectedModules = new ScalableComponent[snappingPoints.Length];
         }
-
+        if (UseAlternatives)
+        {
+            //assign original component meshes for alternative versions
+            if (T != null)
+                Orig_T = T.GetComponent<MeshFilter>().sharedMesh;
+            if (B != null)
+                Orig_B = B.GetComponent<MeshFilter>().sharedMesh;
+            if (R != null)
+                Orig_R = R.GetComponent<MeshFilter>().sharedMesh;
+            if (L != null)
+                Orig_L = L.GetComponent<MeshFilter>().sharedMesh;
+            if (TL != null)
+                Orig_TL = TL.GetComponent<MeshFilter>().sharedMesh;
+            if (TR != null)
+                Orig_TR = TR.GetComponent<MeshFilter>().sharedMesh;
+            if (BR != null)
+                Orig_BR = BR.GetComponent<MeshFilter>().sharedMesh;
+            if (BL != null)
+                Orig_BL = BL.GetComponent<MeshFilter>().sharedMesh;
+            if (C != null)
+                Orig_C = C.GetComponent<MeshFilter>().sharedMesh;
+        }
         
+
     }
 
     // Update is called once per frame

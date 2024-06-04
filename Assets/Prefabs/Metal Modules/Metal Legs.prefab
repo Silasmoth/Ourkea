@@ -147,7 +147,7 @@ MonoBehaviour:
   mergeVertical: 0
   fixedMat: {fileID: 2100000, guid: ed426569bc3afde43a9ff0d6c18ecf8e, type: 2}
   fixedMatSelected: {fileID: 2100000, guid: 5aaf3607664841d4c8902f17a9777670, type: 2}
-  moduleType: 5
+  moduleType: 9
   DoubleWall: 1
   wallThickness: 0.019
   matThickness: 0.019
@@ -187,6 +187,42 @@ MonoBehaviour:
   L: {fileID: 8330827667668923018}
   TL: {fileID: 7017543937830984529}
   C: {fileID: 0}
+  UseAlternatives: 1
+  Right_T: {fileID: -3306527626003275798, guid: a62058e2ef6f3ca46b5c72439f49a35a,
+    type: 3}
+  Right_TR: {fileID: -1166658701439009624, guid: a62058e2ef6f3ca46b5c72439f49a35a,
+    type: 3}
+  Right_R: {fileID: 2187857389984176866, guid: a62058e2ef6f3ca46b5c72439f49a35a, type: 3}
+  Right_BR: {fileID: 8138279958737743746, guid: a62058e2ef6f3ca46b5c72439f49a35a,
+    type: 3}
+  Right_B: {fileID: 0}
+  Right_BL: {fileID: 0}
+  Right_L: {fileID: 0}
+  Right_TL: {fileID: 1676518747111791252, guid: a62058e2ef6f3ca46b5c72439f49a35a,
+    type: 3}
+  Right_C: {fileID: 0}
+  Left_T: {fileID: -6854796362274480166, guid: fe728e3ce086c8143b821a3bfcd3c17a, type: 3}
+  Left_TR: {fileID: 2919403499802635164, guid: fe728e3ce086c8143b821a3bfcd3c17a, type: 3}
+  Left_R: {fileID: 0}
+  Left_BR: {fileID: 0}
+  Left_B: {fileID: -3629940168330607979, guid: 29a2aa479a49db14292c5f23b2b24812, type: 3}
+  Left_BL: {fileID: -8154013859790349082, guid: fe728e3ce086c8143b821a3bfcd3c17a,
+    type: 3}
+  Left_L: {fileID: 4599986321430822143, guid: fe728e3ce086c8143b821a3bfcd3c17a, type: 3}
+  Left_TL: {fileID: 5620677863921212835, guid: fe728e3ce086c8143b821a3bfcd3c17a, type: 3}
+  Left_C: {fileID: 0}
+  Center_T: {fileID: 6784692808292642674, guid: c0aa11c630cfb5d4c9f6f167f30ffd45,
+    type: 3}
+  Center_TR: {fileID: 2067067221378950724, guid: c0aa11c630cfb5d4c9f6f167f30ffd45,
+    type: 3}
+  Center_R: {fileID: 0}
+  Center_BR: {fileID: 0}
+  Center_B: {fileID: 0}
+  Center_BL: {fileID: 0}
+  Center_L: {fileID: 0}
+  Center_TL: {fileID: 3067264833040624040, guid: c0aa11c630cfb5d4c9f6f167f30ffd45,
+    type: 3}
+  Center_C: {fileID: 0}
   TMR: {fileID: 0}
   TM: {fileID: 0}
   TML: {fileID: 0}

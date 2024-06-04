@@ -6981,27 +6981,26 @@ MonoBehaviour:
   awaitingServer: 0
   awaitingpopup: 0
   inSettings: 0
-  settingsPanel: {fileID: 1903968140}
-  ShowBackWall: 0
-  BackwallButton: {fileID: 714482657}
-  BackWall: {fileID: 79111541}
-  moduleScroll: {fileID: 1811217428}
   doubleWalls: 1
+  showFigure: 1
+  ShowBackWall: 0
+  showstats: 1
+  ShowDim: 1
+  useDimensionLimits: 1
+  setAllMaterial: 1
+  settingsPanel: {fileID: 1903968140}
   doubleWallsButton: {fileID: 1759151011}
   ScaleFigure: {fileID: 189578576}
-  showFigure: 1
   ShowFigureButton: {fileID: 913174594}
-  viewport: {fileID: 559569283}
-  showstats: 1
+  BackwallButton: {fileID: 714482657}
+  BackWall: {fileID: 79111541}
   showStatsButton: {fileID: 1954431150}
   StatisticsText: {fileID: 2071975622}
-  ShowDim: 1
   showdimButton: {fileID: 282772250}
   VerticalDimDisplay: {fileID: 626427995}
   XlDimDisplay: {fileID: 295594036}
   ZlDimDisplay: {fileID: 1585122927}
-  useDimensionLimits: 1
-  starterBlock: {fileID: 4126752147507675940}
+  viewport: {fileID: 559569283}
   SelecionLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -7009,11 +7008,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 448
   SelectedModule: {fileID: 0}
+  SelectionPannel: {fileID: 1925286524}
   HeightInput: {fileID: 58677746}
   WidthInput: {fileID: 837784320}
   WidthBInput: {fileID: 482703454}
   ShelfInput: {fileID: 2030329615}
-  SelectionPannel: {fileID: 1925286524}
   FinishPreview: {fileID: 265498560}
   FinishSprites:
   - {fileID: 21300000, guid: 1a9626d6b32e5e148815aacbdba41f77, type: 3}
@@ -7049,6 +7048,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5e8cacaff708c6d41bc048bfc29af5d4, type: 3}
   - {fileID: 21300000, guid: ee0d4ddfa591e534d8779ba99fe4c04a, type: 3}
   - {fileID: 21300000, guid: 7d823d18bacc0504499483f04b7335b5, type: 3}
+  finishButton: {fileID: 327503208}
+  ModuleIcon: {fileID: 43136669}
   placingBlockIndex: 0
   blockPrefab:
   - {fileID: 7641722929509617110, guid: 4833d681f1d5d7f4cac0e719c1e21e72, type: 3}
@@ -7071,9 +7072,8 @@ MonoBehaviour:
   - {fileID: 9021031354424619002, guid: baf2d1a802029f947b56c823770efb21, type: 3}
   - {fileID: 1619880345002929824, guid: fbb7cc13aef732b43963ea503568f839, type: 3}
   - {fileID: 9021031354424619002, guid: baf2d1a802029f947b56c823770efb21, type: 3}
-  - {fileID: 9021031354424619002, guid: baf2d1a802029f947b56c823770efb21, type: 3}
+  - {fileID: 1518291182210134730, guid: 29e328a4c292af84197d20e85e88776c, type: 3}
   camera: {fileID: 961739752}
-  DisplayMode: 1
   DragableModules:
   - {fileID: 821103744}
   - {fileID: 278537586}
@@ -7086,12 +7086,13 @@ MonoBehaviour:
   - {fileID: 871541900}
   - {fileID: 902106214}
   Dragingblock: 0
-  AllBlocks:
-  - {fileID: 0}
   ModulePreview: {fileID: 0}
   oldModulePreview: {fileID: 0}
+  AllBlocks:
+  - {fileID: 0}
   Exporter: {fileID: 559569286}
-  setAllMaterial: 1
+  shapeSimple: {fileID: 4676729331684547611, guid: 6eaa6573f78f4bc489d28367f224d9ce,
+    type: 3}
   SurfaceMaterialDropdown: {fileID: 0}
   CoreMaterialDropDown: {fileID: 1649830345}
   UnselectedMat:
@@ -7163,8 +7164,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: ee4bf9dbc61194343b08ccc93ad27d36, type: 2}
   - {fileID: 2100000, guid: ee4bf9dbc61194343b08ccc93ad27d36, type: 2}
   finishesPannel: {fileID: 1099771775}
-  shapeSimple: {fileID: 4676729331684547611, guid: 6eaa6573f78f4bc489d28367f224d9ce,
-    type: 3}
   uploadePannel: {fileID: 443305253}
   client: {fileID: 0}
   uploadProjectName: {fileID: 1502007417}
@@ -7173,6 +7172,8 @@ MonoBehaviour:
   uploadClientAddress: {fileID: 860644460}
   PopUpPannel: {fileID: 1597203038}
   PopupText: {fileID: 700723806}
+  moduleScroll: {fileID: 1811217428}
+  starterBlock: {fileID: 4126752147507675940}
 --- !u!114 &559569286
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -524,6 +524,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   index: 0
   isFixedMaterial: 0
+  mergeVertical: 1
   fixedMat: {fileID: 0}
   fixedMatSelected: {fileID: 0}
   moduleType: 8
@@ -566,6 +567,34 @@ MonoBehaviour:
   L: {fileID: 7388843297167395102}
   TL: {fileID: 7193563126915978744}
   C: {fileID: 6923573294552160134}
+  UseAlternatives: 0
+  Right_T: {fileID: 0}
+  Right_TR: {fileID: 0}
+  Right_R: {fileID: 0}
+  Right_BR: {fileID: 0}
+  Right_B: {fileID: 0}
+  Right_BL: {fileID: 0}
+  Right_L: {fileID: 0}
+  Right_TL: {fileID: 0}
+  Right_C: {fileID: 0}
+  Left_T: {fileID: 0}
+  Left_TR: {fileID: 0}
+  Left_R: {fileID: 0}
+  Left_BR: {fileID: 0}
+  Left_B: {fileID: 0}
+  Left_BL: {fileID: 0}
+  Left_L: {fileID: 0}
+  Left_TL: {fileID: 0}
+  Left_C: {fileID: 0}
+  Center_T: {fileID: 0}
+  Center_TR: {fileID: 0}
+  Center_R: {fileID: 0}
+  Center_BR: {fileID: 0}
+  Center_B: {fileID: 0}
+  Center_BL: {fileID: 0}
+  Center_L: {fileID: 0}
+  Center_TL: {fileID: 0}
+  Center_C: {fileID: 0}
   TMR: {fileID: 0}
   TM: {fileID: 0}
   TML: {fileID: 0}
