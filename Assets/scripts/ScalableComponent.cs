@@ -7,6 +7,10 @@ public class ScalableComponent : MonoBehaviour
     //for saving and loading
     public int index;//each module is assigned an index to help with remembering which modules are connected to each other in the saving process
 
+    public bool isFixedMaterial;
+    public bool mergeVertical = true;
+    public Material fixedMat, fixedMatSelected;
+
     public byte moduleType = 0;
     //
     public bool DoubleWall = true;
@@ -97,6 +101,7 @@ public class ScalableComponent : MonoBehaviour
     public float blockDepth = 0.4f; //the depth of this module, for now set as 0.4 (should probably also be variable but I'll have to split up the modules even more)
     [Space(10)]
     public float startingwidth = 3 / 4; //the size of each 9 tile component at scale of 1
+    public float startingHeight = 3 / 4; //the size of each 9 tile component at scale of 1
     [Space(10)]
 
     [Header("Module volume collider reference")]
@@ -159,7 +164,7 @@ public class ScalableComponent : MonoBehaviour
                 //first do positions for flat sides (top,bottom,left,right)
                 bool shiftRight = ConnectedModules[2] != null;
                 bool shiftLeft = ConnectedModules[3] != null;
-                bool shiftDown = ConnectedModules[1] != null;
+                bool shiftDown = (ConnectedModules[1] != null) && ConnectedModules[1].mergeVertical;
 
 
                 //update snapping points positions/scales
@@ -172,36 +177,48 @@ public class ScalableComponent : MonoBehaviour
                 //then stetch the sides to be the right lengths
                 snappingPoints[0].transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
                 snappingPoints[1].transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
-                snappingPoints[2].transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-                snappingPoints[3].transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                snappingPoints[2].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
+                snappingPoints[3].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
 
                 if (DoubleWall || (!shiftDown && !shiftRight && !shiftLeft))
                 {
-                    T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-                    B.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
-                    R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);
-                    L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
+                    if(T!= null)
+                        T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                    if (B != null)
+                        B.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+                    if (R != null)
+                        R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);
+                    if (L != null)
+                        L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);
 
                     //then stetch the sides to be the right lengths
-                    T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
-                    B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
-                    R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-                    L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                    if (T != null)
+                        T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
+                    if (B != null)
+                        B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);
+                    if (R != null)
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
+                    if (L != null)
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
 
 
 
                     //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                    TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);
-                    BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
-                    TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);
-                    BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
+                    if (TR != null)
+                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);
+                    if (BR != null)
+                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2);
+                    if (TL != null)
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);
+                    if (BL != null)
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);
 
                     
                     //scale the center mesh component if there is one
                     if (C != null)
                     {
                         C.transform.localPosition = new Vector3(0, 0, 0);
-                        C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - 2 * startingwidth) / startingwidth);
+                        C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, (blockWidth - 2 * startingwidth) / startingwidth);
                     }
                 }
                 else {
@@ -210,179 +227,251 @@ public class ScalableComponent : MonoBehaviour
                     if (shiftDown && shiftLeft && shiftRight)
                     {
                         //all sides
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);//down by wallthickness
-                        R.transform.localPosition = new Vector3(0, -wallThickness/2, -blockWidth / 2 - wallThickness/2);// over by half wallthickness and down by half wallthickness
-                        L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 + wallThickness/2);//over by half wallthickness and down by half wallthickness
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);//down by wallthickness
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, -wallThickness/2, -blockWidth / 2 - wallThickness/2);// over by half wallthickness and down by half wallthickness
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 + wallThickness/2);//over by half wallthickness and down by half wallthickness
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness- 2 * startingwidth) / startingwidth);//add an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth); //add extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add extra wall thickness
-                        L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add an extra wall thickness
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness- 2 * startingwidth) / startingwidth);//add an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth); //add extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add extra wall thickness
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add an extra wall thickness
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 -  wallThickness/2);//move over by half wall thickness 
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 - wallThickness/2);//move over by half wall thickness and down by wallthickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness/2);//move over by half wall thickness
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 + wallThickness/2);//move over by half wall thickness and down by wallthickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 -  wallThickness/2);//move over by half wall thickness 
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 - wallThickness/2);//move over by half wall thickness and down by wallthickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness/2);//move over by half wall thickness
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 + wallThickness/2);//move over by half wall thickness and down by wallthickness
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, -wallThickness/2, 0);//move down by half wallthickness
-                            C.transform.localScale = new Vector3(1, (blockHeight +wallThickness - 2 * startingwidth) / startingwidth, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add extra wall thickness in both directions
+                            C.transform.localScale = new Vector3(1, (blockHeight +wallThickness - 2 * startingHeight) / startingHeight, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add extra wall thickness in both directions
                         }
                             
                     }
                     if (shiftDown && shiftRight && !shiftLeft)
                     {
                         //all but left
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, -wallThickness/4);//move over by quarter wall thickness to right
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -wallThickness/4);//down by wallthickness and //move over by quarter wall thickness to right
-                        R.transform.localPosition = new Vector3(0, -wallThickness / 2, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness and down by half wallthickness
-                        L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 );// down by half wallthickness
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, -wallThickness/4);//move over by quarter wall thickness to right
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -wallThickness/4);//down by wallthickness and //move over by quarter wall thickness to right
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, -wallThickness / 2, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness and down by half wallthickness
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 );// down by half wallthickness
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add extra wall thickness
-                        L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add an extra wall thickness
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add extra wall thickness
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add an extra wall thickness
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness and down by wallthickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 );//down by wallthickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness and down by wallthickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 );//down by wallthickness
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, -wallThickness / 2, -wallThickness/4);//move down by half wallthickness
-                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness- 2 * startingwidth) / startingwidth, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z wallthickness in y
+                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness- 2 * startingHeight) / startingHeight, (blockWidth + wallThickness/2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z wallthickness in y
                         }
                     }
                     if (shiftDown && !shiftRight && shiftLeft)
                     {
                         //all but right
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, wallThickness / 4);//move over by quarter wall thickness to left
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, wallThickness / 4);//down by wallthickness and //move over by quarter wall thickness to left
-                        R.transform.localPosition = new Vector3(0, -wallThickness / 2, -blockWidth / 2 );// down by half wallthicknes
-                        L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 + wallThickness/2);// sover by half wallthickness and down by half wallthickness
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, wallThickness / 4);//move over by quarter wall thickness to left
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, wallThickness / 4);//down by wallthickness and //move over by quarter wall thickness to left
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, -wallThickness / 2, -blockWidth / 2 );// down by half wallthicknes
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2 + wallThickness/2);// sover by half wallthickness and down by half wallthickness
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add extra wall thickness
-                        L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1); //add an extra wall thickness
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add extra wall thickness
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1); //add an extra wall thickness
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 );// down by wallthickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 + wallThickness/2);//down by wallthickness and over by half wallthickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2 );// down by wallthickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2 + wallThickness/2);//down by wallthickness and over by half wallthickness
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, -wallThickness / 2, wallThickness / 4);//move down by half wallthickness
-                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z wallthickness in y
+                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z wallthickness in y
                         }
 
                     }
                     if (shiftDown && !shiftRight && !shiftLeft)
                     {
                         //only down
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change 
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);//down by thickness
-                        R.transform.localPosition = new Vector3(0, -wallThickness/2, -blockWidth / 2); //down by half wallthickness
-                        L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2);//''
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change 
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);//down by thickness
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, -wallThickness/2, -blockWidth / 2); //down by half wallthickness
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, -wallThickness / 2, blockWidth / 2);//''
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);//no change
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);//''
-                        R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1);//add extra wallthickness
-                        L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, 1);//''
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);//no change
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth - 2 * startingwidth) / startingwidth);//''
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1);//add extra wallthickness
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, 1);//''
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2);//down by wallthickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2);//down by wallthickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, -blockWidth / 2);//down by wallthickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockWidth / 2);//down by wallthickness
 
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, -wallThickness/2, 0);//down by half wallthickness
-                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingwidth) / startingwidth, (blockWidth - 2 * startingwidth) / startingwidth);//add extra wallthickness to y
+                            C.transform.localScale = new Vector3(1, (blockHeight + wallThickness - 2 * startingHeight) / startingHeight, (blockWidth - 2 * startingwidth) / startingwidth);//add extra wallthickness to y
                         }
 
                     }
                     if (!shiftDown && shiftRight && shiftLeft)
                     {
                         //all but down
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 , 0);//no change
-                        R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness 
-                        L.transform.localPosition = new Vector3(0, 0, blockWidth / 2 + wallThickness / 2);//over by half wallthickness 
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, 0);//no change
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 , 0);//no change
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness 
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, 0, blockWidth / 2 + wallThickness / 2);//over by half wallthickness 
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth); //add extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1); //no change
-                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1); //noo change
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth); //add extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1); //no change
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1); //noo change
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness 
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 , -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 , blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness 
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 , -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2 , blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, 0, 0);//no change
-                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add extra wall thickness in z
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, (blockWidth + wallThickness - 2 * startingwidth) / startingwidth);//add extra wall thickness in z
                         }
                     }
                     if (!shiftDown && !shiftRight && shiftLeft)
                     {
                         //only left
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, wallThickness / 4);//move over by quarter wall thickness to left
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2 , wallThickness / 4);//move over by quarter wall thickness to left
-                        R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);// no change
-                        L.transform.localPosition = new Vector3(0, 0, blockWidth / 2 + wallThickness / 2);// sover by half wallthickness and down by half wallthickness
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, wallThickness / 4);//move over by quarter wall thickness to left
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2 , wallThickness / 4);//move over by quarter wall thickness to left
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2);// no change
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, 0, blockWidth / 2 + wallThickness / 2);// sover by half wallthickness and down by half wallthickness
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1); //no chnge
-                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1); //no change
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1); //no chnge
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1); //no change
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2 , -blockWidth / 2);// no change
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2 + wallThickness / 2);//over by half wallthickness
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2);//no change
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2 , -blockWidth / 2);// no change
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2 + wallThickness / 2);//move over by half wall thickness
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2 + wallThickness / 2);//over by half wallthickness
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, 0, wallThickness / 4);//move over by quarter thickness
-                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z
                         }
 
                     }
@@ -390,30 +479,42 @@ public class ScalableComponent : MonoBehaviour
                     if (!shiftDown && shiftRight && !shiftLeft)
                     {
                         //only right
-                        T.transform.localPosition = new Vector3(0, blockHeight / 2, -wallThickness / 4);//move over by quarter wall thickness to right
-                        B.transform.localPosition = new Vector3(0, -blockHeight / 2, -wallThickness / 4);//move over by quarter wall thickness to right
-                        R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness
-                        L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);// no change
+                        if (T != null)
+                            T.transform.localPosition = new Vector3(0, blockHeight / 2, -wallThickness / 4);//move over by quarter wall thickness to right
+                        if (B != null)
+                            B.transform.localPosition = new Vector3(0, -blockHeight / 2, -wallThickness / 4);//move over by quarter wall thickness to right
+                        if (R != null)
+                            R.transform.localPosition = new Vector3(0, 0, -blockWidth / 2 - wallThickness / 2);// over by half wallthickness
+                        if (L != null)
+                            L.transform.localPosition = new Vector3(0, 0, blockWidth / 2);// no change
 
                         //then stetch the sides to be the right lengths
-                        T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
-                        B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
-                        R.transform.localScale = new Vector3(1, (blockHeight  - 2 * startingwidth) / startingwidth, 1); //no change
-                        L.transform.localScale = new Vector3(1, (blockHeight  - 2 * startingwidth) / startingwidth, 1); //no change
+                        if (T != null)
+                            T.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half an extra wallthcikness
+                        if (B != null)
+                            B.transform.localScale = new Vector3(1, 1, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth); //add half extra wall thickness
+                        if (R != null)
+                            R.transform.localScale = new Vector3(1, (blockHeight  - 2 * startingHeight) / startingHeight, 1); //no change
+                        if (L != null)
+                            L.transform.localScale = new Vector3(1, (blockHeight  - 2 * startingHeight) / startingHeight, 1); //no change
 
 
 
                         //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                        TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
-                        BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
-                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
-                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);//no change
+                        if (TR != null)
+                            TR.transform.localPosition = new Vector3(0, blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
+                        if (BR != null)
+                            BR.transform.localPosition = new Vector3(0, -blockHeight / 2, -blockWidth / 2 - wallThickness / 2);//move over by half wall thickness
+                        if (TL != null)
+                            TL.transform.localPosition = new Vector3(0, blockHeight / 2, blockWidth / 2);//no change
+                        if (BL != null)
+                            BL.transform.localPosition = new Vector3(0, -blockHeight / 2, blockWidth / 2);//no change
 
                         //scale the center mesh component if there is one
                         if (C != null)
                         {
                             C.transform.localPosition = new Vector3(0, 0, -wallThickness / 4);//move over by quarterthickness
-                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z 
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, (blockWidth + wallThickness / 2 - 2 * startingwidth) / startingwidth);//add half wallthickness in z 
                         }
                     }
                     
@@ -890,6 +991,11 @@ public class ScalableComponent : MonoBehaviour
 
     public void SetSelected(bool _selected)
     {
+        if (isFixedMaterial)
+        {
+            selectedMat = fixedMatSelected;
+            unselectedMat = fixedMat;
+        }
         selected = _selected;
         var renderers = transform.GetComponentsInChildren<MeshRenderer>( false);
 

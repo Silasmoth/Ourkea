@@ -58,6 +58,11 @@ PrefabInstance:
       propertyPath: startingwidth
       value: 0.1333333
       objectReference: {fileID: 0}
+    - target: {fileID: 1926292997917751586, guid: c8d86e6d606742245b29c7fca188781d,
+        type: 3}
+      propertyPath: startingHeight
+      value: 0.1333333
+      objectReference: {fileID: 0}
     - target: {fileID: 1926292998034977142, guid: c8d86e6d606742245b29c7fca188781d,
         type: 3}
       propertyPath: m_Enabled

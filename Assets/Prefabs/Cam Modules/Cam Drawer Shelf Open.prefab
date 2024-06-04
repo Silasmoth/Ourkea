@@ -605,6 +605,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   index: 0
+  isFixedMaterial: 0
+  fixedMat: {fileID: 0}
+  fixedMatSelected: {fileID: 0}
   moduleType: 4
   DoubleWall: 1
   wallThickness: 0.019
@@ -673,6 +676,7 @@ MonoBehaviour:
   blockHeight: 0.4
   blockDepth: 0.4
   startingwidth: 0.1333333
+  startingHeight: 0.1333333
   componentVolume: {fileID: 1303367749147669401}
 --- !u!1 &5026618336595382564
 GameObject:
