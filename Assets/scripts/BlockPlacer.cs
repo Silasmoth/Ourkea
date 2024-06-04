@@ -22,6 +22,11 @@ public class BlockPlacer : MonoBehaviour
     public bool awaitingServer = false;//is the client waiting for a response from the server? if so just wait
     public bool awaitingpopup = false;
 
+
+    //Extra settings pannel
+    public bool inSettings = false;
+    public GameObject settingsPanel;
+
     public bool ShowBackWall = false;//used to determine if back wall should be shown or not
     public TMP_Text BackwallButton; //the text on the toggle back wall button
     public GameObject BackWall; //used for previewing furniture with a back wall
@@ -99,7 +104,7 @@ public class BlockPlacer : MonoBehaviour
     public Material[] SelectedMat;
     public GameObject finishesPannel;
     bool finishesOpen = false;
-    int lastMaterialFinish = 19;
+    int lastMaterialFinish = 17;
 
     SceneMem sceneMem;
 
@@ -128,6 +133,7 @@ public class BlockPlacer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        HideSettings();
         closePopup();
 
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
@@ -711,7 +717,19 @@ public class BlockPlacer : MonoBehaviour
         }
     }
 
-    #region Settings Toggles
+    #region Settings 
+
+    public void ToggleSettings()
+    { 
+    inSettings = !inSettings;
+        settingsPanel.SetActive(inSettings);
+    }
+
+    public void HideSettings()
+    {
+        inSettings = false;
+        settingsPanel.SetActive(inSettings);
+    }
     public void ToggleBackWall()
     {
         ShowBackWall = !ShowBackWall;
