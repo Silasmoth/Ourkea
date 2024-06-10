@@ -941,6 +941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   index: 0
   isFixedMaterial: 0
+  mergeVertical: 1
   fixedMat: {fileID: 0}
   fixedMatSelected: {fileID: 0}
   moduleType: 0
@@ -956,6 +957,8 @@ MonoBehaviour:
   selected: 0
   unselectedMat: {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
   selectedMat: {fileID: 2100000, guid: 803263546368da349a031525dd93a38e, type: 2}
+  FinishEdges: 0
+  EdgeMaterial: {fileID: 2100000, guid: 2a7bd25a5606e8f48a54a3be8a4a52c8, type: 2}
   allowHorizontalDividers: 1
   HDividerprefab: {fileID: 919132149155446097, guid: b3e881bc1fc76854f92e01276f0f76d6,
     type: 3}
@@ -983,6 +986,34 @@ MonoBehaviour:
   L: {fileID: 3581652709222275895}
   TL: {fileID: 1566965898117382756}
   C: {fileID: 5366712253285878914}
+  UseAlternatives: 0
+  Right_T: {fileID: 0}
+  Right_TR: {fileID: 0}
+  Right_R: {fileID: 0}
+  Right_BR: {fileID: 0}
+  Right_B: {fileID: 0}
+  Right_BL: {fileID: 0}
+  Right_L: {fileID: 0}
+  Right_TL: {fileID: 0}
+  Right_C: {fileID: 0}
+  Left_T: {fileID: 0}
+  Left_TR: {fileID: 0}
+  Left_R: {fileID: 0}
+  Left_BR: {fileID: 0}
+  Left_B: {fileID: 0}
+  Left_BL: {fileID: 0}
+  Left_L: {fileID: 0}
+  Left_TL: {fileID: 0}
+  Left_C: {fileID: 0}
+  Center_T: {fileID: 0}
+  Center_TR: {fileID: 0}
+  Center_R: {fileID: 0}
+  Center_BR: {fileID: 0}
+  Center_B: {fileID: 0}
+  Center_BL: {fileID: 0}
+  Center_L: {fileID: 0}
+  Center_TL: {fileID: 0}
+  Center_C: {fileID: 0}
   TMR: {fileID: 0}
   TM: {fileID: 0}
   TML: {fileID: 0}

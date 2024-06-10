@@ -25,6 +25,7 @@ public class ModelDescription
     public float[]WidthB { get; set; }//27 bytes
     public float[] Height { get; set; }//31 bytes
     public byte[] ShelfCount { get; set; }//32 bytes
+    public bool[] EdgeFinish { get; set; }//1 byte
 
 
     //module connections

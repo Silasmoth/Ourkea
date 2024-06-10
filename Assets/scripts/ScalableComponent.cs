@@ -32,6 +32,8 @@ public class ScalableComponent : MonoBehaviour
     public bool selected = false;
     public Material unselectedMat;
     public Material selectedMat;
+    public bool FinishEdges = false;
+    public Material EdgeMaterial;
 
     [Header("Internal Dividers - Horizontal")]
     public bool allowHorizontalDividers = false;//
@@ -1170,9 +1172,48 @@ public class ScalableComponent : MonoBehaviour
             if (selected)
             {
                 item.sharedMaterial = selectedMat;
+
+                if (FinishEdges)
+                {
+                    if (item.sharedMaterials.Length >= 2)
+                    {
+                        var materials = item.sharedMaterials;
+                        materials[1] = selectedMat;
+                        item.sharedMaterials = materials;
+                        Debug.Log("set edge material");
+                    }
+                }
+                else
+                {
+                    if (item.sharedMaterials.Length >= 2)
+                    {
+                        var materials = item.sharedMaterials;
+                        materials[1] = EdgeMaterial;
+                        item.sharedMaterials = materials;
+                    }
+                }
             }
             else {
                 item.sharedMaterial = unselectedMat;
+
+                if (FinishEdges)
+                {
+                    if (item.sharedMaterials.Length >= 2)
+                    {
+                        var materials = item.sharedMaterials;
+                        materials[1] = unselectedMat;
+                        item.sharedMaterials = materials;
+                    }
+                }
+                else
+                {
+                    if (item.sharedMaterials.Length >= 2)
+                    {
+                        var materials = item.sharedMaterials;
+                        materials[1] = EdgeMaterial;
+                        item.sharedMaterials = materials;
+                    }
+                }
             }
         }
     }

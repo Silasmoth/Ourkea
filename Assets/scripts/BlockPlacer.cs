@@ -67,6 +67,7 @@ public class BlockPlacer : MonoBehaviour
     public Sprite[] FinishSprites;
     public GameObject finishButton;
     public Image ModuleIcon;
+    public Toggle EdgeFinishToggle;
 
     //Block Index vertical compatabilities
     // Flat blocks : 0
@@ -103,7 +104,7 @@ public class BlockPlacer : MonoBehaviour
     public GameObject finishesPannel;
     bool finishesOpen = false;
     int lastMaterialFinish = 17;
-
+    bool lastEdgeFinish = false;
     SceneMem sceneMem;
 
     //furniture bounds storage
@@ -955,6 +956,7 @@ public class BlockPlacer : MonoBehaviour
                 GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], spawnpos, Quaternion.identity);//create the new block
                 var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                 PlacedBlockComponent.FinishMaterial = lastMaterialFinish;
+                PlacedBlockComponent.FinishEdges = lastEdgeFinish;
                 AllBlocks.Add(PlacedBlockComponent);
                 PlacedBlockComponent.DoubleWall = doubleWalls;
                 PlacedBlockComponent.ConnectedModules = new ScalableComponent[PlacedBlockComponent.snappingPoints.Length];//initialise the list for storring all snapped blocks for the newly created block
@@ -983,6 +985,7 @@ public class BlockPlacer : MonoBehaviour
                     GameObject PlacedBlock = Instantiate(blockPrefab[placingBlockIndex], HitBlockSnap.snapPos.position, HitBlockSnap.snapPos.rotation);//create the new block
                     var PlacedBlockComponent = PlacedBlock.GetComponent<ScalableComponent>(); //this holds a local reference to the scalable component on the newly created block so that I dont have to keep using Getcomponent, which is kinda slow
                     PlacedBlockComponent.FinishMaterial = lastMaterialFinish;
+                    PlacedBlockComponent.FinishEdges = lastEdgeFinish;
                     bool allowPlacement = true;
                     //check to see if the snapping point is compatible with the block we are dragging in
                     if (HitBlockSnap.mySnapIndex == 0 || HitBlockSnap.mySnapIndex == 1)
@@ -1434,7 +1437,37 @@ public class BlockPlacer : MonoBehaviour
         
     }
 
+    public void ToggleEdgeFinish()
+    {
+        SetEdgeFinish(EdgeFinishToggle.isOn);
+    }
+    public void SetEdgeFinish(bool showEdgeFinish)
+    {
+        lastEdgeFinish = showEdgeFinish;
+        if (setAllMaterial)
+        {
+            //set all modules to use edgefinish or not
+            foreach (var item in AllBlocks)
+            {
+                item.FinishEdges = showEdgeFinish;
+                item.SetSelected(false);
 
+            }
+            if (SelectedModule != null)
+            {
+                SelectedModule.SetSelected(true);
+            }
+        }
+        else
+        {
+            //just swap out the selected block finish edges
+            SelectedModule.FinishEdges = showEdgeFinish;
+            SelectedModule.SetSelected(false);
+            SelectedModule.SetSelected(true);
+        }
+
+        UpdateSelectionUI(true);
+    }
     public void ApplyUpdatesToSelection()
     {
         if (SelectedModule == null)
@@ -1537,11 +1570,13 @@ public class BlockPlacer : MonoBehaviour
             {
                 FinishPreview.gameObject.SetActive(false);
                 finishButton.SetActive(false);
+                EdgeFinishToggle.transform.parent.gameObject.SetActive(false);
             }
             else
             {
                 FinishPreview.gameObject.SetActive(true);
                 finishButton.SetActive(true);
+                EdgeFinishToggle.transform.parent.gameObject.SetActive(true);
             }
             ModuleIcon.sprite = DragableModules[SelectedModule.moduleType].GetComponent<Image>().sprite;
 
@@ -1550,8 +1585,16 @@ public class BlockPlacer : MonoBehaviour
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
             WidthBInput.text = SelectedModule.blockWidthB + "";
-            
+            EdgeFinishToggle.isOn = SelectedModule.FinishEdges;
 
+            if (!SelectedModule.allowHorizontalDividers && !SelectedModule.allowVerticalDividers)
+            {
+                ShelfInput.transform.parent.gameObject.SetActive(false);
+            }
+            else
+            {
+                ShelfInput.transform.parent.gameObject.SetActive(true);
+            }
             if (SelectedModule.allowHorizontalDividers)
             {
                 ShelfInput.text = SelectedModule.HDividercount + "";
@@ -1679,6 +1722,7 @@ public class BlockPlacer : MonoBehaviour
         output.WidthB = new float[AllBlocks.Count];
         output.Height = new float[AllBlocks.Count];
         output.ShelfCount = new byte[AllBlocks.Count];
+        output.EdgeFinish = new bool[AllBlocks.Count]; 
         for (int i = 0; i < AllBlocks.Count; i++)
         {
             AllBlocks[i].index = i;
@@ -1692,6 +1736,7 @@ public class BlockPlacer : MonoBehaviour
             output.Width[i] = AllBlocks[i].blockWidth;
             output.WidthB[i] = AllBlocks[i].blockWidthB;
             output.Height[i] = AllBlocks[i].blockHeight;
+            output.EdgeFinish[i] = AllBlocks[i].FinishEdges;
             if (AllBlocks[i].allowHorizontalDividers)
             {
                 output.ShelfCount[i] = (byte)AllBlocks[i].HDividercount;
@@ -1795,6 +1840,7 @@ public class BlockPlacer : MonoBehaviour
             PlacedBlockComponent.recalculateDimentions(false);
             PlacedBlockComponent.selectedMat = SelectedMat[_Model.FinishMaterial[i]];
             PlacedBlockComponent.unselectedMat = UnselectedMat[_Model.FinishMaterial[i]];
+            PlacedBlockComponent.FinishEdges = _Model.EdgeFinish[i];
             PlacedBlockComponent.SetSelected(false);
 
         }

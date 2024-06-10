@@ -540,6 +540,8 @@ MonoBehaviour:
   selected: 0
   unselectedMat: {fileID: 2100000, guid: b3e259d4de4aad24ca7b8ef2be339e2c, type: 2}
   selectedMat: {fileID: 2100000, guid: 803263546368da349a031525dd93a38e, type: 2}
+  FinishEdges: 0
+  EdgeMaterial: {fileID: 2100000, guid: 2a7bd25a5606e8f48a54a3be8a4a52c8, type: 2}
   allowHorizontalDividers: 0
   HDividerprefab: {fileID: 2750565845966639760, guid: 628a517e0cd73c7428abb85e7390ce48,
     type: 3}
