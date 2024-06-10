@@ -198,7 +198,7 @@ public class BlockPlacer : MonoBehaviour
         }
 
 
-
+        RepositionFurnitureOnGround();
     }
 
 
@@ -1605,6 +1605,13 @@ public class BlockPlacer : MonoBehaviour
                 ShelfInput.text = SelectedModule.VDividercount + "";
             }
 
+            if (SelectedModule.isCorner)
+            {
+                WidthBInput.gameObject.transform.parent.gameObject.SetActive(true);
+            }
+            else {
+                WidthBInput.gameObject.transform.parent.gameObject.SetActive(false);
+            }
             
             CoreMaterialDropDown.value = SelectedModule.CoreMaterial;
         }

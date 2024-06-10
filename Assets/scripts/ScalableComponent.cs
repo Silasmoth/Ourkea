@@ -1355,20 +1355,10 @@ public class ScalableComponent : MonoBehaviour
             }
         }
 
-
-        var renderers = transform.GetComponentsInChildren<MeshRenderer>(false);
-
-        foreach (var item in renderers)
-        {
-            if (selected)
-            {
-                item.sharedMaterial = selectedMat;
-            }
-            else
-            {
-                item.sharedMaterial = unselectedMat;
-            }
-        }
+        
+            SetSelected(selected);
+        
+        
     }
 
     public float GetMaxX()
