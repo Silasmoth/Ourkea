@@ -1849,7 +1849,12 @@ public class BlockPlacer : MonoBehaviour
             PlacedBlockComponent.unselectedMat = UnselectedMat[_Model.FinishMaterial[i]];
             PlacedBlockComponent.FinishEdges = _Model.EdgeFinish[i];
             PlacedBlockComponent.SetSelected(false);
-
+            if (_Model.ModuleType[i] != 9)//just to make sure its not a fixed material module we are checking
+            {
+                lastMaterialFinish = _Model.FinishMaterial[i];
+                lastEdgeFinish = _Model.EdgeFinish[i];
+            }
+            
         }
 
         //now create all connections
@@ -1970,6 +1975,10 @@ public class BlockPlacer : MonoBehaviour
                 break;
             case (3):
                 _path = Application.dataPath + "/StreamingAssets/Example4.shelf";
+                break;
+
+            case (4):
+                _path = Application.dataPath + "/StreamingAssets/Example5.shelf";
                 break;
 
             default:
