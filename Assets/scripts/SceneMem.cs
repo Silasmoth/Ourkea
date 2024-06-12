@@ -3,18 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using SFB;
 
+
 public class SceneMem : MonoBehaviour
 {
     public GameObject newProject;
     public GameObject newprojectType;
     public GameObject StartSelection;
+    public GameObject ExamplesSelection;
 
     public string openModelPath;
 
     public bool wallmounted = false;
+
+    public static SceneMem Instance { get; private set; }
+    public bool SingleTonChecked = false;
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject);
+            Instance = this;
+
+        }
+        else
+        {
+            
+            SingleTonChecked = true;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
     public int sceneType = -1;
     public void SetSceneType(int type)
@@ -50,6 +69,12 @@ public class SceneMem : MonoBehaviour
     {
         StartSelection.SetActive(false);
         newProject.SetActive(true);
+    }
+
+    public void ExamplesMenu()
+    { 
+    ExamplesSelection.SetActive(true);
+    newProject.SetActive(false);
     }
 
     public void NewProjectTypeMenu()

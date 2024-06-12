@@ -1965,6 +1965,12 @@ public class BlockPlacer : MonoBehaviour
             case (1):
                 _path = Application.dataPath + "/StreamingAssets/Example2.shelf";
                 break;
+            case (2):
+                _path = Application.dataPath + "/StreamingAssets/Example3.shelf";
+                break;
+            case (3):
+                _path = Application.dataPath + "/StreamingAssets/Example4.shelf";
+                break;
 
             default:
                 break;

@@ -37,7 +37,7 @@ public class NetworkClient : MonoBehaviour
     {
         // If there is an instance, and it's not me, delete myself.
 
-        if (Instance != null && Instance != this)
+        if (Instance != null && Instance != this && !client)
         {
             Debug.Log("This is a new netclient, destroy it");
             builderscene.client = Instance;
