@@ -31,7 +31,7 @@ public class ProjectEntry : MonoBehaviour
         clientName =  _client;
         clientEmail =  _email;
 
-        setAccepted(accepted);
+        setAcceptedText(accepted);
     }
 
     public void SetData(byte[] _data, string ID)
@@ -40,7 +40,7 @@ public class ProjectEntry : MonoBehaviour
         ProjectID = ID;
     }
 
-    public void setAccepted(bool _accepted)
+    public void setAcceptedText(bool _accepted)
     {
         accepted = _accepted;
         if (accepted)
@@ -65,6 +65,12 @@ public class ProjectEntry : MonoBehaviour
         }
     }
 
+    public void setAccepted()
+    {
+        setAcceptedText(true);
+        sceneCallBack.AcceptProject(ProjectID);
+    }
+    
     public void ViewProject()
     {
         sceneCallBack.viewProject(modelData);
@@ -73,5 +79,10 @@ public class ProjectEntry : MonoBehaviour
     public void DeclineProject()
     {
         sceneCallBack.DeclineProject(ProjectID, gameObject);
+    }
+
+    public void DeleteProject()
+    {
+        sceneCallBack.DeleteProject(ProjectID, gameObject);
     }
 }

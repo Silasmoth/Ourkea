@@ -440,14 +440,29 @@ public class SceneMemBuilder : MonoBehaviour
         Destroy(_entry);
     }
 
-    public void AddProject(byte[] Data, string _projectName, string _clientName, string _clientEmail, string projectID)
+    public void AcceptProject(string ID)
+    {
+        client.AcceptProject(ID);
+
+    }
+
+    public void AddProject(byte[] Data, string _projectName, string _clientName, string _clientEmail, string projectID, bool accepted)
     {
         var _entry = ((GameObject)Instantiate(projectEntryPrefab, listParent.transform)).GetComponent<ProjectEntry>();
         _entry.SetData(Data, projectID);
         _entry.SetText(_projectName, _clientName, _clientEmail);
+        _entry.setAcceptedText(accepted);
         _entry.sceneCallBack = this;
         noProjectsText.SetActive(false);
        
+    }
+
+    public void DeleteProject(string ID, GameObject _entry) 
+        {
+        //remove from builderprojects list
+        client.DeleteProject(ID);
+        Destroy(_entry);
+
     }
 
     public void viewProject(byte[] Data)

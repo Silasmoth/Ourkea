@@ -18,7 +18,7 @@ public class Net_Furniture : NetMsg
 
     public string clientLocation { get; set; } //it might be better to store this in a different format, depending on if I store the location as an address or as coordinates
     //when sending to builder, this is the display address, when sending to client this is the string query
-
+    public bool Accepted { get; set; }//has this project been accepted or is it a new project
     public byte jobType { get; set; }//stores what type of job this is (new or adaptation) storing as a byte so that in the future I can add other job types or just use this to indicate message context
     //0-new build
     //1-adaptation (existing model)

@@ -30,4 +30,17 @@ public class BuilderProjects : MonoBehaviour
 
         }
     }
+
+    public void AcceptProject(string ID)
+    {
+        for (int i = 0; i < projectList.Count; i++) 
+            {
+            if (projectList[i].furnitureID == ID) 
+                {
+                //found the furniture to be accepted
+                projectList[i].Accepted = true;
+            }
+        }
+       
+    }
 }

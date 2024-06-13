@@ -297,7 +297,7 @@ public class NetworkClient : MonoBehaviour
             myProjects.AddProject(msg);
             if (builderscene != null)
             {
-                builderscene.AddProject(msg.ModelDescription, msg.projectName, msg.clientName, msg.clientEmail, msg.furnitureID);
+                builderscene.AddProject(msg.ModelDescription, msg.projectName, msg.clientName, msg.clientEmail, msg.furnitureID, msg.Accepted);
             }
         }
     }
@@ -306,7 +306,7 @@ public class NetworkClient : MonoBehaviour
     {
         foreach (var item in myProjects.projectList)
         {
-            builderscene.AddProject(item.ModelDescription, item.projectName, item.clientName, item.clientEmail, item.furnitureID);
+            builderscene.AddProject(item.ModelDescription, item.projectName, item.clientName, item.clientEmail, item.furnitureID, item.Accepted);
         }
     }
 
@@ -317,6 +317,26 @@ public class NetworkClient : MonoBehaviour
         Net_ProjectUpdate msg = new Net_ProjectUpdate();
         msg.ProjectID = ID;
         msg.action = 1;
+        SendServer(msg);
+    }
+
+    public void DeleteProject(string ID)
+    {
+        myProjects.RemoveProject(ID);
+        Net_ProjectUpdate msg = new Net_ProjectUpdate();
+        msg.ProjectID = ID;
+        msg.action = 2;
+        Debug.Log("project deleted");
+        SendServer(msg);
+    }
+
+    public void AcceptProject(string ID)
+    {
+        myProjects.AcceptProject(ID);
+        //project has been accepted, send the server this news
+        Net_ProjectUpdate msg = new Net_ProjectUpdate();
+        msg.ProjectID = ID;
+        msg.action = 0;
         SendServer(msg);
     }
     void SendUserInfo()
