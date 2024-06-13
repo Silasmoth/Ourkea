@@ -575,7 +575,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -629,7 +629,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.101985574, z: 0.13333333}
   m_Center: {x: 0, y: 0.03299719, z: 0.000000007450581}
@@ -640,7 +640,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4540904701597349838}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcdfe320df6afaf4cb504182729cb1cf, type: 3}
   m_Name: 
@@ -787,7 +787,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.10613276, z: 0.13333333}
   m_Center: {x: 0, y: -0.03507077, z: 0.000000007450581}
@@ -798,7 +798,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5900718658755858876}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcdfe320df6afaf4cb504182729cb1cf, type: 3}
   m_Name: 
@@ -859,7 +859,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.13333333, z: 0.121855885}
   m_Center: {x: 0, y: -0.000000007450581, z: 0.04293233}
@@ -870,7 +870,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6159205764894677100}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcdfe320df6afaf4cb504182729cb1cf, type: 3}
   m_Name: 
@@ -892,7 +892,7 @@ GameObject:
   - component: {fileID: 7700704403698390203}
   - component: {fileID: 7669254212448666868}
   m_Layer: 0
-  m_Name: P Cam Flat shelf Closed H div
+  m_Name: Cam Flat shelf Closed V div
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -964,16 +964,17 @@ MonoBehaviour:
     type: 3}
   HDividers: []
   minHDividerspacing: 0.1
-  HDividercount: 1
+  HDividercount: 0
   HdividerStartingWidth: 0.362
   HdividerEdgeBuffer: 0.038
-  allowVerticalDividers: 0
-  VDividerprefab: {fileID: 0}
+  allowVerticalDividers: 1
+  VDividerprefab: {fileID: 919132149155446097, guid: 0502dd2de5d1bbe48bb9aa583e56fa3b,
+    type: 3}
   VDividers: []
   minVDividerspacing: 0.1
-  VDividercount: 0
-  VdividerStartingWidth: 0.364
-  VdividerEdgeBuffer: 0.036
+  VDividercount: 1
+  VdividerStartingWidth: 0.362
+  VdividerEdgeBuffer: 0.038
   isCounter: 0
   isCorner: 0
   reverseCorner: 0
@@ -1094,7 +1095,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.13333333, z: 0.15663363}
   m_Center: {x: 0, y: -0.000000007450581, z: -0.06032122}
@@ -1105,7 +1106,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8146033542975553008}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcdfe320df6afaf4cb504182729cb1cf, type: 3}
   m_Name: 

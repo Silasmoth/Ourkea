@@ -5427,8 +5427,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1618072108}
   m_HandleRect: {fileID: 1618072107}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.84274966
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7056,7 +7056,7 @@ MonoBehaviour:
   awaitingServer: 0
   awaitingpopup: 0
   inSettings: 0
-  doubleWalls: 1
+  doubleWalls: 0
   showFigure: 1
   ShowBackWall: 0
   showstats: 1
@@ -7134,7 +7134,7 @@ MonoBehaviour:
   - {fileID: 7641722929509617110, guid: af43c98883ce6204abde028b4d97410c, type: 3}
   - {fileID: 147967442973600902, guid: 7d9567dca3113f64abb5cc8481a7e420, type: 3}
   - {fileID: 9027462369169637126, guid: ae4cfe2a9835e9b4aa6d667f17a5d60d, type: 3}
-  - {fileID: 16082489524634499, guid: 748d04b57a08be2418496ba0869dd720, type: 3}
+  - {fileID: 7641722929509617110, guid: 24544f0eade8ede48ad73c47e69fdd11, type: 3}
   - {fileID: 4645596962934120475, guid: 4cf13677437012646bb81c263dc6b423, type: 3}
   - {fileID: 3585919608169139146, guid: b6a60019b225c72408301740676fa928, type: 3}
   - {fileID: 1518291182210134730, guid: ffbe523bd9a4d4543a28c42472a40145, type: 3}
@@ -7158,6 +7158,7 @@ MonoBehaviour:
   - {fileID: 1832861813804428853, guid: 52405ef7771c26843ad9208fea7f4e8d, type: 3}
   - {fileID: 7968066038424598033, guid: a4e8a5383c8f4a74aa96a4de6866cf66, type: 3}
   camera: {fileID: 961739752}
+  SnappingDistance: 1
   DragableModules:
   - {fileID: 821103744}
   - {fileID: 278537586}
