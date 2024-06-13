@@ -18,6 +18,7 @@ public class ProjectEntry : MonoBehaviour
     public Button deleteButton;
 
     //project Data
+    string ProjectID;
     byte[] modelData;
     public bool accepted = false;
     string projectName;
@@ -33,9 +34,10 @@ public class ProjectEntry : MonoBehaviour
         setAccepted(accepted);
     }
 
-    public void SetData(byte[] _data)
+    public void SetData(byte[] _data, string ID)
     {
         modelData = _data;
+        ProjectID = ID;
     }
 
     public void setAccepted(bool _accepted)
@@ -68,4 +70,8 @@ public class ProjectEntry : MonoBehaviour
         sceneCallBack.viewProject(modelData);
     }
 
+    public void DeclineProject()
+    {
+        sceneCallBack.DeclineProject(ProjectID, gameObject);
+    }
 }

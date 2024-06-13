@@ -9,6 +9,7 @@
     public const byte Furniture = 6;
     public const byte BuilderInfo = 7;
     public const byte Ping = 8;
+    public const byte ProjectUpdate = 9;
 }
 
 [System.Serializable]

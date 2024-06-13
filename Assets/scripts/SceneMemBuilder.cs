@@ -60,6 +60,7 @@ public class SceneMemBuilder : MonoBehaviour
     public GameObject listParent;
     public List<ProjectEntry> projectList;
 
+
     //for viewing projects
     public bool scenereload = false;//this is set to true if we are just returning to the scene from a project view
     
@@ -79,7 +80,8 @@ public class SceneMemBuilder : MonoBehaviour
             closePopup();
         }
         
-        
+
+
     }
     
     public void GetClient()
@@ -431,13 +433,21 @@ public class SceneMemBuilder : MonoBehaviour
     }
     #endregion
 
-    public void AddProject(byte[] Data, string _projectName, string _clientName, string _clientEmail)
+    public void DeclineProject(string ID, GameObject _entry)
+    {
+        //remove from builderprojects list
+        client.DeclineProject(ID);
+        Destroy(_entry);
+    }
+
+    public void AddProject(byte[] Data, string _projectName, string _clientName, string _clientEmail, string projectID)
     {
         var _entry = ((GameObject)Instantiate(projectEntryPrefab, listParent.transform)).GetComponent<ProjectEntry>();
-        _entry.SetData(Data);
+        _entry.SetData(Data, projectID);
         _entry.SetText(_projectName, _clientName, _clientEmail);
         _entry.sceneCallBack = this;
         noProjectsText.SetActive(false);
+       
     }
 
     public void viewProject(byte[] Data)

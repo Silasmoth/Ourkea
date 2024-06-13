@@ -14,4 +14,20 @@ public class BuilderProjects : MonoBehaviour
     {
         projectList.Add(_new);
     }
+
+    public void RemoveProject(string ID)
+    {
+        foreach (Net_Furniture p in projectList)
+        {
+            if (p.furnitureID == ID) {
+            //found the furniture to be removed
+            
+                projectList.Remove(p);
+                
+                break;
+            
+            }
+
+        }
+    }
 }
