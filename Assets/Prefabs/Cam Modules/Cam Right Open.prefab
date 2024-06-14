@@ -862,7 +862,7 @@ MonoBehaviour:
   matThickness: 0.019
   WD: 2
   WH: 1
-  HD: 2
+  HD: 1
   subtracttionArea: 0
   CoreMaterial: 0
   FinishMaterial: 19

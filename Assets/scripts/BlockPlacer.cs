@@ -8,6 +8,7 @@ using AsciiFBXExporter;
 using SFB;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using NUnit.Framework.Interfaces;
 //using UnityEngine.Windows;
 
 public class BlockPlacer : MonoBehaviour
@@ -33,6 +34,10 @@ public class BlockPlacer : MonoBehaviour
     public bool ShowDim = true; //show the dimension lines or not
     public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
     public bool setAllMaterial = true;//when finish is changed do we just change the selected module (false) or every module (true)
+    public bool ShowCOM = true;//should we show the furniture center of mass
+    public bool ShowAllCom = true;//should we show all individual center of masses
+
+    public LineRenderer ComPreview;
 
     [Header("Extra Settings - References")]
     
@@ -1093,6 +1098,12 @@ public class BlockPlacer : MonoBehaviour
             UpdateFigurePos();
         }
 
+        if (ShowCOM)
+        {
+            var COMArray = centerOfMasses();
+            var COM = GetCombinedCOM(COMArray);
+            DrawCenterOfMass(COM);
+        }
     
     }
 
@@ -2747,7 +2758,57 @@ public class BlockPlacer : MonoBehaviour
 
     #endregion
 
-    
+    #region center of mass
+    public void ToggleCOM()
+    { 
+    ShowCOM = !ShowCOM;
+        ComPreview.gameObject.SetActive(ShowCOM);
+    }
+    public CenterOfMass[] centerOfMasses()
+    {
+        CenterOfMass[] results = new CenterOfMass[AllBlocks.Count];
+        for (int i = 0; i < AllBlocks.Count; i++)
+        {
+            results[i] = AllBlocks[i].GetCenterOfMass();
+        }
+
+        return results;
+    }
+    public CenterOfMass GetCombinedCOM(CenterOfMass[] inputs)
+    { 
+    CenterOfMass result = new CenterOfMass();
+
+        //first lets get the total masses
+        float massTotal = 0;
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            massTotal += inputs[i].mass;
+        }
+
+        //now lets add up all of the positions, weighted by their mass/totalmass
+        Vector3 posSum = Vector3.zero;
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            Vector3 weightedPos = new Vector3(inputs[i].position.x * (inputs[i].mass / massTotal), inputs[i].position.y * (inputs[i].mass / massTotal), inputs[i].position.z * (inputs[i].mass / massTotal));
+            posSum = posSum +  weightedPos;
+        }
+
+        result.mass = massTotal;
+        result.position = posSum;
+
+        return result;
+    }
+
+    public void DrawCenterOfMass(CenterOfMass COM)
+    {
+        ComPreview.SetPosition(0, COM.position);
+        ComPreview.SetPosition(1, new Vector3(COM.position.x, 0, COM.position.z));
+        Debug.DrawLine(COM.position + Vector3.up * -0.1f, COM.position + Vector3.up * 0.1f, Color.red);
+        Debug.DrawLine(COM.position + Vector3.right * -0.1f, COM.position + Vector3.right * 0.1f, Color.red);
+        Debug.DrawLine(COM.position + Vector3.forward * -0.1f, COM.position + Vector3.forward * 0.1f, Color.red);
+        Debug.DrawLine(COM.position , new Vector3(COM.position.x,0,COM.position.z), Color.red);
+    }
+    #endregion
 
     #region get Statistics
     public float GetTotalStorageVolume()

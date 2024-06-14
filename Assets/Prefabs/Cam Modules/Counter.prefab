@@ -390,7 +390,7 @@ MonoBehaviour:
   moduleType: 7
   DoubleWall: 1
   wallThickness: 0.02
-  matThickness: 0.02
+  matThickness: 0.019
   WD: 1
   WH: 0
   HD: 0

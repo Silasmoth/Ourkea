@@ -1,3 +1,4 @@
+using NUnit.Framework.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +13,20 @@ public class ScalableComponent : MonoBehaviour
     public Material fixedMat, fixedMatSelected;
 
     public byte moduleType = 0;
-    //
+    //0 - Flat closed
+    //1 - corner
+    //2 - corner
+    //3 - flat closed H div
+    //4 - flat drawer
+    //5 - flat open
+    //6 - flat closed v div
+    //7 - counter
+    //8 - flat swing door
+    //9 - metal legs
+    //10 - hanger closed
+    //11 - hanger open
+    //12 - left end open
+    //13 - right end open
     public bool DoubleWall = true;
     public float wallThickness = 0.02f;
 
@@ -175,7 +189,93 @@ public class ScalableComponent : MonoBehaviour
 
         return rulebroken;
     }
+    
+    public CenterOfMass GetCenterOfMass()
+    { 
+        CenterOfMass result = new CenterOfMass();
+        result.mass = Getmass();
+        //0 - Flat closed
+        //1 - corner
+        //2 - corner
+        //3 - flat closed H div
+        //4 - flat drawer
+        //5 - flat open
+        //6 - flat closed v div
+        //7 - counter
+        //8 - flat swing door
+        //9 - metal legs
+        //10 - hanger closed
+        //11 - hanger open
+        //12 - left end open
+        //13 - right end open
 
+        //for modules with back sides
+        float backratio = (blockHeight * blockWidth) / (2 * blockDepth * blockHeight + 2 * blockWidth * blockDepth + blockWidth * blockHeight);
+        Vector3 backPos = transform.position + transform.right * (blockDepth / 2);
+        switch (moduleType)
+        {
+            case (0):
+                //flat closed
+                
+                result.position = transform.position * (1-backratio) + backPos*backratio;
+                break;
+                
+            case (1):
+                result.position = transform.position;
+                break;
+            case (2):
+                result.position = transform.position;
+                break;
+            case (3):
+                
+                result.position = transform.position * (1 - backratio) + backPos * backratio;
+                break;
+
+            case (4):
+                backratio = (blockHeight * blockWidth) / (4 * blockDepth * blockHeight + 3 * blockWidth * blockDepth + 3* blockWidth * blockHeight);
+                result.position = transform.position * (1 - backratio) + backPos * backratio;
+                break;
+
+            case (5):
+                result.position = transform.position;
+                break;
+
+            case (6):
+                result.position = transform.position * (1 - backratio) + backPos * backratio;
+
+                break;
+
+            case (7):
+                result.position = transform.position - (blockHeight / 2)* Vector3.up;
+                break;
+
+            case (8):
+                result.position = transform.position;
+                break;
+
+            case (9):
+                result.position = transform.position;
+                break;
+
+            case (10):
+                result.position = transform.position * (1 - backratio) + backPos * backratio;
+                break;
+
+            case (11):
+                result.position = transform.position;
+                break;
+
+            case (12):
+                result.position = transform.position;
+                break;
+
+            case (13):
+                result.position = transform.position;
+                break;
+        }
+
+        return result;
+    }
     void swapVersion(int version)//0 - original, 1 - right end, 2 - left end, 3 - middle case
     {
         switch (version)

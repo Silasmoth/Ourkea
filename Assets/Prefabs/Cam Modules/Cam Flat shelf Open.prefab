@@ -948,7 +948,7 @@ MonoBehaviour:
   wallThickness: 0.019
   matThickness: 0.019
   WD: 2
-  WH: 1
+  WH: 0
   HD: 2
   subtracttionArea: 0
   CoreMaterial: 0
