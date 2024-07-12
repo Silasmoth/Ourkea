@@ -14,8 +14,8 @@ public class ScalableComponent : MonoBehaviour
 
     public byte moduleType = 0;
     //0 - Flat closed
-    //1 - corner
-    //2 - corner
+    //1 - corner open
+    //2 - reverse corner open
     //3 - flat closed H div
     //4 - flat drawer
     //5 - flat open
@@ -27,6 +27,10 @@ public class ScalableComponent : MonoBehaviour
     //11 - hanger open
     //12 - left end open
     //13 - right end open
+    //14 - corner closed
+    //15 - reverse corner closed
+    //16 - corner open rounded
+    //17 - reverse corner open rounded
     public bool DoubleWall = true;
     public float wallThickness = 0.02f;
 
@@ -103,7 +107,7 @@ public class ScalableComponent : MonoBehaviour
     public Mesh Center_TR, Center_R, Center_BR, Center_B, Center_BL, Center_L, Center_TL, Center_C;
 
     //Corner module mesh Components
-    public GameObject TMR, TM, TML, BMR, BM, BML;
+    public GameObject TMR, TM, TML, BMR, BM, BML, CR, CL;
 
     [Space(10)]
 
@@ -382,8 +386,7 @@ public class ScalableComponent : MonoBehaviour
             if (!isCorner)
             {
                 #region Flat rectangular shapes
-                //updates this modules mesh components positions and scales
-                //first do positions for flat sides (top,bottom,left,right)
+                
                 bool shiftRight = ConnectedModules[2] != null;
                 bool shiftLeft = ConnectedModules[3] != null;
                 bool shiftDown = (ConnectedModules[1] != null) && ConnectedModules[1].mergeVertical;
@@ -784,40 +787,436 @@ public class ScalableComponent : MonoBehaviour
             if (isCorner && !reverseCorner)
             {
                 #region corner blocks
-                //updates this modules mesh components positions and scales
-                //first do the positions for the top and bottom middle parts 
-                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+                //update snapping points positions/scales
+                bool shiftRight = ConnectedModules[2] != null;
+                bool shiftLeft = ConnectedModules[3] != null;
+                bool shiftDown = (ConnectedModules[1] != null) && ConnectedModules[1].mergeVertical;
 
-                //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
-                TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
-                BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
-                TMR.transform.localPosition = new Vector3(-blockDepth / 2, blockHeight / 2, 0);
-                BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
-
-                //Then do positions for the side mesh components that are scaled vertically
-
-                R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
-                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
-
+                snappingPoints[0].transform.localPosition = new Vector3(0, blockHeight / 2, 0);//top
+                snappingPoints[1].transform.localPosition = new Vector3(0, -blockHeight / 2, 0);//bottom
+                snappingPoints[2].transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);//right
+                snappingPoints[3].transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));//left
 
                 //then stetch the sides to be the right lengths
+                snappingPoints[2].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
+                snappingPoints[3].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
 
-                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                if (DoubleWall || (!shiftDown && !shiftRight && !shiftLeft))
+                {
+                    //updates this modules mesh components positions and scales
+                    //first do the positions for the top and bottom middle parts 
+                    TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                    BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
 
-                TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-                BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                    //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                    TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                    BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                    TMR.transform.localPosition = new Vector3(-blockDepth / 2, blockHeight / 2, 0);
+                    BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
 
-                TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-                BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                    //Then do positions for the side mesh components that are scaled vertically
+
+                    R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
+                    L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
 
 
-                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), blockHeight / 2, 0);
-                BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
-                TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
-                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+                    //then stetch the sides to be the right lengths
+
+                    R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                    L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                    TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                    BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                    TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                    BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                    //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                    TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                    BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
+                    TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                    BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+
+                    if (C != null)
+                    {
+                        C.transform.localPosition = new Vector3(0, 0, 0);
+                        C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0, 0);
+                        CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        CL.transform.localPosition = new Vector3(0, 0, blockDepth / 2);
+                        CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                    }
+
+                }
+                else
+                {
+
+
+                    if (shiftDown && shiftLeft && shiftRight)
+                    {
+
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) -wallThickness/2, 0-wallThickness/2, 0);
+                        L.transform.localPosition = new Vector3(0, 0-wallThickness/2, (blockWidth - blockDepth / 2) + wallThickness/2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness/2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness/2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness/2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness/2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2)-wallThickness/2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2)-wallThickness/2, -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness/2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2) + wallThickness/2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0-wallThickness/2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0-wallThickness/2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness/2) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0-wallThickness/2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness /2) / startingwidth);
+                        }
+
+
+                    }
+                    if (shiftDown && shiftRight && !shiftLeft)
+                    {
+                        //all but left
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, 0-wallThickness/2, 0);
+                        L.transform.localPosition = new Vector3(0, -wallThickness/2, (blockWidth - blockDepth / 2) );
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth ) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth ) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) );
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2) );
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        }
+                    }
+                    if (shiftDown && !shiftRight && shiftLeft)
+                    {
+                        //all but right
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) , 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) , blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness/2) / startingwidth);
+                        }
+
+                    }
+                    if (shiftDown && !shiftRight && !shiftLeft)
+                    {
+                        //only down
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, (blockWidth - blockDepth / 2));
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2));
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth ) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        }
+                    }
+                    if (!shiftDown && shiftRight && shiftLeft)
+                    {
+                        //all but down
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth ) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth ) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, -blockHeight / 2 , 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 , (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        }
+                    }
+                    if (!shiftDown && !shiftRight && shiftLeft)
+                    {
+                        //only left
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2), 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth ) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth ) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) , blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) , -blockHeight / 2, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth ) / startingwidth, (blockHeight - 2 * startingwidth ) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 , blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        }
+
+                    }
+
+                    if (!shiftDown && shiftRight && !shiftLeft)
+                    {
+                        //only right
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3(-(blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(-blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2) );
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth ) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth ) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3(-(blockWidthB - blockDepth / 2) - wallThickness / 2, -blockHeight / 2, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) );
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2) );
+
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth ) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3(-(blockDepth / 2), 0 , 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth ) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 , blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth ) / startingwidth, (blockWidth - startingwidth - blockDepth ) / startingwidth);
+                        }
+                    }
+
+
+
+
+                }
 
                 //update the volume that fills this module - box is not very accurate for corner, need to find a different way
                 componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
@@ -850,69 +1249,458 @@ public class ScalableComponent : MonoBehaviour
             if (isCorner && reverseCorner)
             {
                 #region corner blocks
-                //updates this modules mesh components positions and scales
-                //first do the positions for the top and bottom middle parts 
-                TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
-                BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+                //update snapping points positions/scales
+                bool shiftRight = ConnectedModules[2] != null;
+                bool shiftLeft = ConnectedModules[3] != null;
+                bool shiftDown = (ConnectedModules[1] != null) && ConnectedModules[1].mergeVertical;
 
-                //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
-                TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
-                BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
-                TMR.transform.localPosition = new Vector3(blockDepth / 2, blockHeight / 2, 0);
-                BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
-
-                //Then do positions for the side mesh components that are scaled vertically
-
-                R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
-                L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
-
+                snappingPoints[0].transform.localPosition = new Vector3(0, blockHeight / 2, 0);//top
+                snappingPoints[1].transform.localPosition = new Vector3(0, -blockHeight / 2, 0);//bottom
+                snappingPoints[2].transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);//right
+                snappingPoints[3].transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));//left
 
                 //then stetch the sides to be the right lengths
+                snappingPoints[2].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
+                snappingPoints[3].transform.localScale = new Vector3(1, (blockHeight - 2 * startingHeight) / startingHeight, 1);
 
-                R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-                L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
-
-                TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-                BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
-
-                TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-                BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
-
-
-                //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
-                TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
-                BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
-                TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
-                BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
-
-                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
-                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
-                componentVolume.transform.localPosition = new Vector3((blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
-                if (effectAdjacent)
+                if (DoubleWall || (!shiftDown && !shiftRight && !shiftLeft))
                 {
-                    CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+                    //updates this modules mesh components positions and scales
+                    //first do the positions for the top and bottom middle parts 
+                    TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                    BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
 
-                    if (wasChanged)
+                    //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                    TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                    BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                    TMR.transform.localPosition = new Vector3(blockDepth / 2, blockHeight / 2, 0);
+                    BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
+
+                    //Then do positions for the side mesh components that are scaled vertically
+
+                    R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
+                    L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                    //then stetch the sides to be the right lengths
+
+                    R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                    L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                    TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                    BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                    TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                    BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                    //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                    TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                    BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
+                    TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                    BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+
+                    if (C != null)
                     {
-                        //position has been changed or the origin module for a scale change
+                        C.transform.localPosition = new Vector3(0, 0, 0);
+                        C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
 
-                        for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                        CR.transform.localPosition = new Vector3((blockDepth / 2), 0, 0);
+                        CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        CL.transform.localPosition = new Vector3(0, 0, blockDepth / 2);
+                        CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                    }
+                }
+                else
+                {
+
+
+                    if (shiftDown && shiftLeft && shiftRight)
+                    {
+
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
                         {
-                            if (ConnectedModules[i] != null)//this side has a connected module
-                            {
-                                if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
-                                {
-                                    ConnectedModules[i].wasChanged = true;
-                                    ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
-                                    ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
-                                }
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
 
-                            }
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
                         }
 
                     }
+                    if (shiftDown && shiftRight && !shiftLeft)
+                    {
+                        //all but left
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, -wallThickness / 2, (blockWidth - blockDepth / 2));
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2));
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        }
+                    }
+                    if (shiftDown && !shiftRight && shiftLeft)
+                    {
+                        //all but right
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        }
+
+                    }
+                    if (shiftDown && !shiftRight && !shiftLeft)
+                    {
+                        //only down
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2 - wallThickness, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0 - wallThickness / 2, 0);
+                        L.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, (blockWidth - blockDepth / 2));
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2 - wallThickness, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2 - wallThickness, (blockWidth - blockDepth / 2));
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0 - wallThickness / 2, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 - wallThickness / 2, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        }
+                    }
+                    if (!shiftDown && shiftRight && shiftLeft)
+                    {
+                        //all but down
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, -blockHeight / 2, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        }
+                    }
+                    if (!shiftDown && !shiftRight && shiftLeft)
+                    {
+                        //only left
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2), -blockHeight / 2, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2) + wallThickness / 2);
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth + wallThickness) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0, blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth + wallThickness / 2) / startingwidth);
+                        }
+
+                    }
+
+                    if (!shiftDown && shiftRight && !shiftLeft)
+                    {
+                        //only right
+                        //updates this modules mesh components positions and scales
+                        //first do the positions for the top and bottom middle parts 
+                        TM.transform.localPosition = new Vector3(0, blockHeight / 2, 0);
+                        BM.transform.localPosition = new Vector3(0, -blockHeight / 2, 0);
+
+                        //Then do positions for the other top mesh components that are scaled linearly (TMR TML BML BMR)
+                        TML.transform.localPosition = new Vector3(0, blockHeight / 2, blockDepth / 2);
+                        BML.transform.localPosition = new Vector3(0, -blockHeight / 2, blockDepth / 2);
+                        TMR.transform.localPosition = new Vector3((blockDepth / 2), blockHeight / 2, 0);
+                        BMR.transform.localPosition = new Vector3(blockDepth / 2, -blockHeight / 2, 0);
+
+                        //Then do positions for the side mesh components that are scaled vertically
+
+                        R.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, 0, 0);
+                        L.transform.localPosition = new Vector3(0, 0, (blockWidth - blockDepth / 2));
+
+
+                        //then stetch the sides to be the right lengths
+
+                        R.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+                        L.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                        TML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        BML.transform.localScale = new Vector3(1, 1, (blockWidth - startingwidth - blockDepth) / startingwidth);
+
+                        TMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+                        BMR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, 1, 1);
+
+
+                        //then set the corner meshes to the right positions, no need to scale them since there are fixed sizes
+                        TR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, blockHeight / 2, 0);
+                        BR.transform.localPosition = new Vector3((blockWidthB - blockDepth / 2) + wallThickness / 2, -blockHeight / 2, 0);
+                        TL.transform.localPosition = new Vector3(0, blockHeight / 2, (blockWidth - blockDepth / 2));
+                        BL.transform.localPosition = new Vector3(0, -blockHeight / 2, (blockWidth - blockDepth / 2));
+
+                        if (C != null)
+                        {
+                            C.transform.localPosition = new Vector3(0, 0, 0);
+                            C.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                            CR.transform.localPosition = new Vector3((blockDepth / 2), 0, 0);
+                            CR.transform.localScale = new Vector3((blockWidthB - startingwidth - blockDepth + wallThickness / 2) / startingwidth, (blockHeight - 2 * startingwidth) / startingwidth, 1);
+
+                            CL.transform.localPosition = new Vector3(0, 0 , blockDepth / 2);
+                            CL.transform.localScale = new Vector3(1, (blockHeight - 2 * startingwidth) / startingwidth, (blockWidth - startingwidth - blockDepth) / startingwidth);
+                        }
+                    }
+
+
+
+
                 }
 
+                //update the volume that fills this module - box is not very accurate for corner, need to find a different way
+                componentVolume.transform.localScale = new Vector3(blockWidthB - 0.1f, blockHeight - 0.01f, blockWidth - 0.1f);
+                componentVolume.transform.localPosition = new Vector3(-(blockWidthB / 2 - blockDepth / 2), 0, blockWidth / 2 - blockDepth / 2);
+
+                CheckChangeScale(); //check to see if scale was actually changed, if so adjust scale of connected modules accordingly
+
+                if (wasChanged)
+                {
+                    //position has been changed or the origin module for a scale change
+
+                    for (int i = 0; i < ConnectedModules.Length; i++) //tell all connected modules to update their positions if they are not already updated
+                    {
+                        if (ConnectedModules[i] != null)//this side has a connected module
+                        {
+                            if (ConnectedModules[i].wasChanged == false)//has not already had its position updated
+                            {
+                                ConnectedModules[i].wasChanged = true;
+                                ConnectedModules[i].SetPosition(snappingPoints[i].GetComponent<BlockSnap>().snapPos.position, snappingPoints[i].GetComponent<BlockSnap>().targetsnapIndex);//update modules position
+                                ConnectedModules[i].recalculateDimentions(true);//needs to be called to propegte the position update to further connected modules
+                            }
+
+                        }
+                    }
+
+                }
                 #endregion
             }
 
