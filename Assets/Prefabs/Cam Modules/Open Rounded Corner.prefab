@@ -359,7 +359,7 @@ GameObject:
   - component: {fileID: 5807503954718759270}
   - component: {fileID: 5161206217339773682}
   - component: {fileID: 1034037636298130755}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Snap Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +431,7 @@ GameObject:
   - component: {fileID: 7620960051147543535}
   - component: {fileID: 2274958647539138832}
   - component: {fileID: 5720546441768573083}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Snap Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -687,6 +687,7 @@ MonoBehaviour:
   TL: {fileID: 4188328097322675701}
   C: {fileID: 0}
   UseAlternatives: 0
+  HandlOptions: []
   Right_T: {fileID: 0}
   Right_TR: {fileID: 0}
   Right_R: {fileID: 0}
@@ -745,6 +746,7 @@ MonoBehaviour:
   blockDepth: 0.4
   startingwidth: 0.1333333
   startingHeight: 0.1333333
+  handleType: 0
   componentVolume: {fileID: 4907828953643206404}
 --- !u!1 &4811181830611581286
 GameObject:
@@ -1158,7 +1160,7 @@ GameObject:
   - component: {fileID: 807643894513815015}
   - component: {fileID: 8572415300543398883}
   - component: {fileID: 389871706324990375}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Snap Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1491,7 +1493,7 @@ GameObject:
   - component: {fileID: 945566014204380194}
   - component: {fileID: 7028450753118796603}
   - component: {fileID: 139724222942457400}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Snap Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
