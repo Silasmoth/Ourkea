@@ -91,6 +91,9 @@ public class ScalableComponent : MonoBehaviour
     //Original Version - automatically filled out based on gameobject references above
     Mesh Orig_T, Orig_TR, Orig_R, Orig_BR, Orig_B, Orig_BL, Orig_L, Orig_TL, Orig_C;
 
+    //for different handles
+    public Mesh[] HandlOptions;
+
     //Right end
     [Header("Right End")]
     public Mesh Right_T;
@@ -146,6 +149,7 @@ public class ScalableComponent : MonoBehaviour
     public float startingwidth = 3 / 4; //the size of each 9 tile component at scale of 1
     public float startingHeight = 3 / 4; //the size of each 9 tile component at scale of 1
     [Space(10)]
+    public byte handleType = 0;//for modules with handles this stores handle type
 
     [Header("Module volume collider reference")]
     public GameObject componentVolume; //the object with the collider for this module
@@ -379,7 +383,7 @@ public class ScalableComponent : MonoBehaviour
     }
     public void recalculateDimentions(bool effectAdjacent)
     {
-
+        
         if (!isCounter)
         {
             //For basic flat bocks------------------------------------------------------------
@@ -1909,6 +1913,16 @@ public class ScalableComponent : MonoBehaviour
         }
         
         
+    }
+
+    public void SetHandle(int option)
+    {
+        handleType = (byte)option;
+        if (moduleType == 8)
+        {
+            //this modules has a handle
+            TL.GetComponent<MeshFilter>().mesh = HandlOptions[option];
+        }
     }
     public bool CheckChangeScale() //checks to see if dimention was changed, in which case we should update the scale and positions of adjacent blocks
     {

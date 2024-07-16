@@ -31,25 +31,26 @@ public class BlockPlacer : MonoBehaviour
     public bool showFigure = false;
     public bool ShowBackWall = false;//used to determine if back wall should be shown or not
     public bool showstats = false; //show the millwork stats or not
+    public bool showMass = false; //show the millwork mass
+    public bool showArea = false; //show the millwork area
+    public bool showVolume = false;
+    public bool showCost = false;
     public bool ShowDim = true; //show the dimension lines or not
     public bool useDimensionLimits = true; //is the tool using limits for the modules sizes (can cause glitches or unrealistic models if dissabled)
     public bool setAllMaterial = true;//when finish is changed do we just change the selected module (false) or every module (true)
     public bool ShowCOM = true;//should we show the furniture center of mass
     public bool ShowAllCom = true;//should we show all individual center of masses
+    public bool showShelfArea = false;
+    public bool finishEdges = false;
 
     public LineRenderer ComPreview;
 
     [Header("Extra Settings - References")]
-    
     public GameObject settingsPanel;
-    public TMP_Text doubleWallsButton; // the text on the toggle double walls button
+    public Toggle toggleScaleFig, toggleDoubleWalls, toggleBackWall, toggleDim, toggleMass, toggleVolume, togglearea, toggleAreaShelf,togglecost, toggleCenterOfMass, toggleEdgeFinish;
     public GameObject ScaleFigure;
-    public TMP_Text ShowFigureButton; // the text on the "show/hide scale figure" button
-    public TMP_Text BackwallButton; //the text on the toggle back wall button
     public GameObject BackWall; //used for previewing furniture with a back wall
-    public TMP_Text showStatsButton; // the text on the "show/hide stats" button
     public TMP_Text StatisticsText; // the text for showing stats
-    public TMP_Text showdimButton; // the text on the "show/hide dimentions" button
     public DimentionDisplay VerticalDimDisplay; //the dimdiesplay for Y
     public DimentionDisplay XlDimDisplay; // dimentiondisplay for X
     public DimentionDisplay ZlDimDisplay; // dimentionDisplay for z
@@ -73,6 +74,9 @@ public class BlockPlacer : MonoBehaviour
     public GameObject finishButton;
     public Image ModuleIcon;
     public Toggle EdgeFinishToggle;
+    public Image HandlePreview;
+    public Sprite[] HandleSprites;
+    public GameObject HandleButton;
 
     //Block Index vertical compatabilities
     // Flat blocks : 0
@@ -108,10 +112,19 @@ public class BlockPlacer : MonoBehaviour
     public Material[] UnselectedMat;
     public Material[] SelectedMat;
     public GameObject finishesPannel;
+    
     bool finishesOpen = false;
+    
     int lastMaterialFinish = 17;
     bool lastEdgeFinish = false;
     SceneMem sceneMem;
+
+    //Handles options
+    [Header("Handles")]
+    public GameObject handlesPannel;
+    public 
+    bool handlesOpen = false;
+
 
     //furniture bounds storage
     float maxX, minX, maxY, minY, maxZ, minZ;
@@ -128,6 +141,7 @@ public class BlockPlacer : MonoBehaviour
     public TMP_InputField uploadClientName;
     public TMP_InputField uploadClientEmail;
     public TMP_InputField uploadClientAddress;
+    public PreviewCam previewCam;
 
     //for poopups
     [Header("Popup messages")]
@@ -144,6 +158,8 @@ public class BlockPlacer : MonoBehaviour
     void Start()
     {
         HideSettings();
+        HideFinishes();
+        HideHandles();
         closePopup();
 
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
@@ -1084,13 +1100,36 @@ public class BlockPlacer : MonoBehaviour
             ZlDimDisplay.UpdateCoords();
         }
 
-        if (showstats)
+        string stats = "";
+
+        if (showVolume)
         {
-            StatisticsText.text = "Storage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f)/1000 + "m^3 \nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2 \nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2 \nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg \nCost: $" + Mathf.Round(GetTotalCost() * 100f) / 100 + "CAD";
+            stats += "\nStorage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f) / 1000 + "m^3";
         }
-        else {
-            StatisticsText.text = "";
+
+        if (showMass)
+        {
+            stats += "\nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg";
         }
+
+        if (showArea)
+        {
+            stats += "\nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2";
+        }
+
+        if (showShelfArea)
+        {
+            stats += "\nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2";
+        }
+
+        if (showCost)
+        {
+            stats += "\nCost: $" + Mathf.Round(GetTotalCost() * 100f) / 100 + "CAD";
+        }
+        
+        StatisticsText.text = stats;
+        
+        
 
         if (showFigure)
         {
@@ -1109,56 +1148,16 @@ public class BlockPlacer : MonoBehaviour
 
     public void refreshToggles()
     {
-        //update button
-        if (ShowDim)
-        {
-            VerticalDimDisplay.gameObject.SetActive(true);
-            XlDimDisplay.gameObject.SetActive(true);
-            ZlDimDisplay.gameObject.SetActive(true);
-            showdimButton.text = "Hide Dimensions";
-
-            VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
-            VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
-            VerticalDimDisplay.DisplayOffset = new Vector3(0.1f, 0, 0.1f);
-
-            XlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMaxZ());
-            XlDimDisplay.Coord2 = new Vector3(GetMaxX(), 0, GetMaxZ());
-            XlDimDisplay.DisplayOffset = new Vector3(0, 0, 0.1f);
-
-            ZlDimDisplay.Coord1 = new Vector3(GetMinX(), 0, GetMinZ());
-            ZlDimDisplay.Coord2 = new Vector3(GetMinX(), 0, GetMaxZ());
-            ZlDimDisplay.DisplayOffset = new Vector3(-0.1f, 0, 0);
-
-            VerticalDimDisplay.UpdateCoords();
-            XlDimDisplay.UpdateCoords();
-            ZlDimDisplay.UpdateCoords();
-        }
-        else
-        {
-            VerticalDimDisplay.gameObject.SetActive(false);
-            XlDimDisplay.gameObject.SetActive(false);
-            ZlDimDisplay.gameObject.SetActive(false);
-            showdimButton.text = "Show Dimensions";
-        }
-
-        if (showstats)
-        {
-            showStatsButton.text = "Hide Statistics";
-        }
-        else
-        {
-            showStatsButton.text = "Show Statistics";
-        }
-
-        ScaleFigure.SetActive(showFigure);
-        if (showFigure)
-        {
-            ShowFigureButton.text = "Hide Scale Figure";
-        }
-        else
-        {
-            ShowFigureButton.text = "Show Scale Figure";
-        }
+        toggleAreaShelf.isOn =  showShelfArea;
+        toggleBackWall.isOn = ShowBackWall;
+        toggleDoubleWalls.isOn = doubleWalls;
+        toggleScaleFig.isOn = showFigure;
+        toggleDim.isOn = ShowDim;
+        toggleMass.isOn = showMass;
+        toggleVolume.isOn = showVolume;
+        togglearea.isOn = showArea;
+        togglecost.isOn = showCost;
+        toggleCenterOfMass.isOn = ShowCOM;
 
         foreach (var item in AllBlocks)
         {
@@ -1166,31 +1165,31 @@ public class BlockPlacer : MonoBehaviour
             item.recalculateDimentions(false);
         }
 
-        if (doubleWalls)
-        {
-            doubleWallsButton.text = "Double Wall Thickness";
-        }
-        else
-        {
-            doubleWallsButton.text = "Single Wall Thickness";
-        }
+        
 
         BackWall.SetActive(ShowBackWall);
-        if (ShowBackWall)
-        {
-            BackwallButton.text = "Hide Back Wall";
-        }
-        else
-        {
-            BackwallButton.text = "Show Back Wall";
-        }
+        
     }
 
     #region Settings 
 
     public void ToggleSettings()
     { 
-    inSettings = !inSettings;
+        inSettings = !inSettings;
+        if (inSettings)
+        {
+            //set all of the values to correct defaults
+            toggleAreaShelf.isOn = showShelfArea;
+            toggleBackWall.isOn = ShowBackWall;
+            toggleDoubleWalls.isOn = doubleWalls;
+            toggleScaleFig.isOn = showFigure;
+            toggleDim.isOn = ShowDim;
+            toggleMass.isOn = showMass;
+            toggleVolume.isOn = showVolume;
+            togglearea.isOn = showArea;
+            togglecost.isOn = showCost;
+            toggleCenterOfMass.isOn = ShowCOM;
+        }
         settingsPanel.SetActive(inSettings);
     }
 
@@ -1201,37 +1200,24 @@ public class BlockPlacer : MonoBehaviour
     }
     public void ToggleBackWall()
     {
-        ShowBackWall = !ShowBackWall;
+        ShowBackWall = toggleBackWall.isOn;
         BackWall.SetActive(ShowBackWall);
-        if (ShowBackWall)
-        {
-            BackwallButton.text = "Hide Back Wall";
-        }
-        else
-        {
-            BackwallButton.text = "Show Back Wall";
-        }
+        
         UpdateMaxMins();
     }
 
     public void ToggleBackWall(bool _enabled)
     {
+        toggleBackWall.isOn = _enabled;
         ShowBackWall = _enabled;
         BackWall.SetActive(ShowBackWall);
-        if (ShowBackWall)
-        {
-            BackwallButton.text = "Hide Back Wall";
-        }
-        else
-        {
-            BackwallButton.text = "Show Back Wall";
-        }
+        
         UpdateMaxMins();
     }
     public void ToggleDim()
     {
         //toggle showDim
-        ShowDim = !ShowDim;
+        ShowDim = toggleDim.isOn;
 
         //update button
         if (ShowDim)
@@ -1239,7 +1225,7 @@ public class BlockPlacer : MonoBehaviour
             VerticalDimDisplay.gameObject.SetActive(true);
             XlDimDisplay.gameObject.SetActive(true);
             ZlDimDisplay.gameObject.SetActive(true);
-            showdimButton.text = "Hide Dimensions";
+            
 
             VerticalDimDisplay.Coord1 = new Vector3(GetMaxX(), 0, GetMaxZ());
             VerticalDimDisplay.Coord2 = new Vector3(GetMaxX(), GetMaxY(), GetMaxZ());
@@ -1261,7 +1247,7 @@ public class BlockPlacer : MonoBehaviour
             VerticalDimDisplay.gameObject.SetActive(false);
             XlDimDisplay.gameObject.SetActive(false);
             ZlDimDisplay.gameObject.SetActive(false);
-            showdimButton.text = "Show Dimensions";
+            
         }
 
     }
@@ -1269,49 +1255,57 @@ public class BlockPlacer : MonoBehaviour
     public void ToggleStats()
     {
         showstats = !showstats;
-        if (showstats)
-        {
-            showStatsButton.text = "Hide Statistics";
-        }
-        else {
-            showStatsButton.text = "Show Statistics";
-        }
+        
     }
 
+    public void ToggleMass()
+    {
+        showMass = toggleMass.isOn;
+
+    }
+
+    public void ToggleVolume()
+    {
+        showVolume = toggleVolume.isOn;
+
+    }
+
+    public void ToggleArea()
+    {
+        showArea = togglearea.isOn;
+
+    }
+
+    public void ToggleCost()
+    {
+        showCost = togglecost.isOn;
+
+    }
+
+    public void ToggleShelfArea()
+    {
+        showShelfArea = toggleAreaShelf.isOn;
+
+    }
     public void ToggleScaleFigure()
     {
-        showFigure = !showFigure;
+        showFigure = toggleScaleFig.isOn;
 
         ScaleFigure.SetActive(showFigure);
-        if (showFigure)
-        {
-            ShowFigureButton.text = "Hide Scale Figure";
-        }
-        else
-        {
-            ShowFigureButton.text = "Show Scale Figure";
-        }
+        
 
     }
 
     public void ToggleDoubleWalls()
     {
-        doubleWalls = !doubleWalls;
+        doubleWalls = toggleDoubleWalls.isOn;
         foreach (var item in AllBlocks)
         {
             item.DoubleWall = doubleWalls;
             item.recalculateDimentions(false);
         }
        
-        if (doubleWalls)
-        {
-            doubleWallsButton.text = "Double Wall Thickness";
-        }
-        else
-        {
-            doubleWallsButton.text = "Single Wall Thickness";
-        }
-
+       
     }
 
     #endregion
@@ -2528,15 +2522,36 @@ public class BlockPlacer : MonoBehaviour
     public void ViewFinishes()
     {
         finishesOpen = !finishesOpen;
-
+        if (finishesOpen)
+        { 
+        HideHandles();
+        }
         finishesPannel.SetActive(finishesOpen);
     }
 
+    public void ViewHandles()
+    { 
+        handlesOpen = !handlesOpen;
+        if (handlesOpen)
+        {
+            HideFinishes();
+        }
+        handlesPannel.SetActive(handlesOpen);
+    }
+
+    public void HideHandles()
+    {
+        
+        handlesOpen = false;
+        
+        handlesPannel.SetActive(handlesOpen);
+    }
     public void HideFinishes()
     {
         finishesOpen = false;
-
+        
         finishesPannel.SetActive(finishesOpen);
+        
     }
     public void SetFinish(int finishID)
     {
@@ -2568,12 +2583,33 @@ public class BlockPlacer : MonoBehaviour
         }
 
         UpdateSelectionUI(true);
-        
+        HideFinishes();
     }
 
+    public void SetHandle(int HandleID)
+    {
+        
+        SelectedModule.SetHandle(HandleID);
+        HandlePreview.sprite = HandleSprites[HandleID];
+        HideHandles();
+    }
     public void ToggleEdgeFinish()
     {
-        SetEdgeFinish(EdgeFinishToggle.isOn);
+        if (EdgeFinishToggle.isOn != finishEdges)
+        {
+            finishEdges = EdgeFinishToggle.isOn;
+            toggleEdgeFinish.isOn = finishEdges;
+        }
+        else {
+            if (toggleEdgeFinish.isOn != finishEdges)
+            {
+                finishEdges = toggleEdgeFinish.isOn;
+                EdgeFinishToggle.isOn = finishEdges;
+            }
+        }
+
+
+        SetEdgeFinish(finishEdges);
     }
     public void SetEdgeFinish(bool showEdgeFinish)
     {
@@ -2700,6 +2736,19 @@ public class BlockPlacer : MonoBehaviour
     {
         if (Show)
         {
+            if (SelectedModule.moduleType == 8)
+            {
+                //uses handles
+                HandleButton.SetActive(true);
+                HandlePreview.gameObject.SetActive(true);
+                HandlePreview.sprite = HandleSprites[SelectedModule.handleType];
+            }
+            else {
+                //does not use handles
+                HandleButton.SetActive(false);
+                HandlePreview.gameObject.SetActive(false);
+            }
+
             if (SelectedModule.fixedMat)
             {
                 FinishPreview.gameObject.SetActive(false);
@@ -2751,6 +2800,7 @@ public class BlockPlacer : MonoBehaviour
         }
         else {
             HideFinishes();
+            HideHandles();
             SelectionPannel.SetActive(false);
         }
         
@@ -2761,7 +2811,7 @@ public class BlockPlacer : MonoBehaviour
     #region center of mass
     public void ToggleCOM()
     { 
-    ShowCOM = !ShowCOM;
+        ShowCOM = toggleCenterOfMass.isOn;
         ComPreview.gameObject.SetActive(ShowCOM);
     }
     public CenterOfMass[] centerOfMasses()
@@ -3186,6 +3236,7 @@ public class BlockPlacer : MonoBehaviour
         if (_Open)
         {
             //should probably pause other things in the background while this is happening
+            RenderPreview();
             uploadePannel.SetActive(true);
         }
         else {
@@ -3363,6 +3414,19 @@ public class BlockPlacer : MonoBehaviour
 
     #endregion
 
+    public void RenderPreview()
+    {
+        if (SelectedModule != null)
+        {
+            SelectedModule.SetSelected(false);
+            UpdateSelectionUI(false);
+        }
+        
+        UpdateMaxMins();
+        previewCam.furnitureCenter = new Vector3((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
+        previewCam.DistanceMultiplier = Vector3.Magnitude(new Vector3(minX, minY, minZ)- new Vector3(maxX, maxY, maxZ));
+        previewCam.RenderPreview();
+    }
     public void GoBackToMenu()
     {
         Application.LoadLevel(0);

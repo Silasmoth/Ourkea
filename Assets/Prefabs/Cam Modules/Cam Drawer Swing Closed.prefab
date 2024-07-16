@@ -570,6 +570,11 @@ MonoBehaviour:
   TL: {fileID: 7193563126915978744}
   C: {fileID: 6923573294552160134}
   UseAlternatives: 0
+  HandlOptions:
+  - {fileID: -6605799271828734927, guid: faa03c743c7fe9a408fd1cee4d119dbe, type: 3}
+  - {fileID: 6762544924844803737, guid: faa03c743c7fe9a408fd1cee4d119dbe, type: 3}
+  - {fileID: -67494360499548180, guid: faa03c743c7fe9a408fd1cee4d119dbe, type: 3}
+  - {fileID: -1817673508095971178, guid: faa03c743c7fe9a408fd1cee4d119dbe, type: 3}
   Right_T: {fileID: 0}
   Right_TR: {fileID: 0}
   Right_R: {fileID: 0}
@@ -603,6 +608,8 @@ MonoBehaviour:
   BMR: {fileID: 0}
   BM: {fileID: 0}
   BML: {fileID: 0}
+  CR: {fileID: 0}
+  CL: {fileID: 0}
   snappingPoints:
   - {fileID: 2269928039775254242}
   - {fileID: 907824903077089875}
@@ -626,6 +633,7 @@ MonoBehaviour:
   blockDepth: 0.4
   startingwidth: 0.1333333
   startingHeight: 0.1333333
+  handleType: 0
   componentVolume: {fileID: 6979235034142220664}
 --- !u!1 &3945637372656764499
 GameObject:
