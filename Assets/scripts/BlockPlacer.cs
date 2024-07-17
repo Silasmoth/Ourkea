@@ -134,6 +134,7 @@ public class BlockPlacer : MonoBehaviour
 
     //for uploading the model to the server
     [Header("Model Uploading")]
+    public TMP_Text UploadStats;
     string email;
     public GameObject uploadePannel; //the UI pannel with all of the uploading UI
     public NetworkClient client;
@@ -3237,6 +3238,16 @@ public class BlockPlacer : MonoBehaviour
         {
             //should probably pause other things in the background while this is happening
             RenderPreview();
+            string stats = "";
+
+            stats += "Storage Volume: " + Mathf.Round(GetTotalStorageVolume() * 1000f) / 1000 + "m^3";
+            stats += "\nFurniture Mass: " + Mathf.Round(GetTotalMaterialVolume() * 1000f) / 1000 * 600 + "kg";
+            stats += "\nSheet Material Area: " + Mathf.Round(GetTotalMaterialArea() * 1000f) / 1000 + "m^2";
+            stats += "\nShelf Area: " + Mathf.Round(GetTotalShelfArea() * 1000f) / 1000 + "m^2";
+            stats += "\nMaterial Cost Estimate: $" + Mathf.Round(GetTotalCost() * 100f) / 100 + "CAD";
+            
+
+            UploadStats.text = stats;
             uploadePannel.SetActive(true);
         }
         else {
