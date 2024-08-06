@@ -1,7 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms;
+#if UNITY_STANDALONE_WIN
+
+  using System.Windows.Forms;
+
+#endif
+
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ViewportMover : MonoBehaviour
 {
@@ -24,12 +30,19 @@ public class ViewportMover : MonoBehaviour
     float zoomscale = 0.1f;
     public float clampedXRot;
     public float mouseMulti = 1000;
-    
+
+    //for touch control zooming
+    float oldzoom;
+    float startdistance;
+    float distance;
+    bool orbitstart = false;
+
     // Update is called once per frame
     void Update()
     {
         if (!Orthographic)
         {
+#if UNITY_STANDALONE_WIN
 
             if (Input.GetButtonDown("Fire2"))//right mouse button was just clicked
             {
@@ -57,6 +70,118 @@ public class ViewportMover : MonoBehaviour
             {
                 clampedXRot += 360;
             }
+
+#else
+
+
+
+            
+               
+
+
+
+            if (UnityEngine.Input.GetMouseButtonDown(0))
+            {
+                bool overUI = false;
+                foreach (Touch touch in Input.touches)
+                {
+                    int id = touch.fingerId;
+                    if (EventSystem.current.IsPointerOverGameObject(id))
+                    {
+                        overUI = true;
+                    }
+                }
+
+                if (!overUI)
+                {
+                    orbitstart = true;
+                    //record initial mouse position when click starts
+                    mouseX = Input.mousePosition.x;
+                    mouseY = Input.mousePosition.y;
+                    oldXRot = sceneXRot;
+                    oldYRot = sceneYRot;
+                }
+            }
+
+            
+
+
+
+
+
+
+            if (Input.GetButtonDown("Fire2"))//right mouse button was just clicked
+            {
+                orbitstart = false;
+                //record initial mouse position when click starts
+                //mouseX = Input.mousePosition.x;
+                //mouseY = Input.mousePosition.y;
+                //oldXRot = sceneXRot;
+                //oldYRot = sceneYRot;
+
+                if (Input.touchCount >= 2)
+                {
+                    Vector2 touch0, touch1;
+                    
+                    touch0 = Input.GetTouch(0).position;
+                    touch1 = Input.GetTouch(1).position;
+
+                    startdistance = Vector2.Distance(touch0, touch1);
+                    oldzoom = zoomlevel;
+                }
+            }
+            if (Input.GetButton("Fire2"))//right mouse button is down
+            {
+                //sceneXRot = ((Input.mousePosition.x - mouseX) / maincam.pixelHeight) * mouseMulti + oldXRot;
+                //sceneYRot = ((Input.mousePosition.y - mouseY) / maincam.pixelHeight) * mouseMulti + oldYRot;
+                if (Input.touchCount >= 2)
+                {
+                    Vector2 touch0, touch1;
+
+                    touch0 = Input.GetTouch(0).position;
+                    touch1 = Input.GetTouch(1).position;
+
+                    distance = Vector2.Distance(touch0, touch1);
+                }
+
+                zoomlevel = oldzoom + (startdistance - distance)/startdistance;
+
+            }
+
+            if (UnityEngine.Input.GetMouseButton(0))
+            {
+                if (orbitstart)
+                {
+                    sceneXRot = ((Input.mousePosition.x - mouseX) / maincam.pixelHeight) * mouseMulti + oldXRot;
+                    sceneYRot = ((Input.mousePosition.y - mouseY) / maincam.pixelHeight) * mouseMulti + oldYRot;
+                }
+
+            }
+
+            if (UnityEngine.Input.GetMouseButtonUp(0))
+            {
+                orbitstart = false;
+
+            }
+
+
+            sceneYRot = Mathf.Clamp(sceneYRot, -300, 50);
+            cameraTarget.transform.rotation = Quaternion.Euler(-sceneYRot / Mathf.PI, sceneXRot / Mathf.PI, 0);
+
+            //zoomlevel -= Input.mouseScrollDelta.y * zoomscale;
+            zoomlevel = Mathf.Clamp(zoomlevel, 1, 10);
+
+            maincam.transform.localPosition = new Vector3(0, 1, -zoomlevel);
+
+            clampedXRot = (sceneXRot / Mathf.PI) % 360;
+            if (clampedXRot < 0)
+            {
+                clampedXRot += 360;
+            }
+
+
+#endif
+
         }
         else {
 

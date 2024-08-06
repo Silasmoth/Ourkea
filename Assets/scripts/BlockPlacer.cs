@@ -13,6 +13,13 @@ using NUnit.Framework.Interfaces;
 
 public class BlockPlacer : MonoBehaviour
 {
+    public bool loadedExample = false;
+    public byte[] example1;
+    public byte[] example2;
+    public byte[] example3;
+    public byte[] example4;
+    public byte[] example5;
+    public byte[] example6;
     public bool ViewOnly = false;
     //this to dissable in view only mode
     public GameObject[] HideInViewMode;
@@ -26,6 +33,7 @@ public class BlockPlacer : MonoBehaviour
 
     //Extra settings pannel
     [Header("Extra Settings - Settings")]
+    public bool recenter = false;
     public bool inSettings = false;
     public bool doubleWalls; //if true keep double walls in between modules, if false make them single walls
     public bool showFigure = false;
@@ -47,7 +55,7 @@ public class BlockPlacer : MonoBehaviour
 
     [Header("Extra Settings - References")]
     public GameObject settingsPanel;
-    public Toggle toggleScaleFig, toggleDoubleWalls, toggleBackWall, toggleDim, toggleMass, toggleVolume, togglearea, toggleAreaShelf,togglecost, toggleCenterOfMass, toggleEdgeFinish;
+    public Toggle toggleScaleFig, toggleDoubleWalls, toggleBackWall, toggleDim, toggleMass, toggleVolume, togglearea, toggleAreaShelf,togglecost, toggleCenterOfMass, toggleEdgeFinish, toggleRecenter;
     public GameObject ScaleFigure;
     public GameObject BackWall; //used for previewing furniture with a back wall
     public TMP_Text StatisticsText; // the text for showing stats
@@ -246,10 +254,29 @@ public class BlockPlacer : MonoBehaviour
 
             if (UnityEngine.Input.GetMouseButtonDown(0))
             {
+                Debug.Log("click");
                 //mouse down
                 //there was a click
+                bool overUI = false;
+#if UNITY_STANDALONE_WIN
 
-                if (EventSystem.current.IsPointerOverGameObject())
+            overUI = EventSystem.current.IsPointerOverGameObject();
+
+#else
+
+                foreach (Touch touch in Input.touches)
+                {
+                    int id = touch.fingerId;
+                    if (EventSystem.current.IsPointerOverGameObject(id))
+                    {
+                        overUI = true;
+                    }
+                }
+                
+
+#endif
+
+                if (overUI)
                 {
                     //mouse is over UI
                     //check to see if the mouse is over any modules
@@ -1159,6 +1186,7 @@ public class BlockPlacer : MonoBehaviour
         togglearea.isOn = showArea;
         togglecost.isOn = showCost;
         toggleCenterOfMass.isOn = ShowCOM;
+        toggleRecenter.isOn = recenter;
 
         foreach (var item in AllBlocks)
         {
@@ -1190,6 +1218,7 @@ public class BlockPlacer : MonoBehaviour
             togglearea.isOn = showArea;
             togglecost.isOn = showCost;
             toggleCenterOfMass.isOn = ShowCOM;
+            toggleRecenter.isOn = recenter;
         }
         settingsPanel.SetActive(inSettings);
     }
@@ -1305,8 +1334,20 @@ public class BlockPlacer : MonoBehaviour
             item.DoubleWall = doubleWalls;
             item.recalculateDimentions(false);
         }
+
+        setAllMaterial = doubleWalls;
        
        
+    }
+
+    public void ToggleRecenter()
+    {
+        recenter = toggleRecenter.isOn;
+
+        if (recenter)
+        {
+            UpdateMaxMins();
+        }
     }
 
     #endregion
@@ -1383,6 +1424,17 @@ public class BlockPlacer : MonoBehaviour
             }
         }
         return minZ;
+    }
+
+    public void Recenter()
+    {
+        float xOffset = GetMaxX() + GetMinX();
+        float zOffset = GetMaxZ() + GetMinZ();
+
+        foreach (var item in AllBlocks)
+        {
+            item.transform.position -= new Vector3(xOffset/2, 0, zOffset/2);
+        }
     }
 
     #endregion
@@ -2434,6 +2486,10 @@ public class BlockPlacer : MonoBehaviour
 
     public void UpdateMaxMins()
     {
+        if (recenter)
+        {
+            Recenter();
+        }
         //updates all of the furnitures maximum bounds so that it oesnt need to be done every frame
         maxX = GetMaxX();
         maxY = GetMaxY();
@@ -3195,6 +3251,7 @@ public class BlockPlacer : MonoBehaviour
 
     public void LoadExampleModel(int _exampleNum)
     {
+#if UNITY_STANDALONE_WIN
         switch (_exampleNum)
         {
 
@@ -3226,13 +3283,43 @@ public class BlockPlacer : MonoBehaviour
 
         BinaryReader Reader = null;
         byte[] buffer = File.ReadAllBytes(_path);
+#else
+        byte[] buffer = null;
+        switch (_exampleNum)
+        {
 
+            case (0):
+                buffer = example1;
+                break;
+
+            case (1):
+                buffer = example2;
+                break;
+            case (2):
+                buffer = example3;
+                break;
+            case (3):
+                buffer = example4;
+                break;
+
+            case (4):
+                buffer = example5;
+                break;
+
+            case (5):
+                buffer = example6;
+                break;
+
+            default:
+                break;
+        }
+#endif
         var modelDesc = BytesToModel(buffer);
 
         OpenModel(modelDesc);
 
     }
-    #endregion/export
+#endregion/export
 
     #region uploading model To builder
     public void OpenCloseUploadPannel(bool _Open)
@@ -3446,4 +3533,29 @@ public class BlockPlacer : MonoBehaviour
     {
         Application.LoadLevel(0);
     }
+
+    /*
+     //used for hardcoding the examples for loading on android
+    public void OnValidate()
+    {
+        if (!loadedExample)
+        {
+            _path = Application.dataPath + "/StreamingAssets/Example1.shelf";
+            example1 = File.ReadAllBytes(_path);
+            _path = Application.dataPath + "/StreamingAssets/Example2.shelf";
+            example2 = File.ReadAllBytes(_path);
+            _path = Application.dataPath + "/StreamingAssets/Example3.shelf";
+            example3 = File.ReadAllBytes(_path);
+            _path = Application.dataPath + "/StreamingAssets/Example4.shelf";
+            example4 = File.ReadAllBytes(_path);
+            _path = Application.dataPath + "/StreamingAssets/Example5.shelf";
+            example5 = File.ReadAllBytes(_path);
+            _path = Application.dataPath + "/StreamingAssets/Example6.shelf";
+            example6 = File.ReadAllBytes(_path);
+
+
+            loadedExample = true;
+        }
+    }
+    */
 }
