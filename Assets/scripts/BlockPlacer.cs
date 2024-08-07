@@ -23,6 +23,7 @@ public class BlockPlacer : MonoBehaviour
     public bool ViewOnly = false;
     //this to dissable in view only mode
     public GameObject[] HideInViewMode;
+    public GameObject[] HideInEditMode;
 
     //the go back button for exiting the project view
     public GameObject GoBackButton;
@@ -30,6 +31,13 @@ public class BlockPlacer : MonoBehaviour
     public bool awaitingServer = false;//is the client waiting for a response from the server? if so just wait
     public bool awaitingpopup = false;
 
+    //for undo
+    public ModelDescription[] Undostates; //stores previous states
+    public int maxUndoStates = 10; //max number of undo states to remember
+    public int UndoPosition = 0; //current undo state index
+    public int minUndoPos = 0; //how far the user can redo
+    public int maxUndoPos = 0; //how far the user can undo
+    bool addingUndo = true;
 
     //Extra settings pannel
     [Header("Extra Settings - Settings")]
@@ -120,7 +128,7 @@ public class BlockPlacer : MonoBehaviour
     public Material[] UnselectedMat;
     public Material[] SelectedMat;
     public GameObject finishesPannel;
-    
+    bool settingsedgefinish = false;
     bool finishesOpen = false;
     
     int lastMaterialFinish = 17;
@@ -156,6 +164,7 @@ public class BlockPlacer : MonoBehaviour
     [Header("Popup messages")]
     public GameObject PopUpPannel;
     public TextMeshProUGUI PopupText;
+    public GameObject ExitPopup;
 
     [Header("Other references")]
     const int BYTE_SIZE = 8000;//used for saving, means max blocks around 100
@@ -170,6 +179,8 @@ public class BlockPlacer : MonoBehaviour
         HideFinishes();
         HideHandles();
         closePopup();
+        closeExitPopup();
+        
 
         SelectionPannel.SetActive(false);//turn off the selection pannel to start since there is no block selected
         AllBlocks = new List<ScalableComponent>();//initialize list that will store all placed blocks
@@ -228,8 +239,19 @@ public class BlockPlacer : MonoBehaviour
            
         }
 
+        if (!ViewOnly)//hide things that should not be visible to regular designer
+        {
+            for (int i = 0; i < HideInEditMode.Length; i++)
+            {
+                HideInEditMode[i].SetActive(false);
+            }
+        }
 
         RepositionFurnitureOnGround();
+
+        Undostates = new ModelDescription[maxUndoStates];
+        AddUndo();
+        maxUndoPos = 0;
     }
 
 
@@ -246,6 +268,16 @@ public class BlockPlacer : MonoBehaviour
 
         if (!ViewOnly)
         {
+            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z)))
+            {
+                Undo();
+            }
+
+            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z)))
+            {
+                Redo();
+            }
+
             if (Input.GetKeyDown(KeyCode.Delete))
             {
                 //pressed delete, delete the selected module
@@ -254,7 +286,7 @@ public class BlockPlacer : MonoBehaviour
 
             if (UnityEngine.Input.GetMouseButtonDown(0))
             {
-                Debug.Log("click");
+                //Debug.Log("click");
                 //mouse down
                 //there was a click
                 bool overUI = false;
@@ -307,7 +339,7 @@ public class BlockPlacer : MonoBehaviour
                     RaycastHit hit2;
                     if (Physics.Raycast(ray, out hit2, 1000f, SelecionLayer))
                     {
-                        Debug.Log(hit2.collider.gameObject.name + " with layer " + hit2.collider.gameObject.layer);
+                        //Debug.Log(hit2.collider.gameObject.name + " with layer " + hit2.collider.gameObject.layer);
                         //did we hit any component volumes
                         var hitComponent = hit2.collider.gameObject.GetComponentInParent<ScalableComponent>();
 
@@ -1335,7 +1367,7 @@ public class BlockPlacer : MonoBehaviour
             item.recalculateDimentions(false);
         }
 
-        setAllMaterial = doubleWalls;
+        setAllMaterial = !doubleWalls;
        
        
     }
@@ -1352,7 +1384,34 @@ public class BlockPlacer : MonoBehaviour
 
     #endregion
 
-    
+    #region popups
+    public void showPopup(string PopupMessage)
+    {
+        awaitingpopup = true;
+        PopUpPannel.SetActive(true);
+        PopupText.text = PopupMessage;
+    }
+
+    public void closePopup()
+    {
+        awaitingpopup = false;
+        PopUpPannel.SetActive(false);
+    }
+
+    public void showExitPopup()
+    {
+        closePopup();
+        ExitPopup.SetActive(true);
+        awaitingpopup = true;
+    }
+
+    public void closeExitPopup()
+    {
+        ExitPopup.SetActive(false);
+        closePopup();
+        
+    }
+    #endregion
 
     #region Getting bounds
     float GetMaxY()
@@ -1477,6 +1536,7 @@ public class BlockPlacer : MonoBehaviour
     }
     void PlaceBlockAtMouse()
     {
+        addingUndo = false;
         Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
         RaycastHit hit;
 
@@ -2430,6 +2490,9 @@ public class BlockPlacer : MonoBehaviour
         }
 
         UpdateMaxMins();
+        Debug.Log("add undostate, block placement");
+        addingUndo = true;
+        AddUndo();
     }
 
     void DragPreviewToMouse()
@@ -2641,6 +2704,8 @@ public class BlockPlacer : MonoBehaviour
 
         UpdateSelectionUI(true);
         HideFinishes();
+        Debug.Log("add undostate, finish change");
+        AddUndo();
     }
 
     public void SetHandle(int HandleID)
@@ -2649,24 +2714,32 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.SetHandle(HandleID);
         HandlePreview.sprite = HandleSprites[HandleID];
         HideHandles();
+        Debug.Log("add undostate, handle change");
+        AddUndo();
     }
     public void ToggleEdgeFinish()
     {
+        
         if (EdgeFinishToggle.isOn != finishEdges)
         {
+            settingsedgefinish = false;
             finishEdges = EdgeFinishToggle.isOn;
             toggleEdgeFinish.isOn = finishEdges;
+            SetEdgeFinish(finishEdges);
         }
         else {
             if (toggleEdgeFinish.isOn != finishEdges)
             {
                 finishEdges = toggleEdgeFinish.isOn;
                 EdgeFinishToggle.isOn = finishEdges;
+                SetEdgeFinish(finishEdges);
             }
         }
-
-
-        SetEdgeFinish(finishEdges);
+        
+        
+        
+        //Debug.Log("add undostate, toggle edge finish");
+        //AddUndo();
     }
     public void SetEdgeFinish(bool showEdgeFinish)
     {
@@ -2694,6 +2767,8 @@ public class BlockPlacer : MonoBehaviour
         }
 
         UpdateSelectionUI(true);
+        Debug.Log("add undostate, finish change and shoe edgefinish");
+        AddUndo();
     }
     public void ApplyUpdatesToSelection()
     {
@@ -2740,6 +2815,8 @@ public class BlockPlacer : MonoBehaviour
         SelectedModule.SetSelected(true);
 
         UpdateMaxMins();
+        Debug.Log("add undostate, updateselection");
+        AddUndo();
     }
 
     
@@ -2785,12 +2862,16 @@ public class BlockPlacer : MonoBehaviour
         UpdateSelectionUI(false);
 
         RepositionFurnitureOnGround();
-
-        
+        Debug.Log("add undostate, delete selection");
+        AddUndo();
     }
 
     public void UpdateSelectionUI(bool Show)
     {
+        if (SelectedModule == null)
+        {
+            return;
+        }
         if (Show)
         {
             if (SelectedModule.moduleType == 8)
@@ -2981,7 +3062,7 @@ public class BlockPlacer : MonoBehaviour
 
     #endregion
 
-    #region Model saving/loading/export
+    #region Model saving/loading/export/undo/redo
 
     public void Exportmodel()
     {
@@ -3096,6 +3177,58 @@ public class BlockPlacer : MonoBehaviour
         return output;
     }
 
+    public void AddUndo()
+    {
+        if (!addingUndo)
+        {
+            Debug.Log("undostate regected");
+            return;
+        }
+        var temp = SaveModel();
+        if (Undostates[UndoPosition] != null && Undostates[UndoPosition].isEqual(temp))
+        {
+            Debug.Log("undostate regected");
+            return;
+        }
+        if (UndoPosition != 0)
+        {
+            UndoPosition--;
+            minUndoPos = UndoPosition;
+            Undostates[UndoPosition] = temp;
+        }
+        else {
+            minUndoPos = 0;
+            //move all undo states down the array before adding latest state at index 0
+            maxUndoPos++;
+            if (maxUndoPos >= maxUndoStates)
+            { 
+            maxUndoPos = maxUndoStates -1;
+            }
+            for (int i = Undostates.Length-1; i > 0; i--)
+            {
+                Undostates[i] = Undostates[i - 1];
+            }
+            Undostates[0] = temp;
+        }
+    }
+
+    public void Undo()
+    {
+        if (UndoPosition < maxUndoPos)
+        { 
+            UndoPosition++;
+            OpenModel(Undostates[UndoPosition]);
+        }
+    }
+
+    public void Redo()
+    {
+        if (UndoPosition > minUndoPos)
+        {
+            UndoPosition--;
+            OpenModel(Undostates[UndoPosition]);
+        }
+    }
     public void OpenModel(ModelDescription _Model)
     {
 
@@ -3432,18 +3565,7 @@ public class BlockPlacer : MonoBehaviour
         }
     }
 
-    public void showPopup(string PopupMessage)
-    {
-        awaitingpopup = true;
-        PopUpPannel.SetActive(true);
-        PopupText.text = PopupMessage;
-    }
-
-    public void closePopup()
-    {
-        awaitingpopup = false;
-        PopUpPannel.SetActive(false);
-    }
+    
     #endregion
 
     #region conversion to components/shapes
@@ -3529,9 +3651,18 @@ public class BlockPlacer : MonoBehaviour
         previewCam.DistanceMultiplier = Vector3.Magnitude(new Vector3(minX, minY, minZ)- new Vector3(maxX, maxY, maxZ));
         previewCam.RenderPreview();
     }
-    public void GoBackToMenu()
+    
+    public void GoBackToMenu(bool confirm)
     {
-        Application.LoadLevel(0);
+        if (!confirm && !ViewOnly)
+        {
+            showExitPopup();
+        }
+        else
+        {
+            Application.LoadLevel(0);
+        }
+        
     }
 
     /*

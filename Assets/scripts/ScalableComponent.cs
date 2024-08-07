@@ -2082,7 +2082,7 @@ public class ScalableComponent : MonoBehaviour
                         var materials = item.sharedMaterials;
                         materials[1] = selectedMat;
                         item.sharedMaterials = materials;
-                        Debug.Log("set edge material");
+                        //Debug.Log("set edge material");
                     }
                 }
                 else

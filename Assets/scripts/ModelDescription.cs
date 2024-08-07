@@ -34,5 +34,12 @@ public class ModelDescription
     public int[] Mod2 { get; set; }//stores the index of the module to connect to
     public byte[] ConnectionSlotMod1 { get; set; }//stores the connection slot (on Mod1) that the connection is in
     public byte[] ConnectionSlotMod2 { get; set; }//stores the connection slot (on Mod2) that the connection is in
+
+    public bool isEqual(ModelDescription other)
+    { 
+    bool results = DoubleWall==other.DoubleWall && ModuleType==other.ModuleType && ModulePosX==other.ModulePosX && ModulePosY==other.ModulePosY && ModulePosZ==other.ModulePosZ && ModuleRotY==other.ModuleRotY && CoreMaterial==other.CoreMaterial && FinishMaterial==other.FinishMaterial && Width == other.Width && WidthB == other.WidthB && Height == other.Height && ShelfCount == other.ShelfCount && EdgeFinish == other.EdgeFinish && Mod1 == other.Mod1 && Mod2 == other.Mod2 && ConnectionSlotMod1 == other.ConnectionSlotMod1 && ConnectionSlotMod2 == other.ConnectionSlotMod2;
+
+        return results;
+    }
 }
    

@@ -185,6 +185,8 @@ public class ViewportMover : MonoBehaviour
         }
         else {
 
+#if UNITY_STANDALONE_WIN
+
             zoomlevel -= Input.mouseScrollDelta.y * zoomscale * 0.5f;
             zoomlevel = Mathf.Clamp(zoomlevel, 0.5f, 10);
            
@@ -206,7 +208,94 @@ public class ViewportMover : MonoBehaviour
                 sceneXRot = ((Input.mousePosition.x - mouseX) * actualzoom / maincam.pixelHeight)*mouseMulti*2 + oldXRot;
                 sceneYRot = ((Input.mousePosition.y - mouseY) * actualzoom / maincam.pixelHeight)*mouseMulti*2 + oldYRot;
             }
+#else
 
+            if (UnityEngine.Input.GetMouseButtonDown(0))
+            {
+                bool overUI = false;
+                foreach (Touch touch in Input.touches)
+                {
+                    int id = touch.fingerId;
+                    if (EventSystem.current.IsPointerOverGameObject(id))
+                    {
+                        overUI = true;
+                    }
+                }
+
+                if (!overUI)
+                {
+                    orbitstart = true;
+                    //record initial mouse position when click starts
+                    mouseX = Input.mousePosition.x;
+                    mouseY = Input.mousePosition.y;
+                    oldXRot = sceneXRot;
+                    oldYRot = sceneYRot;
+                }
+            }
+
+            if (Input.GetButtonDown("Fire2"))//right mouse button was just clicked
+            {
+                orbitstart = false;
+                //record initial mouse position when click starts
+                //mouseX = Input.mousePosition.x;
+                //mouseY = Input.mousePosition.y;
+                //oldXRot = sceneXRot;
+                //oldYRot = sceneYRot;
+
+                if (Input.touchCount >= 2)
+                {
+                    Vector2 touch0, touch1;
+
+                    touch0 = Input.GetTouch(0).position;
+                    touch1 = Input.GetTouch(1).position;
+
+                    startdistance = Vector2.Distance(touch0, touch1);
+                    oldzoom = zoomlevel;
+                }
+            }
+            if (Input.GetButton("Fire2"))//right mouse button is down
+            {
+                //sceneXRot = ((Input.mousePosition.x - mouseX) / maincam.pixelHeight) * mouseMulti + oldXRot;
+                //sceneYRot = ((Input.mousePosition.y - mouseY) / maincam.pixelHeight) * mouseMulti + oldYRot;
+                if (Input.touchCount >= 2)
+                {
+                    Vector2 touch0, touch1;
+
+                    touch0 = Input.GetTouch(0).position;
+                    touch1 = Input.GetTouch(1).position;
+
+                    distance = Vector2.Distance(touch0, touch1);
+                }
+
+                zoomlevel = oldzoom + (startdistance - distance) / startdistance;
+
+            }
+
+            if (UnityEngine.Input.GetMouseButton(0))
+            {
+                if (orbitstart)
+                {
+                    sceneXRot = ((Input.mousePosition.x - mouseX) / maincam.pixelHeight) * mouseMulti + oldXRot;
+                    sceneYRot = ((Input.mousePosition.y - mouseY) / maincam.pixelHeight) * mouseMulti + oldYRot;
+                }
+
+            }
+
+            if (UnityEngine.Input.GetMouseButtonUp(0))
+            {
+                orbitstart = false;
+
+            }
+
+            zoomlevel = Mathf.Clamp(zoomlevel, 0.5f, 10);
+
+            float actualzoom = zoomlevel * zoomlevel;
+            maincam.orthographicSize = actualzoom;
+            UIcam.orthographicSize = actualzoom;
+
+
+            
+#endif
             switch (viewtype)
             {
 
