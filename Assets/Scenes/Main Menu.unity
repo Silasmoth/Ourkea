@@ -2899,7 +2899,7 @@ MonoBehaviour:
   blockPlacer: {fileID: 0}
   builderscene: {fileID: 0}
   connected: 0
-  SERVER_IP: 127.0.0.1
+  SERVER_IP: 76.65.22.97
   myProjects: {fileID: 0}
 --- !u!1 &1662694746
 GameObject:

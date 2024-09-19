@@ -2870,6 +2870,9 @@ public class BlockPlacer : MonoBehaviour
     {
         if (SelectedModule == null)
         {
+            HideFinishes();
+            HideHandles();
+            SelectionPannel.SetActive(false);
             return;
         }
         if (Show)

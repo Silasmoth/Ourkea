@@ -270,13 +270,18 @@ public class ViewportMover : MonoBehaviour
                 zoomlevel = oldzoom + (startdistance - distance) / startdistance;
 
             }
+            zoomlevel = Mathf.Clamp(zoomlevel, 0.5f, 10);
+
+            float actualzoom = zoomlevel * zoomlevel;
+            maincam.orthographicSize = actualzoom;
+            UIcam.orthographicSize = actualzoom;
 
             if (UnityEngine.Input.GetMouseButton(0))
             {
                 if (orbitstart)
                 {
-                    sceneXRot = ((Input.mousePosition.x - mouseX) / maincam.pixelHeight) * mouseMulti + oldXRot;
-                    sceneYRot = ((Input.mousePosition.y - mouseY) / maincam.pixelHeight) * mouseMulti + oldYRot;
+                    sceneXRot = ((Input.mousePosition.x - mouseX) * actualzoom/ maincam.pixelHeight) * mouseMulti*2 + oldXRot;
+                    sceneYRot = ((Input.mousePosition.y - mouseY) * actualzoom/ maincam.pixelHeight) * mouseMulti*2 + oldYRot;
                 }
 
             }
@@ -287,11 +292,7 @@ public class ViewportMover : MonoBehaviour
 
             }
 
-            zoomlevel = Mathf.Clamp(zoomlevel, 0.5f, 10);
-
-            float actualzoom = zoomlevel * zoomlevel;
-            maincam.orthographicSize = actualzoom;
-            UIcam.orthographicSize = actualzoom;
+            
 
 
             
