@@ -2043,8 +2043,6 @@ public class ScalableComponent : MonoBehaviour
             recalculateDimentions(true);
         }
             
-
-            
         
             wasChanged = false;
             

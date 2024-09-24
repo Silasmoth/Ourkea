@@ -9,6 +9,7 @@ using SFB;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using NUnit.Framework.Interfaces;
+using System;
 //using UnityEngine.Windows;
 
 public class BlockPlacer : MonoBehaviour
@@ -58,12 +59,12 @@ public class BlockPlacer : MonoBehaviour
     public bool ShowAllCom = true;//should we show all individual center of masses
     public bool showShelfArea = false;
     public bool finishEdges = false;
-
+    public bool showSliders = false; //should the sliders be shown in the customize menu
     public LineRenderer ComPreview;
 
     [Header("Extra Settings - References")]
     public GameObject settingsPanel;
-    public Toggle toggleScaleFig, toggleDoubleWalls, toggleBackWall, toggleDim, toggleMass, toggleVolume, togglearea, toggleAreaShelf,togglecost, toggleCenterOfMass, toggleEdgeFinish, toggleRecenter;
+    public Toggle toggleScaleFig, toggleDoubleWalls, toggleBackWall, toggleDim, toggleMass, toggleVolume, togglearea, toggleAreaShelf,togglecost, toggleCenterOfMass, toggleEdgeFinish, toggleRecenter, toggleSliders;
     public GameObject ScaleFigure;
     public GameObject BackWall; //used for previewing furniture with a back wall
     public TMP_Text StatisticsText; // the text for showing stats
@@ -85,6 +86,7 @@ public class BlockPlacer : MonoBehaviour
     [Header("Customize Pannel - References")]
     public GameObject SelectionPannel; //this is the UI pannel with all of the tools for modifying the selection
     public TMP_InputField HeightInput, WidthInput, WidthBInput, ShelfInput;//the input feilds for changing block dimensions
+    public Slider HeightSlider, WidthSlider, WidthBSlider, ShelfSlider;//the sliders for changing dimensions
     public Image FinishPreview;
     public Sprite[] FinishSprites;
     public GameObject finishButton;
@@ -172,6 +174,7 @@ public class BlockPlacer : MonoBehaviour
 
     public ScalableComponent starterBlock;//reference to the block that already exists in the scene
 
+    bool updatingSelectionUI = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -268,6 +271,7 @@ public class BlockPlacer : MonoBehaviour
 
         if (!ViewOnly)
         {
+            
             if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z)))
             {
                 Undo();
@@ -2772,6 +2776,13 @@ public class BlockPlacer : MonoBehaviour
     }
     public void ApplyUpdatesToSelection()
     {
+        if (showSliders)
+        {
+            foreach (var item in AllBlocks)
+            {
+                item.wasChanged = false;
+            }
+        }
         if (SelectedModule == null)
         {
             
@@ -2819,7 +2830,72 @@ public class BlockPlacer : MonoBehaviour
         AddUndo();
     }
 
-    
+    public void ToggleSliders()
+    {
+        showSliders = toggleSliders.isOn;
+
+        if (!showSliders)
+        { 
+        HeightSlider.gameObject.SetActive(false);
+        WidthSlider.gameObject.SetActive(false);
+        WidthBSlider.gameObject.SetActive(false);
+        ShelfSlider.gameObject.SetActive(false);
+        }
+        UpdateSelectionUI(SelectionPannel.activeSelf);
+    }
+
+    public void SlidersUpdate()
+    {
+        if (updatingSelectionUI)
+        {
+
+            return;
+
+        }
+        //first lets check if the sliders would actually modify the selected block
+        if (SelectedModule == null)
+        {
+            return;
+        }
+
+        bool changed = false;
+        if ((SelectedModule.blockWidth - WidthSlider.value) > 0.001f || (SelectedModule.blockWidth - WidthSlider.value) < -0.001f)
+        { 
+            //width changed
+            changed = true;
+            WidthInput.text = Math.Floor(WidthSlider.value * 1000f)/1000f + "";
+        }
+
+        if ((SelectedModule.blockHeight - HeightSlider.value) > 0.001 || (SelectedModule.blockHeight - HeightSlider.value) < -0.001)
+        {
+            //height changed
+            changed = true;
+            HeightInput.text = Math.Floor(HeightSlider.value * 1000f) / 1000f + "";
+        }
+
+        if ((SelectedModule.blockWidthB - WidthBSlider.value) > 0.001 || (SelectedModule.blockWidthB - WidthBSlider.value) < -0.001)
+        {
+            //widthb changed
+            changed = true;
+            WidthBInput.text = Math.Floor(WidthBSlider.value * 1000f) / 1000f + "";
+        }
+
+        if ((SelectedModule.allowHorizontalDividers && SelectedModule.HDividercount != ShelfSlider.value) || (SelectedModule.allowVerticalDividers && SelectedModule.VDividercount != ShelfSlider.value))
+        {
+            //shelfs changed
+            changed = true;
+            ShelfInput.text = ShelfSlider.value + "";
+        }
+
+        if (changed == false)
+        {
+            return;
+        }
+
+        ApplyUpdatesToSelection();
+
+        
+    }
     public void DeleteSelection()
     {
         if (SelectedModule == null)
@@ -2876,7 +2952,28 @@ public class BlockPlacer : MonoBehaviour
             return;
         }
         if (Show)
-        {
+        {   updatingSelectionUI = true;
+            HeightSlider.gameObject.SetActive(false);
+            WidthSlider.gameObject.SetActive(false);
+            WidthBSlider.gameObject.SetActive(false);
+            ShelfSlider.gameObject.SetActive(false);
+
+            HeightSlider.minValue = SelectedModule.minheight;
+            HeightSlider.maxValue = SelectedModule.Maxheight/2;
+
+            WidthSlider.minValue = SelectedModule.minWidth;
+            WidthSlider.maxValue = SelectedModule.maxWidth/2;
+
+            WidthBSlider.minValue = SelectedModule.minWidthB;
+            WidthBSlider.maxValue = SelectedModule.maxWidthB/2;
+
+            if (showSliders)
+            {
+                HeightSlider.gameObject.SetActive(true);
+                WidthSlider.gameObject.SetActive(true);
+                
+            }
+
             if (SelectedModule.moduleType == 8)
             {
                 //uses handles
@@ -2909,29 +3006,44 @@ public class BlockPlacer : MonoBehaviour
             HeightInput.text = SelectedModule.blockHeight + "";
             WidthInput.text = SelectedModule.blockWidth + "";
             WidthBInput.text = SelectedModule.blockWidthB + "";
+            HeightSlider.value = SelectedModule.blockHeight;
+            WidthSlider.value = SelectedModule.blockWidth;
+            WidthBSlider.value = SelectedModule.blockWidthB;
             EdgeFinishToggle.isOn = SelectedModule.FinishEdges;
 
             if (!SelectedModule.allowHorizontalDividers && !SelectedModule.allowVerticalDividers)
             {
                 ShelfInput.transform.parent.gameObject.SetActive(false);
+                
             }
             else
             {
                 ShelfInput.transform.parent.gameObject.SetActive(true);
+                if (showSliders)
+                { 
+                 ShelfSlider.gameObject.SetActive(true);
+                }
+               
             }
             if (SelectedModule.allowHorizontalDividers)
             {
                 ShelfInput.text = SelectedModule.HDividercount + "";
+                ShelfSlider.value = SelectedModule.HDividercount;
             }
 
             if (SelectedModule.allowVerticalDividers)
             {
                 ShelfInput.text = SelectedModule.VDividercount + "";
+                ShelfSlider.value = SelectedModule.VDividercount;
             }
 
             if (SelectedModule.isCorner)
             {
                 WidthBInput.gameObject.transform.parent.gameObject.SetActive(true);
+                if (showSliders)
+                {
+                    WidthBSlider.gameObject.SetActive(true);
+                }
             }
             else {
                 WidthBInput.gameObject.transform.parent.gameObject.SetActive(false);
@@ -2944,7 +3056,7 @@ public class BlockPlacer : MonoBehaviour
             HideHandles();
             SelectionPannel.SetActive(false);
         }
-        
+        updatingSelectionUI = false;
     }
 
     #endregion
